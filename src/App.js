@@ -6,11 +6,15 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import EntriesPage from './pages/EntriesPage';
+import './App.css';
 
+  
 function RequireAuth({ children }) {
   return localStorage.getItem('token') ? children : <Navigate to="/" />;
 }
-
+function App() {
+  return <Dashboard />;
+}
 export default function App() {
   return (
     <Router>
