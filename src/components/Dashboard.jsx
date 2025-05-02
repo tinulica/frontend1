@@ -8,14 +8,14 @@ import InvitationModal from './InvitationModal';
 import './Dashboard.css';
 
 export default function Dashboard() {
-  const [summary, setSummary] = useState(null);
-  const [invites, setInvites] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [summary,    setSummary]    = useState(null);
+  const [invites,    setInvites]    = useState([]);
+  const [loading,    setLoading]    = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [error, setError] = useState(null);
+  const [error,      setError]      = useState(null);
 
   useEffect(() => {
-    (async () => {
+    async function loadAll() {
       try {
         const [sumRes, invRes] = await Promise.all([
           getDashboardSummary(),
@@ -25,9 +25,11 @@ export default function Dashboard() {
         setInvites(invRes.data);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    })();
+    }
+    loadAll();
   }, []);
 
   const handleSend = async email => {
@@ -36,7 +38,7 @@ export default function Dashboard() {
     setInvites(data);
   };
 
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <p>Loading dashboard…</p>;
   if (error)   return <p className="error">{error}</p>;
 
   return (
@@ -45,14 +47,13 @@ export default function Dashboard() {
       <div className="dashboard-stats">
         <div><h2>Total Employees</h2><p>{summary.totalEmployees}</p></div>
         <div><h2>Total Entries</h2><p>{summary.totalEntries}</p></div>
-        <div><h2>Total Payroll</h2><p>{summary.totalPayroll.toFixed(2)} EUR</p></div>
-        <div><h2>Average Salary</h2><p>{summary.averageSalary.toFixed(2)} EUR</p></div>
+        <div><h2>Total Payroll</h2><p>{summary.totalPayroll.toFixed(2)} EUR</p></div>
+        <div><h2>Average Salary</h2><p>{summary.averageSalary.toFixed(2)} EUR</p></div>
       </div>
 
       <section className="invites-section">
         <h2>Invited Employees</h2>
         <button onClick={() => setInviteOpen(true)}>Invite Employee</button>
-
         <table className="invites-table">
           <thead>
             <tr>
