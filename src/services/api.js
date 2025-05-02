@@ -32,7 +32,7 @@ export const emailSalaryById = id => api.post(`/entries/email/salary/${id}`);
 export const getDashboardSummary = () => api.get('/dashboard/summary');
 
 // Invitations
-export const getInvitations       = () => api.get('/invitations');
-export const sendInvitation       = payload => api.post('/invitations', payload);
+export const getInvitations = () => api.get('/invitations');
+export const sendInvitation = payload => api.post('/invitations', payload);
 
 export default api;
