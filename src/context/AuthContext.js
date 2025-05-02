@@ -1,24 +1,25 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from 'react';
-import { login as apiLogin, register as apiRegister } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { login as apiLogin, register as apiRegister } from '../services/api';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
+  // Load user from localStorage on mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      setUser(JSON.parse(stored));
     }
   }, []);
 
   const login = async (email, password) => {
     const { data } = await apiLogin({ email, password });
-    const { user, token } = data;
+    const { token, user } = data;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
     setUser(user);
@@ -27,7 +28,7 @@ export function AuthProvider({ children }) {
 
   const register = async (fullName, email, password) => {
     const { data } = await apiRegister({ fullName, email, password });
-    const { user, token } = data;
+    const { token, user } = data;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
     setUser(user);
@@ -38,7 +39,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    navigate('/login');
+    navigate('/auth');
   };
 
   return (
