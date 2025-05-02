@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, User } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
-import logo from '../assets/logo.svg'; // your logo file
+import logo from '../assets/logo.png'; // your logo file
 import './Navbar.css';
 
 export default function Navbar() {
