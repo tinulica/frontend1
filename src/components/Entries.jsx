@@ -1,14 +1,17 @@
 // src/components/Entries.jsx
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   getEntries,
   deleteEntry,
   importEntries as apiImportEntries,
-  exportEntries as apiExportEntries
+  exportEntries as apiExportEntries,
+  emailSalaryById
 } from '../services/api';
 import './Entries.css';
 
 export default function Entries() {
+  const navigate = useNavigate();
   const [entries, setEntries] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,8 +54,7 @@ export default function Entries() {
     if (!window.confirm('Delete this entry?')) return;
     try {
       await deleteEntry(id);
-      const updated = entries.filter(e => e.id !== id);
-      setEntries(updated);
+      setEntries(entries.filter(e => e.id !== id));
     } catch {
       alert('Failed to delete entry');
     }
@@ -86,6 +88,23 @@ export default function Entries() {
       link.remove();
     } catch {
       alert('Export failed');
+    }
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/entries/${id}/edit`);
+  };
+
+  const handleHistory = (id) => {
+    navigate(`/entries/${id}/history`);
+  };
+
+  const handleEmail = async (id) => {
+    try {
+      await emailSalaryById(id);
+      alert('Email sent successfully');
+    } catch {
+      alert('Failed to send email');
     }
   };
 
@@ -148,10 +167,10 @@ export default function Entries() {
                 <td>{entry.externalId}</td>
                 <td>€{latest ? latest.amount.toFixed(2) : '—'}</td>
                 <td className="actions">
-                  <button onClick={() => {/* TODO: navigate to edit */}}>Edit</button>
+                  <button onClick={() => handleEdit(entry.id)}>Edit</button>
                   <button onClick={() => handleDelete(entry.id)}>Delete</button>
-                  <button onClick={() => {/* TODO: navigate to history */}}>History</button>
-                  <button onClick={() => {/* TODO: send email */}}>Email</button>
+                  <button onClick={() => handleHistory(entry.id)}>History</button>
+                  <button onClick={() => handleEmail(entry.id)}>Email</button>
                 </td>
               </tr>
             );
