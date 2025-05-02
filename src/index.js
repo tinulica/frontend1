@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
-import './global.css';          // now resolves to src/global.css
+import './global.css';
 
 ReactDOM.render(
   <React.StrictMode>
