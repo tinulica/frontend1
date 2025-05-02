@@ -1,0 +1,38 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+nav, header, aside, main {
+  padding: 1rem;
+}
+nav {
+  background: #333;
+  color: #fff;
+}
+nav a {
+  color: #fff;
+  margin-right: 1rem;
+  text-decoration: none;
+}
+.container {
+  display: flex;
+}
+aside {
+  width: 200px;
+  background: #f4f4f4;
+}
+main {
+  flex: 1;
+}
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+.dashboard-stats div {
+  background: #fafafa;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
