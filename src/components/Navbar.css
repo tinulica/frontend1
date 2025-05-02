@@ -1,0 +1,30 @@
+/* src/components/Navbar.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #333;
+  color: #fff;
+}
+.navbar a {
+  color: #fff;
+  margin-right: 1rem;
+  text-decoration: none;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+.nav-logout, .nav-start {
+  background: #ff5a5f;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.nav-logout:hover, .nav-start:hover {
+  background: #e14f50;
+}
