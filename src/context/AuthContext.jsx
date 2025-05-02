@@ -7,39 +7,52 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
 
-  // Load user from localStorage on mount
-  useEffect(() => {
+  // Initialize from localStorage, if present
+  const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('user');
-    if (stored) {
-      setUser(JSON.parse(stored));
-    }
-  }, []);
+    return stored ? JSON.parse(stored) : null;
+  });
 
-  const login = async (email, password) => {
-    const { data } = await apiLogin({ email, password });
-    const { token, user } = data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    setUser(user);
-    navigate('/dashboard');
-  };
-
-  const register = async (fullName, email, password) => {
-    const { data } = await apiRegister({ fullName, email, password });
-    const { token, user } = data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    setUser(user);
-    navigate('/dashboard');
-  };
-
+  // Perform logout: clear storage + state + redirect
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
     navigate('/auth');
+  };
+
+  // Login handler
+  const login = async ({ email, password }) => {
+    try {
+      const { data } = await apiLogin({ email, password });
+      const { token, user: me } = data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(me));
+      setUser(me);
+      navigate('/dashboard');
+      return null;   // no error
+    } catch (err) {
+      // Return error message back to caller
+      return err.response?.data?.message || err.message;
+    }
+  };
+
+  // Register handler (supports optional inviteToken)
+  const register = async ({ fullName, email, password, inviteToken }) => {
+    try {
+      const payload = { fullName, email, password };
+      if (inviteToken) payload.token = inviteToken;
+      const { data } = await apiRegister(payload);
+      const { token, user: me } = data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(me));
+      setUser(me);
+      navigate('/dashboard');
+      return null;
+    } catch (err) {
+      return err.response?.data?.message || err.message;
+    }
   };
 
   return (
