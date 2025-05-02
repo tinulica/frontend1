@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, User } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import logo from '../assets/logo.svg'; // your logo file
 import './Navbar.css';
 
 export default function Navbar() {
@@ -21,10 +22,6 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  const handleAvatarClick = () => {
-    setMenuOpen(o => !o);
-  };
-
   const goTo = path => {
     setMenuOpen(false);
     navigate(path);
@@ -33,17 +30,45 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        {/* ... brand, search, links as before ... */}
+        <button className="logo-btn" onClick={() => navigate('/')}>
+          <img src={logo} alt="Glovo HR" className="logo" />
+        </button>
+
+        <div className="nav-links">
+          <NavLink to="/" end className="nav-link">
+            Home
+          </NavLink>
+          <NavLink to="/dashboard" className="nav-link">
+            Dashboard
+          </NavLink>
+          <NavLink to="/entries" className="nav-link">
+            Entries
+          </NavLink>
+        </div>
+
+        <div className="search-wrapper">
+          <Search size={16} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search…"
+            className="search-input"
+            onFocus={() => navigate('/entries')}
+          />
+        </div>
       </div>
 
       <div className="navbar-right">
-        <button className="icon-btn"><Bell size={20} /></button>
-        <button className="icon-btn"><Settings size={20} /></button>
+        <button className="icon-btn">
+          <Bell size={20} />
+        </button>
+        <button className="icon-btn">
+          <Settings size={20} />
+        </button>
 
         <div className="user-menu" ref={menuRef}>
           <button
             className="avatar-btn"
-            onClick={handleAvatarClick}
+            onClick={() => setMenuOpen(o => !o)}
             aria-haspopup="true"
             aria-expanded={menuOpen}
           >
@@ -57,7 +82,7 @@ export default function Navbar() {
                   <div className="dropdown-item" onClick={() => goTo('/profile')}>
                     Profile
                   </div>
-                  <div className="dropdown-item" onClick={() => { logout(); }}>
+                  <div className="dropdown-item" onClick={() => logout()}>
                     Logout
                   </div>
                 </>
