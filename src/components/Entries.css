@@ -1,102 +1,132 @@
 /* src/components/Entries.css */
+
 .entries-container {
   padding: 2rem;
-  background: #f9fafb;
+  background: #f3f4f6;
   min-height: 100vh;
 }
+
 .entries-container h1 {
-  margin-bottom: 1rem;
-  color: #333;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+  font-size: 2rem;
 }
+
 .entries-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
+
 .entries-controls input[type="text"] {
   flex: 1;
   min-width: 200px;
-  padding: 0.5rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
 }
+
 .buttons {
   display: flex;
   gap: 0.5rem;
 }
+
 .buttons button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   border: none;
   background: #4f46e5;
   color: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.2s;
 }
+
 .buttons button:hover {
   background: #4338ca;
 }
+
 .entries-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
+
 .entries-table th,
 .entries-table td {
   padding: 0.75rem 1rem;
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
 }
+
 .entries-table th {
-  background: #f3f4f6;
+  background: #e5e7eb;
   font-weight: 600;
-  color: #555;
+  color: #374151;
 }
+
 .entries-table tr:hover td {
   background: #f9fafb;
 }
+
 .actions button {
   margin-right: 0.5rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.5rem;
   border: none;
-  background: #10b981;
-  color: #fff;
   border-radius: 4px;
+  color: #fff;
   cursor: pointer;
+  font-size: 0.9rem;
 }
-.actions button:nth-child(2) {
-  background: #ef4444;
-}
-.actions button:nth-child(3) {
+
+.actions button:nth-child(1) { /* Edit */
   background: #3b82f6;
 }
-.actions button:nth-child(4) {
+.actions button:nth-child(2) { /* Delete */
+  background: #ef4444;
+}
+.actions button:nth-child(3) { /* History */
+  background: #10b981;
+}
+.actions button:nth-child(4) { /* Email */
   background: #f59e0b;
 }
+
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
+
 .pagination button {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border: none;
   background: #6b7280;
   color: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background 0.2s;
 }
+
+.pagination button:hover:not(:disabled) {
+  background: #4b5563;
+}
+
 .pagination button:disabled {
   background: #d1d5db;
   cursor: not-allowed;
+  color: #6b7280;
 }
+
 .error {
-  color: #dc2626;
+  color: #b91c1c;
   margin-top: 1rem;
+  text-align: center;
 }
