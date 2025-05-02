@@ -10,6 +10,7 @@ import {
 } from '../services/api';
 import EntryModal from './EntryModal';
 import EditEntryModal from './EditEntryModal';
+import { Edit2, Trash2, Clock, Mail } from 'lucide-react';
 import './Entries.css';
 
 export default function Entries() {
@@ -62,7 +63,7 @@ export default function Entries() {
 
   const handleExport = async () => {
     try {
-      const resp = await apiImportEntries();
+      const resp = await apiExportEntries();
       const url = window.URL.createObjectURL(new Blob([resp.data]));
       const link = document.createElement('a');
       link.href = url; link.setAttribute('download', 'entries.xlsx');
@@ -132,7 +133,7 @@ export default function Entries() {
       <table className="entries-table">
         <thead>
           <tr>
-            <th>Name</th><th>Email</th><th>Platform</th><th>External ID</th><th>Salary</th><th>Actions</th>
+            <th>Name</th><th>Email</th><th>Platform</th><th>Ext ID</th><th>Salary</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -146,10 +147,10 @@ export default function Entries() {
                 <td>{e.externalId}</td>
                 <td>€{latest?latest.amount.toFixed(2):'—'}</td>
                 <td className="actions">
-                  <button onClick={()=>handleEditClick(e)}>Edit</button>
-                  <button onClick={()=>handleDelete(e.id)}>Delete</button>
-                  <button onClick={()=>handleHistory(e.id)}>History</button>
-                  <button onClick={()=>handleEmail(e.id)}>Email</button>
+                  <button onClick={()=>handleEditClick(e)} title="Edit"><Edit2 size={16} /></button>
+                  <button onClick={()=>handleDelete(e.id)} title="Delete"><Trash2 size={16} /></button>
+                  <button onClick={()=>handleHistory(e.id)} title="History"><Clock size={16} /></button>
+                  <button onClick={()=>handleEmail(e.id)} title="Email"><Mail size={16} /></button>
                 </td>
               </tr>
             );
