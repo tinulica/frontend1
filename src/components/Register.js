@@ -24,7 +24,7 @@ export default function Register() {
   return (
     <div className="container">
       <h2>Register</h2>
-      {error && <div style={{color:'red'}}>{error}</div>}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
       <form onSubmit={handleSubmit}>
         <input
           placeholder="Full Name"
