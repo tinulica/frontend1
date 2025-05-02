@@ -1,6 +1,9 @@
-import { useState } from 'react';
+// src/components/Auth.js
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register, login } from '../services/api';
+import { register as apiRegister, login as apiLogin } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
+import './Auth.css';
 
 export default function Auth({ mode }) {
   const [fullName, setFullName] = useState('');
@@ -8,41 +11,61 @@ export default function Auth({ mode }) {
   const [password, setPassword] = useState('');
   const [error, setError]       = useState(null);
   const navigate = useNavigate();
+  const { login: contextLogin, register: contextRegister } = useContext(AuthContext);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setError(null);  // reset previous errors
+    setError(null);
 
     try {
-      const fn = mode === 'register' ? register : login;
-      const { data } = await fn({ fullName, email, password });
-      // on successful register/login:
-      localStorage.setItem('token',    data.token);
-      localStorage.setItem('user',     JSON.stringify(data.user));
-      navigate('/dashboard');
-    } catch (err) {
-      // If the server provided a JSON error message, read it:
-      const status = err.response?.status;
-      const message = err.response?.data?.message || err.message;
-
-      if (status === 409) {
-        setError('That email is already registered. Please log in or use another address.');
-      } else if (status === 400) {
-        setError('Invalid credentials—please check your email and password.');
+      if (mode === 'register') {
+        const { data } = await apiRegister({ fullName, email, password });
+        const { token, user } = data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        contextRegister(fullName, email, password); // updates context and redirects
       } else {
-        setError('Something went wrong. Please try again later.');
+        const { data } = await apiLogin({ email, password });
+        const { token, user } = data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        contextLogin(email, password); // updates context and redirects
+      }
+    } catch (err) {
+      const status = err.response?.status;
+      const serverMsg = err.response?.data?.message;
+
+      if (mode === 'register') {
+        if (status === 409 || serverMsg === 'User already exists') {
+          setError('That email is already registered. Please log in instead.');
+        } else if (status === 400) {
+          setError('Invalid input. Please check your details and try again.');
+        } else {
+          setError(serverMsg || 'Registration failed. Please try again later.');
+        }
+      } else {
+        if (status === 400 || serverMsg === 'Invalid credentials') {
+          setError('Email or password is incorrect.');
+        } else if (status === 404) {
+          setError('User not found. Please register first.');
+        } else {
+          setError(serverMsg || 'Login failed. Please try again later.');
+        }
       }
     }
   };
 
   return (
-    <main>
+    <main className="auth-container">
       <h2>{mode === 'register' ? 'Register' : 'Login'}</h2>
       <form onSubmit={onSubmit}>
         {mode === 'register' && (
-          <div>
-            <label>Full Name</label>
+          <div className="form-group">
+            <label htmlFor="fullName">Full Name</label>
             <input
+              id="fullName"
+              name="fullName"
+              type="text"
               placeholder="Full Name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -50,28 +73,38 @@ export default function Auth({ mode }) {
             />
           </div>
         )}
-        <div>
-          <label>Email</label>
+
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
           <input
-            placeholder="Email"
+            id="email"
+            name="email"
             type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Password</label>
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
           <input
-            placeholder="Password"
+            id="password"
+            name="password"
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">{mode === 'register' ? 'Register' : 'Login'}</button>
+
+        {error && <p className="error-message" role="alert">{error}</p>}
+
+        <button type="submit" className="submit-button">
+          {mode === 'register' ? 'Register' : 'Login'}
+        </button>
       </form>
     </main>
   );
