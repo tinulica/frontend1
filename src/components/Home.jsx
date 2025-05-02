@@ -1,24 +1,31 @@
-// Home.jsx
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import Auth from './Auth';
 import './Home.css';
 
 export default function Home() {
+  const [mode, setMode] = useState('login');
+
   return (
-    <div className="home-container">
-      <div className="home-card">
-        <h1 className="home-title">Welcome to Glovo HR</h1>
-        <p className="home-subtitle">
-          Securely manage your team’s payroll, workflows, and more—all in one place.
-        </p>
-        <div className="home-buttons">
-          <Link to="/auth?mode=login" className="btn btn-primary">
+    <main className="home-container">
+      <div className="home-content">
+        <div className="auth-tabs">
+          <button
+            className={mode === 'login' ? 'tab active' : 'tab'}
+            onClick={() => setMode('login')}
+          >
             Login
-          </Link>
-          <Link to="/auth?mode=register" className="btn btn-secondary">
+          </button>
+          <button
+            className={mode === 'register' ? 'tab active' : 'tab'}
+            onClick={() => setMode('register')}
+          >
             Register
-          </Link>
+          </button>
+        </div>
+        <div className="auth-card">
+          <Auth mode={mode} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
