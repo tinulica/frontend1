@@ -34,5 +34,6 @@ export const getDashboardSummary = () => api.get('/dashboard/summary');
 // Invitations
 export const getInvitations = () => api.get('/invitations');
 export const sendInvitation = payload => api.post('/invitations', payload);
+export const deleteInvitation = id => api.delete(`/invitations/${id}`);
 
 export default api;
