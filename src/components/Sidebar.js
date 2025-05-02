@@ -1,14 +1,15 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Sidebar() {
   return (
-    <aside className="sidebar">
-      <ul>
-        <li><Link to="/">Dashboard</Link></li>
-        <li><Link to="/">Profile</Link></li>
-        {/* add more links here */}
-      </ul>
+    <aside>
+      <nav>
+        <ul>
+          <li><Link to="/dashboard">Overview</Link></li>
+          <li><Link to="/entries">Entries</Link></li>
+          <li><Link to="/import-sessions">Imports</Link></li>
+        </ul>
+      </nav>
     </aside>
   );
 }
