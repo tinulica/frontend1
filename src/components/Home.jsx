@@ -1,17 +1,24 @@
-// src/components/Home.jsx
-import React from 'react';
+// Home.jsx
 import { Link } from 'react-router-dom';
 import './Home.css';
 
 export default function Home() {
   return (
-    <section className="hero">
-      <h1>Welcome to Glovo HR</h1>
-      <p>Streamline your payroll and employee management with our intuitive platform. Sign in to access your dashboard or register to get started.</p>
-      <div className="buttons">
-        <Link to="/auth?mode=login" className="btn">Login</Link>
-        <Link to="/auth?mode=register" className="btn">Register</Link>
+    <div className="home-container">
+      <div className="home-card">
+        <h1 className="home-title">Welcome to Glovo HR</h1>
+        <p className="home-subtitle">
+          Securely manage your team’s payroll, workflows, and more—all in one place.
+        </p>
+        <div className="home-buttons">
+          <Link to="/auth?mode=login" className="btn btn-primary">
+            Login
+          </Link>
+          <Link to="/auth?mode=register" className="btn btn-secondary">
+            Register
+          </Link>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
