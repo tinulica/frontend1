@@ -8,6 +8,7 @@ import {
   exportEntries as apiExportEntries,
   emailSalaryById
 } from '../services/api';
+import EntryModal from './EntryModal';
 import './Entries.css';
 
 export default function Entries() {
@@ -18,6 +19,7 @@ export default function Entries() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInput = useRef();
   const pageSize = 10;
 
@@ -31,7 +33,7 @@ export default function Entries() {
       entries.filter(e =>
         e.fullName.toLowerCase().includes(term) ||
         e.email.toLowerCase().includes(term) ||
-        e.externalId.toLowerCase().includes(term)
+        (e.externalId || '').toLowerCase().includes(term)
       )
     );
     setCurrentPage(1);
@@ -129,6 +131,7 @@ export default function Entries() {
         />
 
         <div className="buttons">
+          <button onClick={() => setIsModalOpen(true)}>Add Entry</button>
           <button onClick={handleImportClick}>Import</button>
           <button onClick={handleExport}>Export</button>
         </div>
@@ -141,6 +144,12 @@ export default function Entries() {
           accept=".xlsx"
         />
       </div>
+
+      <EntryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdded={fetchEntries}
+      />
 
       <table className="entries-table">
         <thead>
