@@ -1,7 +1,7 @@
 // src/components/AuthScreen.jsx
-import React, { useState } from 'react';
-import { login as apiLogin, register as apiRegister } from '../services/api';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import './AuthScreen.css';
 
 export default function AuthScreen() {
@@ -11,26 +11,32 @@ export default function AuthScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user, login: contextLogin, register: contextRegister, logout } = useContext(AuthContext);
+
+  // If already authenticated, redirect to dashboard
+  React.useEffect(() => {
+    if (user) navigate('/dashboard');
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     try {
-      const fn = mode === 'login' ? apiLogin : apiRegister;
-      const { data } = await fn({ fullName, email, password });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard');
-    } catch (err) {
-      const status = err.response?.status;
-      if (status === 409) {
-        setError('That email is already registered.');
-      } else if (status === 400) {
-        setError('Invalid credentials.');
+      if (mode === 'login') {
+        await contextLogin(email, password);
       } else {
-        setError('An unexpected error occurred.');
+        await contextRegister(fullName, email, password);
       }
+      // contextLogin/Register handles navigation
+    } catch (err) {
+      // context throws errors with message
+      setError(err.message);
     }
+  };
+
+  const handleTabClick = (newMode) => {
+    setMode(newMode);
+    setError(null);
   };
 
   return (
@@ -43,7 +49,7 @@ export default function AuthScreen() {
             id="tab-login"
             aria-selected={mode === 'login'}
             className={mode === 'login' ? 'active' : ''}
-            onClick={() => setMode('login')}
+            onClick={() => handleTabClick('login')}
           >
             Login
           </button>
@@ -52,12 +58,15 @@ export default function AuthScreen() {
             id="tab-register"
             aria-selected={mode === 'register'}
             className={mode === 'register' ? 'active' : ''}
-            onClick={() => setMode('register')}
+            onClick={() => handleTabClick('register')}
           >
             Register
           </button>
         </div>
-        <form onSubmit={handleSubmit} aria-labelledby={mode === 'login' ? 'tab-login' : 'tab-register'}>
+        <form
+          onSubmit={handleSubmit}
+          aria-labelledby={mode === 'login' ? 'tab-login' : 'tab-register'}
+        >
           {mode === 'register' && (
             <div className="form-group">
               <label htmlFor="fullName">Full Name</label>
@@ -65,7 +74,6 @@ export default function AuthScreen() {
                 type="text"
                 id="fullName"
                 name="fullName"
-                placeholder="Full Name"
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
                 required
@@ -76,13 +84,12 @@ export default function AuthScreen() {
             <label htmlFor="email">Email</label>
             <input
               type="email"
-              id="email"
-              name="email"
-              placeholder="Email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
+                id="email"
+                name="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
@@ -90,7 +97,6 @@ export default function AuthScreen() {
               type="password"
               id="password"
               name="password"
-              placeholder="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
