@@ -52,14 +52,19 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
           </div>
           <div className="form-group">
             <label htmlFor="platform">Platform</label>
-            <input
+            <select
               id="platform"
               name="platform"
-              type="text"
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
               required
-            />
+            >
+              <option value="">Select platform</option>
+              <option value="GLOVO">GLOVO</option>
+              <option value="TAZZ">TAZZ</option>
+              <option value="BRINGO">BRINGO</option>
+              <option value="ANGAJAT">ANGAJAT</option>
+            </select>
           </div>
           {error && <p className="error">{error}</p>}
           <div className="modal-actions">
