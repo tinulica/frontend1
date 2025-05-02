@@ -1,9 +1,10 @@
+// src/components/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import {
   getDashboardSummary,
   getInvitations,
   sendInvitation,
-+ deleteInvitation
+  deleteInvitation
 } from '../services/api';
 import InvitationModal from './InvitationModal';
 import './Dashboard.css';
@@ -54,8 +55,24 @@ export default function Dashboard() {
   return (
     <main className="dashboard-container">
       <h1>Dashboard</h1>
+
       <div className="dashboard-stats">
-        {/* … your cards … */}
+        <div className="card">
+          <h2>Total Employees</h2>
+          <p>{summary.totalEmployees}</p>
+        </div>
+        <div className="card">
+          <h2>Total Entries</h2>
+          <p>{summary.totalEntries}</p>
+        </div>
+        <div className="card">
+          <h2>Total Payroll</h2>
+          <p>{summary.totalPayroll.toFixed(2)} EUR</p>
+        </div>
+        <div className="card">
+          <h2>Average Salary</h2>
+          <p>{summary.averageSalary.toFixed(2)} EUR</p>
+        </div>
       </div>
 
       <section className="invites-section">
