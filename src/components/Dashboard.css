@@ -1,126 +1,4 @@
 /* src/components/Dashboard.css */
-
-.dashboard-container {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  font-family: sans-serif;
-}
-
-.dashboard-title {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: #fff;
-  padding: 1.25rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  text-align: center;
-}
-
-.stat-card h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-  color: #555;
-}
-
-.stat-card p {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #222;
-}
-
-.invites-section {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.invites-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.invites-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-}
-
-.invite-button {
-  background: #4f46e5;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.invite-button:hover {
-  background: #4338ca;
-}
-
-.invites-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.invites-table th,
-.invites-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.invites-table th {
-  background: #fafafa;
-  font-weight: 500;
-  color: #333;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.status-badge.registered {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status-badge.pending {
-  background: #fef9c3;
-  color: #92400e;
-}
-
-/* Loading & error states */
-.loading,
-.error {
-  text-align: center;
-  font-size: 1rem;
-  margin: 2rem 0;
-}
-.error {
-  color: #dc2626;
-}
-
 .dashboard-container {
   padding: 2rem;
   max-width: 1200px;
@@ -128,18 +6,43 @@
   font-family: sans-serif;
 }
 
+.dashboard-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
 .dashboard-stats {
   display: grid;
-  gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
   margin-bottom: 2rem;
+}
+
+.card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.card-title {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
 }
 
 .invites-section {
   background: #fff;
   padding: 1.5rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .invites-header {
@@ -153,10 +56,10 @@
   background: #4f46e5;
   color: #fff;
   border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
 }
 
 .btn-invite:hover {
@@ -170,41 +73,50 @@
 
 .invites-table th,
 .invites-table td {
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
 }
 
-.invites-table tbody tr:hover {
+.invites-table thead {
   background: #f9fafb;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+.invites-table tbody tr:nth-child(even) {
+  background: #f3f4f6;
 }
 
-.badge.pending {
-  background: #f3f4f6;
-  color: #374151;
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
 }
 
 .badge.accepted {
-  background: #d1fae5;
-  color: #065f46;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge.pending {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .icon-btn {
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
   color: #6b7280;
-  padding: 0.25rem;
 }
 
 .icon-btn:hover {
   color: #111827;
+}
+
+.loading,
+.error {
+  text-align: center;
+  margin-top: 2rem;
+  color: #dc2626;
 }
