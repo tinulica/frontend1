@@ -1,9 +1,8 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
-import Auth from './components/Auth';
+import AuthScreen from './components/AuthScreen';
 import Dashboard from './components/Dashboard';
-import Sidebar from './components/Sidebar';
 import Entries from './components/Entries';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -12,16 +11,12 @@ function App() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/login" element={<Auth mode="login" />} />
-        <Route path="/register" element={<Auth mode="register" />} />
+        <Route path="/auth" element={<AuthScreen />} />
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <div className="container">
-                <Sidebar />
-                <Dashboard />
-              </div>
+              <Dashboard />
             </ProtectedRoute>
           }
         />
@@ -29,14 +24,12 @@ function App() {
           path="/entries"
           element={
             <ProtectedRoute>
-              <div className="container">
-                <Sidebar />
-                <Entries />
-              </div>
+              <Entries />
             </ProtectedRoute>
           }
         />
         <Route path="/" element={<Home />} />
+        <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
     </>
   );
