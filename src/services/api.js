@@ -1,6 +1,6 @@
 // src/services/api.js
 import axios from 'axios';
-mport {
+import {
   getEntries,
   getEntry,
   addEntry,
