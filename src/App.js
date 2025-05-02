@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
-import AuthScreen from './components/AuthScreen';
+import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import Entries from './components/Entries';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -16,19 +16,31 @@ function App() {
     <>
       <Navbar />
       <Routes>
-        {/* If logged in, redirect “/” to dashboard, else show Home */}
+        {/* Root: redirect logged-in users, else show Home */}
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Home />}
         />
 
-        {/* If logged in, redirect “/auth” to dashboard, else show AuthScreen */}
+        {/* Auth routes */}
         <Route
-          path="/auth"
-          element={user ? <Navigate to="/dashboard" replace /> : <AuthScreen />}
+          path="/login"
+          element={
+            user
+              ? <Navigate to="/dashboard" replace />
+              : <Auth mode="login" />
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            user
+              ? <Navigate to="/dashboard" replace />
+              : <Auth mode="register" />
+          }
         />
 
-        {/* Protected data routes */}
+        {/* Protected routes */}
         <Route
           path="/dashboard"
           element={
@@ -46,13 +58,13 @@ function App() {
           }
         />
 
-        {/* Fallback: any unknown path → either dashboard (if logged in) or auth */}
+        {/* Fallback: send logged-in users to dashboard, guests to login */}
         <Route
           path="*"
           element={
             user
               ? <Navigate to="/dashboard" replace />
-              : <Navigate to="/auth" replace />
+              : <Navigate to="/login" replace />
           }
         />
       </Routes>
