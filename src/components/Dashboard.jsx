@@ -25,9 +25,8 @@ export default function Dashboard() {
         setInvites(invRes.data);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     })();
   }, []);
 
@@ -37,8 +36,8 @@ export default function Dashboard() {
     setInvites(data);
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p className="error">{error}</p>;
+  if (loading) return <p>Loading…</p>;
+  if (error)   return <p className="error">{error}</p>;
 
   return (
     <main className="dashboard-container">
@@ -53,9 +52,14 @@ export default function Dashboard() {
       <section className="invites-section">
         <h2>Invited Employees</h2>
         <button onClick={() => setInviteOpen(true)}>Invite Employee</button>
+
         <table className="invites-table">
           <thead>
-            <tr><th>Email</th><th>Invited At</th><th>Status</th></tr>
+            <tr>
+              <th>Email</th>
+              <th>Invited At</th>
+              <th>Status</th>
+            </tr>
           </thead>
           <tbody>
             {invites.map(inv => (
