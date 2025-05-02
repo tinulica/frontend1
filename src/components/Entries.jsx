@@ -5,8 +5,7 @@ import {
   deleteEntry,
   importEntries as apiImportEntries,
   exportEntries as apiExportEntries,
-  emailSalaryById,
-  addEntry
+  emailSalaryById
 } from '../services/api';
 import EntryModal from './EntryModal';
 import EditEntryModal from './EditEntryModal';
@@ -26,7 +25,10 @@ export default function Entries() {
   const fileInput = useRef();
   const pageSize = 10;
 
-  useEffect(() => fetchEntries(), []);
+  // Fetch entries on mount
+  useEffect(() => { fetchEntries(); }, []);
+
+  // Filter when searchTerm or entries change
   useEffect(() => {
     const term = searchTerm.toLowerCase();
     setFiltered(
@@ -53,12 +55,17 @@ export default function Entries() {
 
   const handleImport = () => fileInput.current.click();
   const onFileChange = async e => {
-    const file = e.target.files[0]; if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
     const form = new FormData();
     form.append('file', file);
     form.append('platform', 'GLOVO');
-    try { await apiImportEntries(form); fetchEntries(); }
-    catch { alert('Import failed'); }
+    try {
+      await apiImportEntries(form);
+      fetchEntries();
+    } catch {
+      alert('Import failed');
+    }
   };
 
   const handleExport = async () => {
@@ -66,8 +73,11 @@ export default function Entries() {
       const resp = await apiExportEntries();
       const url = window.URL.createObjectURL(new Blob([resp.data]));
       const link = document.createElement('a');
-      link.href = url; link.setAttribute('download', 'entries.xlsx');
-      document.body.appendChild(link); link.click(); link.remove();
+      link.href = url;
+      link.setAttribute('download', 'entries.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch {
       alert('Export failed');
     }
@@ -75,33 +85,44 @@ export default function Entries() {
 
   const handleDelete = async id => {
     if (!window.confirm('Delete entry?')) return;
-    try { await deleteEntry(id); fetchEntries(); }
-    catch { alert('Delete failed'); }
+    try {
+      await deleteEntry(id);
+      fetchEntries();
+    } catch {
+      alert('Delete failed');
+    }
   };
 
   const handleAddClick = () => setShowAdd(true);
   const handleEditClick = entry => setEditEntry(entry);
-  const handleHistory = id => {/* navigate to history */};
+  const handleHistory = id => {
+    // navigate to history if desired
+  };
   const handleEmail = async id => {
-    try { await emailSalaryById(id); alert('Email sent'); }
-    catch { alert('Email failed'); }
+    try {
+      await emailSalaryById(id);
+      alert('Email sent');
+    } catch {
+      alert('Email failed');
+    }
   };
 
   if (loading) return <p>Loading entries…</p>;
   if (error) return <p className="error">{error}</p>;
 
-  const totalPages = Math.ceil(filtered.length/pageSize);
-  const visible = filtered.slice((page-1)*pageSize, page*pageSize);
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <main className="entries-container">
       <h1>Entries</h1>
+
       <div className="entries-controls">
         <input
           type="text"
           placeholder="Search…"
           value={searchTerm}
-          onChange={e=>setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
         />
         <div className="buttons">
           <button onClick={handleAddClick}>Add Entry</button>
@@ -111,7 +132,7 @@ export default function Entries() {
         <input
           type="file"
           ref={fileInput}
-          style={{display:'none'}}
+          style={{ display: 'none' }}
           accept=".xlsx"
           onChange={onFileChange}
         />
@@ -119,38 +140,53 @@ export default function Entries() {
 
       <EntryModal
         isOpen={showAdd}
-        onClose={()=>setShowAdd(false)}
+        onClose={() => setShowAdd(false)}
         onAdded={() => { setShowAdd(false); fetchEntries(); }}
       />
 
       <EditEntryModal
         isOpen={Boolean(editEntry)}
         entry={editEntry}
-        onClose={()=>setEditEntry(null)}
+        onClose={() => setEditEntry(null)}
         onUpdated={() => { setEditEntry(null); fetchEntries(); }}
       />
 
       <table className="entries-table">
         <thead>
           <tr>
-            <th>Name</th><th>Email</th><th>Platform</th><th>Ext ID</th><th>Salary</th><th>Actions</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Platform</th>
+            <th>Ext ID</th>
+            <th>Salary</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {visible.map(e=>{
-            const latest = e.salaryHistories.slice().sort((a,b)=>new Date(b.changedAt)-new Date(a.changedAt))[0];
+          {visible.map(e => {
+            const latest = e.salaryHistories
+              .slice()
+              .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
             return (
               <tr key={e.id}>
                 <td>{e.fullName}</td>
                 <td>{e.email}</td>
                 <td>{e.platform}</td>
                 <td>{e.externalId}</td>
-                <td>€{latest?latest.amount.toFixed(2):'—'}</td>
+                <td>€{latest ? latest.amount.toFixed(2) : '—'}</td>
                 <td className="actions">
-                  <button onClick={()=>handleEditClick(e)} title="Edit"><Edit2 size={16} /></button>
-                  <button onClick={()=>handleDelete(e.id)} title="Delete"><Trash2 size={16} /></button>
-                  <button onClick={()=>handleHistory(e.id)} title="History"><Clock size={16} /></button>
-                  <button onClick={()=>handleEmail(e.id)} title="Email"><Mail size={16} /></button>
+                  <button onClick={() => handleEditClick(e)} title="Edit">
+                    <Edit2 size={16} />
+                  </button>
+                  <button onClick={() => handleDelete(e.id)} title="Delete">
+                    <Trash2 size={16} />
+                  </button>
+                  <button onClick={() => handleHistory(e.id)} title="History">
+                    <Clock size={16} />
+                  </button>
+                  <button onClick={() => handleEmail(e.id)} title="Email">
+                    <Mail size={16} />
+                  </button>
                 </td>
               </tr>
             );
@@ -159,9 +195,21 @@ export default function Entries() {
       </table>
 
       <div className="pagination">
-        <button onClick={()=>setPage(p=>Math.max(p-1,1))} disabled={page===1}>Prev</button>
-        <span>Page {page} of {totalPages}</span>
-        <button onClick={()=>setPage(p=>Math.min(p+1,totalPages))} disabled={page===totalPages}>Next</button>
+        <button
+          onClick={() => setPage(p => Math.max(p - 1, 1))}
+          disabled={page === 1}
+        >
+          Prev
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <button
+          onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
       </div>
     </main>
   );
