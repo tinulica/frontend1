@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './InvitationModal.css';
 
 export default function InvitationModal({ isOpen, onClose, onSent }) {
   const [email, setEmail] = useState('');
