@@ -4,7 +4,7 @@
   align-items: center;
   padding: 0 1.5rem;
   height: 64px;
-  background: #ffffff;
+  background: #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   font-family: 'Inter', sans-serif;
 }
@@ -22,9 +22,10 @@
   cursor: pointer;
 }
 
-.logo {
-  height: 32px;
-  width: auto;
+.brand {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #4f46e5;
 }
 
 .nav-links {
@@ -115,7 +116,7 @@
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #e5e7eb;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   border-radius: 6px;
