@@ -18,7 +18,10 @@ export default function Navbar() {
             <button onClick={logout} className="nav-logout">Logout</button>
           </>
         ) : (
-          <Link to="/auth" className="nav-start">Get Started</Link>
+          <>
+            <Link to="/login" className="nav-link">Login</Link>
+            <Link to="/register" className="nav-link">Register</Link>
+          </>
         )}
       </div>
     </nav>
