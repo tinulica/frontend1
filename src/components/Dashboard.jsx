@@ -11,11 +11,11 @@ import './Dashboard.css';
 import { Trash2 } from 'lucide-react';
 
 export default function Dashboard() {
-  const [summary, setSummary]   = useState(null);
-  const [invites, setInvites]   = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [summary, setSummary] = useState({});
+  const [invites, setInvites] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [error, setError]       = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -28,14 +28,19 @@ export default function Dashboard() {
         setInvites(invRes.data);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, []);
 
   const refreshInvites = async () => {
-    const { data } = await getInvitations();
-    setInvites(data);
+    try {
+      const { data } = await getInvitations();
+      setInvites(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSend = async (email) => {
@@ -49,36 +54,39 @@ export default function Dashboard() {
     await refreshInvites();
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error)   return <p className="error">{error}</p>;
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error)   return <div className="error">{error}</div>;
 
   return (
     <main className="dashboard-container">
-      <h1>Dashboard</h1>
+      <h1 className="dashboard-title">Dashboard</h1>
 
       <div className="dashboard-stats">
         <div className="card">
-          <h2>Total Employees</h2>
-          <p>{summary.totalEmployees}</p>
+          <div className="card-title">Total Employees</div>
+          <div className="card-value">{summary.totalEmployees}</div>
         </div>
         <div className="card">
-          <h2>Total Entries</h2>
-          <p>{summary.totalEntries}</p>
+          <div className="card-title">Total Entries</div>
+          <div className="card-value">{summary.totalEntries}</div>
         </div>
         <div className="card">
-          <h2>Total Payroll</h2>
-          <p>{summary.totalPayroll.toFixed(2)} EUR</p>
+          <div className="card-title">Total Payroll</div>
+          <div className="card-value">{summary.totalPayroll.toFixed(2)} EUR</div>
         </div>
         <div className="card">
-          <h2>Average Salary</h2>
-          <p>{summary.averageSalary.toFixed(2)} EUR</p>
+          <div className="card-title">Average Salary</div>
+          <div className="card-value">{summary.averageSalary.toFixed(2)} EUR</div>
         </div>
       </div>
 
       <section className="invites-section">
         <div className="invites-header">
           <h2>Invited Employees</h2>
-          <button onClick={() => setInviteOpen(true)} className="btn-invite">
+          <button
+            onClick={() => setInviteOpen(true)}
+            className="btn-invite"
+          >
             Invite Employee
           </button>
         </div>
@@ -103,13 +111,15 @@ export default function Dashboard() {
                     : <span className="badge pending">Pending</span>}
                 </td>
                 <td>
-                  <button
-                    onClick={() => handleDelete(inv.id)}
-                    title="Delete invite"
-                    className="icon-btn"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  {!inv.acceptedAt && (
+                    <button
+                      onClick={() => handleDelete(inv.id)}
+                      title="Delete invite"
+                      className="icon-btn"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
