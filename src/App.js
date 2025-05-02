@@ -1,26 +1,44 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Register      from './components/Register';
-import Login         from './components/Login';
+import { Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
+import Auth from './components/Auth';
+import Dashboard from './components/Dashboard';
+import Sidebar from './components/Sidebar';
+import Entries from './components/Entries';
 import ProtectedRoute from './components/ProtectedRoute';
-import Dashboard     from './components/Dashboard';
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
+      <Navbar />
       <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/login"    element={<Login />} />
+        <Route path="/login" element={<Auth mode="login" />} />
+        <Route path="/register" element={<Auth mode="register" />} />
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <div className="container">
+                <Sidebar />
+                <Dashboard />
+              </div>
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/entries"
+          element={
+            <ProtectedRoute>
+              <div className="container">
+                <Sidebar />
+                <Entries />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<Home />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 
