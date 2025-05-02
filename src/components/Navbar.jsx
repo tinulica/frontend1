@@ -2,7 +2,6 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, User } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
-import logo from '../assets/logo.png'; // your logo file
 import './Navbar.css';
 
 export default function Navbar() {
@@ -11,7 +10,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef();
 
-  // Close dropdown on outside click
   useEffect(() => {
     function onClick(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -30,8 +28,9 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
+        {/* Brand: replace this <span> with an <img> once you add src/assets/logo.svg */}
         <button className="logo-btn" onClick={() => navigate('/')}>
-          <img src={logo} alt="Glovo HR" className="logo" />
+          <span className="brand">Glovo HR</span>
         </button>
 
         <div className="nav-links">
