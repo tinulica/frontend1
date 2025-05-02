@@ -14,11 +14,7 @@ export default function Navbar() {
           <button onClick={logout}>Logout</button>
         </>
       ) : (
-        <>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
-        </>
+        <Link to="/auth" className="get-started-button">Get Started</Link>
       )}
     </nav>
-  );
 }
