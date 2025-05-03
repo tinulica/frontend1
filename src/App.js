@@ -2,6 +2,7 @@
 import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
@@ -14,15 +15,17 @@ function App() {
 
   return (
     <>
-       {user && <Navbar />}
+      {/* Show navbar only when logged in */}
+      {user && <Navbar />}
+
       <Routes>
-        {/* Root: redirect logged-in users, else show Home */}
+        {/* Landing */}
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Home />}
         />
 
-        {/* Auth routes */}
+        {/* Auth */}
         <Route
           path="/login"
           element={
@@ -40,7 +43,7 @@ function App() {
           }
         />
 
-        {/* Protected routes */}
+        {/* Protected */}
         <Route
           path="/dashboard"
           element={
@@ -58,7 +61,7 @@ function App() {
           }
         />
 
-        {/* Fallback: send logged-in users to dashboard, guests to login */}
+        {/* Fallback */}
         <Route
           path="*"
           element={
