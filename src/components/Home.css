@@ -1,21 +1,20 @@
-/* src/components/Home.css */
-
 .home-container {
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 64px); /* adjust for your navbar height */
-  background: #f5f7fa;
+  background: #f0f2f5;
+  padding: 1rem;
 }
 
 .auth-card {
   display: flex;
-  width: 800px;
-  max-width: 95%;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-  border-radius: 12px;
-  overflow: hidden;
+  width: 100%;
+  max-width: 800px;
   background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .auth-left {
@@ -34,91 +33,92 @@
 .auth-tabs {
   display: flex;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
 }
 
 .auth-tab {
   flex: 1;
   text-align: center;
-  padding: 0.75rem 0;
-  font-weight: 500;
-  color: #6b7280;
+  padding: 0.75rem;
   cursor: pointer;
-  position: relative;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
 }
-
 .auth-tab.active {
-  color: #111827;
+  color: #667eea;
+  border-color: #667eea;
 }
 
-.auth-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 20%;
-  right: 20%;
-  height: 3px;
-  background: #4f46e5;
-  border-radius: 2px;
+.auth-error {
+  background: #ffe6e6;
+  color: #cc0000;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
 .auth-form {
   flex: 1;
 }
-
 .form-group {
   margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
 }
-
 .form-group label {
-  display: block;
   margin-bottom: 0.25rem;
-  color: #374151;
+  color: #555;
   font-size: 0.9rem;
 }
-
 .form-group input {
-  width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
   font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
 }
-
-.error-message {
-  color: #dc2626;
-  margin: 0.5rem 0;
-  text-align: center;
+.form-group input:focus {
+  border-color: #667eea;
 }
 
 .submit-btn {
   width: 100%;
   padding: 0.75rem;
-  background: #4f46e5;
+  background: #667eea;
   color: #fff;
   font-size: 1rem;
-  font-weight: 600;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
+  margin-top: 0.5rem;
   transition: background 0.2s;
 }
-
 .submit-btn:hover {
-  background: #4338ca;
+  background: #5a67d8;
 }
 
 .auth-footer {
   text-align: center;
+  margin-top: 1.5rem;
   font-size: 0.9rem;
-  color: #6b7280;
-  margin-top: 1rem;
+  color: #666;
 }
-
-.link-btn {
+.switch-btn {
   background: none;
   border: none;
-  color: #4f46e5;
+  color: #667eea;
   cursor: pointer;
   font-weight: 500;
+  padding: 0;
+}
+.switch-btn:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .auth-card { flex-direction: column; }
+  .auth-left { height: 200px; }
 }
