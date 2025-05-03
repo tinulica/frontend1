@@ -41,11 +41,7 @@ export default function Home() {
             </div>
             <div className="form-group">
               <label>Password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                required
-              />
+              <input type="password" placeholder="••••••••" required />
             </div>
             <button type="submit" className="submit-btn">
               {mode === 'login' ? 'Sign In' : 'Create Account'}
