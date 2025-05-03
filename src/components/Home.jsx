@@ -1,29 +1,28 @@
-// src/components/Home.jsx
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import './Home.css';
 import illustration from '../assets/auth-illustration.png';
 
 export default function Home() {
-  const [mode, setMode] = useState('login');
-  const [fullName, setFullName] = useState('');
-  const [email,    setEmail]    = useState('');
-  const [password, setPassword] = useState('');
-  const [error,    setError]    = useState(null);
-
-  const { login, register } = useContext(AuthContext);
+  const [mode, setMode]           = useState('login');
+  const [fullName, setFullName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [error, setError]         = useState('');
+  const { login, register }       = useContext(AuthContext);
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setError(null);
+    setError('');
     try {
-      if (mode === 'register') {
-        await register(fullName, email, password);
-      } else {
+      if (mode === 'login') {
         await login(email, password);
+      } else {
+        await register(fullName, email, password);
       }
     } catch (err) {
-      setError(err);
+      // err.message from context, or axios error response
+      setError(err.response?.data?.message || err.message || 'Something went wrong');
     }
   };
 
@@ -36,19 +35,21 @@ export default function Home() {
         />
         <div className="auth-right">
           <div className="auth-tabs">
-            <div
+            <button
               className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
-              onClick={() => { setMode('login'); setError(null); }}
+              onClick={() => { setMode('login'); setError(''); }}
             >
               Login
-            </div>
-            <div
+            </button>
+            <button
               className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
-              onClick={() => { setMode('register'); setError(null); }}
+              onClick={() => { setMode('register'); setError(''); }}
             >
               Register
-            </div>
+            </button>
           </div>
+
+          {error && <div className="auth-error">{error}</div>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             {mode === 'register' && (
@@ -89,8 +90,6 @@ export default function Home() {
               />
             </div>
 
-            {error && <p className="error-message">{error}</p>}
-
             <button type="submit" className="submit-btn">
               {mode === 'login' ? 'Sign In' : 'Create Account'}
             </button>
@@ -99,13 +98,13 @@ export default function Home() {
           <div className="auth-footer">
             {mode === 'login' ? (
               <>Don’t have an account?{' '}
-                <button className="link-btn" onClick={() => setMode('register')}>
+                <button className="switch-btn" onClick={() => setMode('register')}>
                   Register
                 </button>
               </>
             ) : (
               <>Already registered?{' '}
-                <button className="link-btn" onClick={() => setMode('login')}>
+                <button className="switch-btn" onClick={() => setMode('login')}>
                   Login
                 </button>
               </>
