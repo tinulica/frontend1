@@ -1,108 +1,110 @@
 // src/components/AuthScreen.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './AuthScreen.css';
+import illustration from '../assets/auth-illustration.png';
 
 export default function AuthScreen() {
-  const [mode, setMode] = useState('login'); // 'login' or 'register'
+  const [mode, setMode]       = useState('login'); // or 'register'
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const { user, login: contextLogin, register: contextRegister, logout } = useContext(AuthContext);
+  const [error, setError]     = useState(null);
 
-  // If already authenticated, redirect to dashboard
-  React.useEffect(() => {
+  const navigate = useNavigate();
+  const { user, login, register } = useContext(AuthContext);
+
+  // Redirect logged‑in users straight to dashboard
+  useEffect(() => {
     if (user) navigate('/dashboard');
   }, [user, navigate]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
     try {
       if (mode === 'login') {
-        await contextLogin(email, password);
+        await login(email, password);
       } else {
-        await contextRegister(fullName, email, password);
+        await register(fullName, email, password);
       }
-      // contextLogin/Register handles navigation
+      // AuthContext takes care of navigation
     } catch (err) {
-      // context throws errors with message
-      setError(err.message);
+      setError(err.message || 'Something went wrong');
     }
   };
 
-  const handleTabClick = (newMode) => {
-    setMode(newMode);
+  const switchMode = m => {
+    setMode(m);
     setError(null);
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-image" aria-hidden="true"></div>
-      <div className="auth-form-container">
+    <div className="auth-screen">
+      <div
+        className="auth-screen__image"
+        style={{ backgroundImage: `url(${illustration})` }}
+        aria-hidden="true"
+      />
+      <div className="auth-screen__form">
         <div className="auth-tabs" role="tablist">
           <button
             role="tab"
-            id="tab-login"
-            aria-selected={mode === 'login'}
-            className={mode === 'login' ? 'active' : ''}
-            onClick={() => handleTabClick('login')}
+            className={`auth-tab ${mode==='login'?'active':''}`}
+            aria-selected={mode==='login'}
+            onClick={() => switchMode('login')}
           >
             Login
           </button>
           <button
             role="tab"
-            id="tab-register"
-            aria-selected={mode === 'register'}
-            className={mode === 'register' ? 'active' : ''}
-            onClick={() => handleTabClick('register')}
+            className={`auth-tab ${mode==='register'?'active':''}`}
+            aria-selected={mode==='register'}
+            onClick={() => switchMode('register')}
           >
             Register
           </button>
         </div>
-        <form
-          onSubmit={handleSubmit}
-          aria-labelledby={mode === 'login' ? 'tab-login' : 'tab-register'}
-        >
+
+        <form className="auth-form" onSubmit={handleSubmit}>
           {mode === 'register' && (
             <div className="form-group">
               <label htmlFor="fullName">Full Name</label>
               <input
-                type="text"
                 id="fullName"
-                name="fullName"
+                type="text"
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
                 required
               />
             </div>
           )}
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
-                id="email"
-                name="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-              />
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
           </div>
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              type="password"
               id="password"
-              name="password"
+              type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
             />
           </div>
-          {error && <div className="error" role="alert">{error}</div>}
+
+          {error && <div className="error">{error}</div>}
+
           <button type="submit" className="submit-button">
             {mode === 'login' ? 'Login' : 'Register'}
           </button>
