@@ -1,20 +1,22 @@
 // src/context/AuthContext.jsx
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as apiLogin, register as apiRegister } from '../services/api';
+import {
+  login    as apiLogin,
+  register as apiRegister,
+  getCurrentUser
+} from '../services/api';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
-  // Load user from localStorage if present
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('user');
-    return stored ? JSON.parse(stored) : null;
-  });
+  // user = { id, email, fullName, organizationId, isOwner, ... }
+  const [user, setUser]     = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Persist token + user in storage & state
+  // Helper: persist token + user in storage & state
   const persist = (token, me) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(me));
@@ -28,6 +30,37 @@ export function AuthProvider({ children }) {
     setUser(null);
     navigate('/');
   };
+
+  // Load any existing token + user on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    // Try to rehydrate user from localStorage first
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      setUser(JSON.parse(stored));
+    }
+
+    // Then fetch /auth/me for the freshest profile
+    (async () => {
+      try {
+        const { data } = await getCurrentUser();
+        const { user: me } = data;
+        setUser(me);
+        localStorage.setItem('user', JSON.stringify(me));
+      } catch (err) {
+        console.error('Could not fetch current user', err);
+        // token might be expired → force logout
+        logout();
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   /**
    * Log in a user.
@@ -65,8 +98,11 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Expose context value
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
