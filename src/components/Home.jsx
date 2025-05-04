@@ -1,3 +1,4 @@
+// src/components/Home.jsx
 import React, { useState, useContext, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
@@ -33,19 +34,24 @@ export default function Home() {
   const handleSubmit = async e => {
     e.preventDefault()
     setError('')
-    try {
-      if (mode === 'login') {
-        await login({ email, password })
-        // AuthContext will navigate on success
-      } else {
-        await register({ fullName, email, password, inviteToken })
-        if (inviteToken) {
-          // after invite-based register, switch to login tab
-          setMode('login')
-        }
-      }
-    } catch (err) {
-      setError(err.message || 'Something went wrong')
+
+    if (mode === 'login') {
+      const err = await login({ email, password })
+      if (err) return setError(err)
+      return navigate('/dashboard', { replace: true })
+    }
+
+    // register flow
+    const err = await register({ fullName, email, password, inviteToken })
+    if (err) return setError(err)
+
+    if (inviteToken) {
+      // after accepting an invite, switch to login tab
+      setMode('login')
+      setError('')
+    } else {
+      // normal signup → go straight in
+      navigate('/dashboard', { replace: true })
     }
   }
 
@@ -132,7 +138,7 @@ export default function Home() {
 
           <div className="auth-footer">
             {mode === 'login' ? (
-              <>Don’t have an account? {' '}
+              <>Don’t have an account?{' '}
                 <button
                   className="switch-btn"
                   onClick={() => { setMode('register'); setError('') }}
@@ -141,7 +147,7 @@ export default function Home() {
                 </button>
               </>
             ) : (
-              <>Already have an account? {' '}
+              <>Already have an account?{' '}
                 <button
                   className="switch-btn"
                   onClick={() => { setMode('login'); setError('') }}
