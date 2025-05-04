@@ -192,5 +192,43 @@
   border: none;
   cursor: pointer;
 }
+/* Container for the platform tabs */
+.platform-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Base style for each tab */
+.plat-tab {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid #D1D5DB;      /* gray-300 */
+  background-color: #F9FAFB;       /* gray-50 */
+  color: #374151;                  /* gray-700 */
+  font-weight: 500;
+  font-size: 0.875rem;             /* 14px */
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+/* Hover state for inactive tabs */
+.plat-tab:not(.active):hover {
+  background-color: #E5E7EB;       /* gray-200 */
+}
+
+/* Active tab */
+.plat-tab.active {
+  background-color: #4F46E5;       /* indigo-600 */
+  border-color: #4F46E5;
+  color: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure the active tab stands out on focus as well */
+.plat-tab:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.4);
+}
 
 /* the rest of your existing Dashboard.css below... */
