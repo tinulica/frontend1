@@ -1,92 +1,126 @@
 // src/components/Dashboard.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   getDashboardSummary,
   getInvitations,
   sendInvitation,
   deleteInvitation
-} from '../services/api';
-import InvitationModal from './InvitationModal';
-import './Dashboard.css';
-import { Trash2 } from 'lucide-react';
+} from '../services/api'
+import InvitationModal from './InvitationModal'
+import {
+  DollarSign,
+  FileText,
+  Users,
+  BarChart2,
+  Trash2,
+  Bell
+} from 'lucide-react'
+import './Dashboard.css'
 
 export default function Dashboard() {
-  const [summary, setSummary] = useState({});
-  const [invites, setInvites] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const [error, setError] = useState(null);
+  const [summary, setSummary] = useState({})
+  const [invites, setInvites] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [inviteOpen, setInviteOpen] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       try {
         const [sumRes, invRes] = await Promise.all([
           getDashboardSummary(),
           getInvitations()
-        ]);
-        setSummary(sumRes.data);
-        setInvites(invRes.data);
+        ])
+        setSummary(sumRes.data)
+        setInvites(invRes.data)
       } catch (err) {
-        setError(err.response?.data?.message || err.message);
+        setError(err.response?.data?.message || err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    })();
-  }, []);
+    })()
+  }, [])
 
   const refreshInvites = async () => {
     try {
-      const { data } = await getInvitations();
-      setInvites(data);
+      const { data } = await getInvitations()
+      setInvites(data)
     } catch (err) {
-      console.error(err);
+      console.error(err)
     }
-  };
+  }
 
-  const handleSend = async (email) => {
-    await sendInvitation({ email });
-    await refreshInvites();
-  };
+  const handleSend = async email => {
+    await sendInvitation({ email })
+    await refreshInvites()
+  }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this invitation?')) return;
-    await deleteInvitation(id);
-    await refreshInvites();
-  };
+  const handleDelete = async id => {
+    if (!window.confirm('Delete this invitation?')) return
+    await deleteInvitation(id)
+    await refreshInvites()
+  }
 
-  if (loading) return <div className="loading">Loading...</div>;
-  if (error)   return <div className="error">{error}</div>;
+  if (loading) return <div className="loading">Loading…</div>
+  if (error) return <div className="error">{error}</div>
+
+  const stats = [
+    {
+      icon: <DollarSign />,
+      label: 'Total Payroll',
+      value: `€${summary.totalPayroll.toFixed(2)}`
+    },
+    {
+      icon: <FileText />,
+      label: 'Total Entries',
+      value: summary.totalEntries
+    },
+    {
+      icon: <Users />,
+      label: 'Total Employees',
+      value: summary.totalEmployees
+    },
+    {
+      icon: <BarChart2 />,
+      label: 'Average Salary',
+      value: `€${summary.averageSalary.toFixed(2)}`
+    }
+  ]
 
   return (
-    <main className="dashboard-container">
-      <h1 className="dashboard-title">Dashboard</h1>
+    <div className="dashboard">
+      <header className="dash-header">
+        <h1>Dashboard</h1>
+        <button className="notification-btn">
+          <Bell />
+          <span className="badge">3</span>
+        </button>
+      </header>
 
-      <div className="dashboard-stats">
-        <div className="card">
-          <div className="card-title">Total Employees</div>
-          <div className="card-value">{summary.totalEmployees}</div>
-        </div>
-        <div className="card">
-          <div className="card-title">Total Entries</div>
-          <div className="card-value">{summary.totalEntries}</div>
-        </div>
-        <div className="card">
-          <div className="card-title">Total Payroll</div>
-          <div className="card-value">{summary.totalPayroll.toFixed(2)} EUR</div>
-        </div>
-        <div className="card">
-          <div className="card-title">Average Salary</div>
-          <div className="card-value">{summary.averageSalary.toFixed(2)} EUR</div>
-        </div>
+      <div className="stats-grid">
+        {stats.map((s, i) => (
+          <div key={i} className="stat-card">
+            <div className="stat-icon">{s.icon}</div>
+            <div>
+              <p className="stat-value">{s.value}</p>
+              <p className="stat-label">{s.label}</p>
+            </div>
+          </div>
+        ))}
       </div>
+
+      <section className="chart-section">
+        <h2>Payroll Trend</h2>
+        <div className="chart-placeholder">
+          {/* Replace with your actual chart */}
+          <p>📈 Chart placeholder</p>
+        </div>
+      </section>
 
       <section className="invites-section">
         <div className="invites-header">
           <h2>Invited Employees</h2>
-          <button
-            onClick={() => setInviteOpen(true)}
-            className="btn-invite"
-          >
+          <button onClick={() => setInviteOpen(true)} className="btn-invite">
             Invite Employee
           </button>
         </div>
@@ -106,9 +140,11 @@ export default function Dashboard() {
                 <td>{inv.invitedEmail}</td>
                 <td>{new Date(inv.createdAt).toLocaleDateString()}</td>
                 <td>
-                  {inv.acceptedAt
-                    ? <span className="badge accepted">Registered</span>
-                    : <span className="badge pending">Pending</span>}
+                  {inv.acceptedAt ? (
+                    <span className="badge accepted">Registered</span>
+                  ) : (
+                    <span className="badge pending">Pending</span>
+                  )}
                 </td>
                 <td>
                   {!inv.acceptedAt && (
@@ -132,6 +168,6 @@ export default function Dashboard() {
         onClose={() => setInviteOpen(false)}
         onSent={handleSend}
       />
-    </main>
-  );
+    </div>
+  )
 }
