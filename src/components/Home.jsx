@@ -1,48 +1,50 @@
 // src/components/Home.jsx
-import React, { useState, useContext, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-import { AuthContext } from '../context/AuthContext'
-import './Home.css'
-import illustration from '../assets/auth-illustration.png'
+import React, { useState, useContext, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import './Home.css';
+import illustration from '../assets/auth-illustration.png';
 
 export default function Home() {
-  const { login, register } = useContext(AuthContext)
-  const location            = useLocation()
-  const params              = new URLSearchParams(location.search)
-  const inviteToken         = params.get('token') || ''
+  const { login, register } = useContext(AuthContext);
+  const navigate            = useNavigate();
+  const location            = useLocation();
+  const params              = new URLSearchParams(location.search);
+  const inviteToken         = params.get('token') || '';
 
-  // Force register mode if we have an invite token
-  const [mode, setMode]         = useState(inviteToken ? 'register' : 'login')
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
+  // Force into register tab if there's an invite token
+  const [mode, setMode]         = useState(inviteToken ? 'register' : 'login');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
 
   useEffect(() => {
     if (inviteToken) {
-      setMode('register')
-      setError('')
+      setMode('register');
+      setError('');
     }
-  }, [inviteToken])
+  }, [inviteToken]);
 
   const handleSubmit = async e => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
 
-    let errMsg = null
-    if (mode === 'login') {
-      // pass an object so AuthContext.login can destructure correctly
-      errMsg = await login({ email, password })
-    } else {
-      // include the invite token here
-      errMsg = await register({ fullName, email, password, inviteToken })
+    try {
+      if (mode === 'login') {
+        await login({ email, password });
+        // on success, AuthContext will navigate to /dashboard
+      } else {
+        await register({ fullName, email, password, inviteToken });
+        // if this was an invite registration, send them to login
+        if (inviteToken) {
+          navigate('/login');
+        }
+      }
+    } catch (err) {
+      setError(err.message);
     }
-
-    if (errMsg) {
-      setError(errMsg)
-    }
-    // on success, AuthContext will navigate to /dashboard
-  }
+  };
 
   return (
     <div className="home-container">
@@ -137,5 +139,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }
