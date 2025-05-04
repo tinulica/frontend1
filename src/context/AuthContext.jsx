@@ -13,10 +13,10 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
   // user = { id, email, fullName, organizationId, isOwner, ... }
-  const [user, setUser]     = useState(null);
+  const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Helper: persist token + user in storage & state
+  // Persist token + user in storage & state
   const persist = (token, me) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(me));
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
     navigate('/');
   };
 
-  // Load any existing token + user on mount
+  // On mount: replay login if possible, then fetch latest /auth/me
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -39,13 +39,17 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    // Try to rehydrate user from localStorage first
+    // Try to rehydrate from localStorage immediately
     const stored = localStorage.getItem('user');
     if (stored) {
-      setUser(JSON.parse(stored));
+      try {
+        setUser(JSON.parse(stored));
+      } catch {
+        // ignore parse errors
+      }
     }
 
-    // Then fetch /auth/me for the freshest profile
+    // Then hit /auth/me to verify/refresh
     (async () => {
       try {
         const { data } = await getCurrentUser();
@@ -54,7 +58,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem('user', JSON.stringify(me));
       } catch (err) {
         console.error('Could not fetch current user', err);
-        // token might be expired → force logout
+        // invalid/expired token → log out
         logout();
       } finally {
         setLoading(false);
@@ -98,11 +102,17 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Expose context value
+  // While we're checking token / fetching current user, don't render children
+  if (loading) {
+    return (
+      <div className="auth-loading">
+        <p>Loading…</p>
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider
-      value={{ user, login, register, logout, loading }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
