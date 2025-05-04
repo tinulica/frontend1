@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { updateEntry } from '../services/api';
-import { XIcon } from '@heroicons/react/outline';
+import { X } from 'lucide-react';
 
 export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   const [formData, setFormData] = useState({});
@@ -19,7 +19,10 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
         bankName: entry.bankName || '',
         beneficiary: entry.beneficiary || '',
         extraData: entry.extraData || {},
-        salaryHistories: entry.salaryHistories || []
+        salaryHistories: entry.salaryHistories || [],
+        salary: entry.salaryHistories?.length
+          ? entry.salaryHistories.sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0].amount
+          : ''
       });
       setError(null);
     }
@@ -27,7 +30,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
 
   if (!isOpen || !entry) return null;
 
-  const { extraData, salaryHistories } = formData;
+  const { extraData, salaryHistories, salary } = formData;
   const latestHistory = [...salaryHistories].sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0] || {};
 
   const handleChange = (key, value, nested = false) => {
@@ -46,7 +49,6 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
     setError(null);
 
     // build salary history
-    const salary = formData.salary;
     let updatedHistories = salaryHistories;
     if (salary && Number(salary) !== latestHistory.amount) {
       updatedHistories = [
@@ -61,6 +63,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
         salaryHistories: updatedHistories
       });
       onUpdated();
+      onClose();
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     }
@@ -73,7 +76,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">Edit Entry</h2>
           <button onClick={onClose} className="p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none">
-            <XIcon className="h-6 w-6" />
+            <X className="h-6 w-6" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
@@ -128,7 +131,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
               <input
                 type="number"
                 step="0.01"
-                value={formData.salary || latestHistory.amount}
+                value={salary}
                 onChange={e => handleChange('salary', e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -144,7 +147,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-gray-900">Glovo Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Object.entries(formData.extraData).map(([key, value]) => (
+                {Object.entries(extraData).map(([key, value]) => (
                   <div key={key}>
                     <label className="block text-sm font-medium text-gray-700">{key}</label>
                     <input
