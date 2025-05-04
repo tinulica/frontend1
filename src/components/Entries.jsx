@@ -25,10 +25,10 @@ import './Entries.css';
 
 // define each tab's filter key and display label
 const TABS = [
-  { key: 'GLOVO',   label: 'GLOVO' },
-  { key: 'TAZZ',    label: 'TAZZ' },
-  { key: 'BRINGO',  label: 'BRINGO' },
-  { key: 'ANGAJAT', label: 'ANGAJAT' }
+  { key: 'GLOVO',   label: 'Glovo' },
+  { key: 'TAZZ',    label: 'Tazz' },
+  { key: 'BRINGO',  label: 'Bringo' },
+  { key: 'GENERAL', label: 'General' }
 ];
 
 export default function Entries() {
@@ -40,11 +40,11 @@ export default function Entries() {
   const [error, setError]           = useState(null);
   const [showAdd, setShowAdd]       = useState(false);
   const [editEntry, setEditEntry]   = useState(null);
-  const [activePlat, setActivePlat] = useState(TABS[0].key);
+  const [activeTab, setActiveTab]   = useState(TABS[0].key);
   const fileInput = useRef();
   const pageSize  = 10;
 
-  // fetch all entries once
+  // Fetch entries once on mount
   async function fetchEntries() {
     setLoading(true);
     try {
@@ -58,7 +58,7 @@ export default function Entries() {
   }
   useEffect(fetchEntries, []);
 
-  // real‑time updates
+  // Real‑time subscriptions
   useEffect(() => {
     if (!user) return;
     const socket = io(process.env.REACT_APP_API_URL, {
@@ -76,17 +76,17 @@ export default function Entries() {
     };
   }, [user]);
 
-  // filter by platform + search
+  // Filter by tab + search
   const filtered = useMemo(() => {
     const term = searchTerm.toLowerCase();
     return entries
-      .filter(e => e.platform === activePlat)
+      .filter(e => e.platform === activeTab)
       .filter(e =>
         e.fullName.toLowerCase().includes(term) ||
         e.email.toLowerCase().includes(term) ||
         (e.externalId || '').toLowerCase().includes(term)
       );
-  }, [entries, activePlat, searchTerm]);
+  }, [entries, activeTab, searchTerm]);
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const visible = useMemo(
@@ -94,10 +94,10 @@ export default function Entries() {
     [filtered, page]
   );
 
-  // average salary for this platform
+  // Average salary for this tab
   const avgSalary = useMemo(() => {
     const sums = entries
-      .filter(e => e.platform === activePlat)
+      .filter(e => e.platform === activeTab)
       .map(e => {
         const latest = [...e.salaryHistories]
           .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
@@ -105,16 +105,16 @@ export default function Entries() {
       });
     if (!sums.length) return '0.00';
     return (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(2);
-  }, [entries, activePlat]);
+  }, [entries, activeTab]);
 
-  // handlers for import/export etc.
+  // Import / export handlers
   const handleImport = () => fileInput.current.click();
   const onFileChange = async e => {
     const file = e.target.files[0];
     if (!file) return;
     const form = new FormData();
     form.append('file', file);
-    form.append('platform', activePlat);
+    form.append('platform', activeTab);
     try {
       await apiImportEntries(form);
       fetchEntries();
@@ -125,11 +125,11 @@ export default function Entries() {
 
   const handleExport = async () => {
     try {
-      const resp = await apiExportEntries({ platform: activePlat });
+      const resp = await apiExportEntries({ platform: activeTab });
       const url  = URL.createObjectURL(new Blob([resp.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${activePlat.toLowerCase()}-entries.xlsx`;
+      link.download = `${activeTab.toLowerCase()}-entries.xlsx`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -153,14 +153,16 @@ export default function Entries() {
 
   return (
     <main className="entries-container">
-
       {/* PLATFORM TABS */}
       <div className="platform-tabs">
         {TABS.map(tab => (
           <button
             key={tab.key}
-            className={`plat-tab${tab.key === activePlat ? ' active' : ''}`}
-            onClick={() => { setActivePlat(tab.key); setPage(1); }}
+            className={`plat-tab${tab.key === activeTab ? ' active' : ''}`}
+            onClick={() => {
+              setActiveTab(tab.key);
+              setPage(1);
+            }}
           >
             {tab.label}
           </button>
@@ -169,7 +171,7 @@ export default function Entries() {
 
       {/* HEADER & STATS */}
       <div className="entries-header">
-        <h1>{TABS.find(t => t.key === activePlat)?.label} Entries</h1>
+        <h1>{TABS.find(t => t.key === activeTab).label} Entries</h1>
         <div className="stats-cards">
           <div className="stat-card">
             <p className="stat-label">Count</p>
@@ -216,7 +218,7 @@ export default function Entries() {
       {/* MODALS */}
       <EntryModal
         isOpen={showAdd}
-        platform={activePlat}
+        platform={activeTab}
         onClose={() => setShowAdd(false)}
         onAdded={() => { setShowAdd(false); fetchEntries(); }}
       />
@@ -272,11 +274,17 @@ export default function Entries() {
 
       {/* PAGINATION */}
       <div className="pagination">
-        <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
+        <button
+          onClick={() => setPage(p => Math.max(p - 1, 1))}
+          disabled={page === 1}
+        >
           Prev
         </button>
         <span>Page {page} of {totalPages}</span>
-        <button onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
+        <button
+          onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+          disabled={page === totalPages}
+        >
           Next
         </button>
       </div>
