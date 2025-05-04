@@ -123,3 +123,147 @@
 .dropdown-item:hover {
   background: #f7fafc;
 }
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 60px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.logo-placeholder {
+  width: 32px;
+  height: 32px;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.125rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-text {
+  margin-left: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 1.5rem;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4b5563;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.nav-item:hover,
+.nav-item.active {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+.nav-icon {
+  color: inherit;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  padding: 0 0.75rem;
+  border-radius: 6px;
+}
+.search-box input {
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.25rem;
+  outline: none;
+  width: 150px;
+}
+
+.icon-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.icon-btn:hover {
+  background: #f3f4f6;
+}
+
+.notification-btn {
+  margin-right: 0.5rem;
+}
+.notification-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-menu {
+  position: relative;
+}
+.avatar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.avatar-btn:hover {
+  background: #f3f4f6;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #ffffff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 10;
+}
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.dropdown-item:hover {
+  background: #f3f4f6;
+}
