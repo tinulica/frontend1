@@ -11,19 +11,17 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-
-  // user = { id, email, fullName, organizationId, isOwner, ... }
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Persist token + user in storage & state
+  // Persist token + user
   const persist = (token, me) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(me));
     setUser(me);
   };
 
-  // Log out
+  // Logout
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -31,7 +29,7 @@ export function AuthProvider({ children }) {
     navigate('/');
   };
 
-  // On mount: replay login if possible, then fetch latest /auth/me
+  // On mount: rehydrate then fetch /auth/me
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -39,17 +37,13 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    // Try to rehydrate from localStorage immediately
+    // rehydrate from storage
     const stored = localStorage.getItem('user');
     if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {
-        // ignore parse errors
-      }
+      try { setUser(JSON.parse(stored)); } catch {}
     }
 
-    // Then hit /auth/me to verify/refresh
+    // refresh from server
     (async () => {
       try {
         const { data } = await getCurrentUser();
@@ -58,7 +52,6 @@ export function AuthProvider({ children }) {
         localStorage.setItem('user', JSON.stringify(me));
       } catch (err) {
         console.error('Could not fetch current user', err);
-        // invalid/expired token → log out
         logout();
       } finally {
         setLoading(false);
@@ -66,28 +59,20 @@ export function AuthProvider({ children }) {
     })();
   }, []);
 
-  /**
-   * Log in a user.
-   * @param {{email:string,password:string}} creds
-   * @returns {Promise<string|null>} error message, or null on success
-   */
+  // --- LOGIN ---
   const login = async ({ email, password }) => {
     try {
       const { data } = await apiLogin({ email, password });
       const { token, user: me } = data;
       persist(token, me);
       navigate('/dashboard');
-      return null;
     } catch (err) {
-      return err.response?.data?.message || err.message;
+      const msg = err.response?.data?.message || err.message;
+      throw new Error(msg);
     }
   };
 
-  /**
-   * Register a new user (with optional invite token).
-   * @param {{fullName:string,email:string,password:string,inviteToken?:string}} info
-   * @returns {Promise<string|null>} error message, or null on success
-   */
+  // --- REGISTER ---
   const register = async ({ fullName, email, password, inviteToken }) => {
     try {
       const payload = { fullName, email, password };
@@ -96,13 +81,13 @@ export function AuthProvider({ children }) {
       const { token, user: me } = data;
       persist(token, me);
       navigate('/dashboard');
-      return null;
     } catch (err) {
-      return err.response?.data?.message || err.message;
+      const msg = err.response?.data?.message || err.message;
+      throw new Error(msg);
     }
   };
 
-  // While we're checking token / fetching current user, don't render children
+  // While checking auth, show loading
   if (loading) {
     return (
       <div className="auth-loading">
@@ -112,7 +97,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
