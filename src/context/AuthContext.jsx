@@ -5,7 +5,6 @@ import {
   register as apiRegister,
   getCurrentUser
 } from '../services/api'
-import { saveAuth, getAuth, logout as clearAuth } from '../utils/authStorage'
 
 export const AuthContext = createContext()
 
@@ -14,26 +13,37 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Logout using storage helper
+  // Persist token + user
+  const persist = (token, me) => {
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(me))
+    setUser(me)
+  }
+
+  // Logout
   const logout = () => {
-    clearAuth()
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
     setUser(null)
     navigate('/', { replace: true })
   }
 
   // On mount: rehydrate + fetch /auth/me
   useEffect(() => {
-    const auth = getAuth()
-    if (!auth) {
+    const token = localStorage.getItem('token')
+    if (!token) {
       setLoading(false)
       return
     }
-    setUser(auth.user)
+    const stored = localStorage.getItem('user')
+    if (stored) {
+      try { setUser(JSON.parse(stored)) } catch {}
+    }
     ;(async () => {
       try {
         const { data } = await getCurrentUser()
         setUser(data.user)
-        saveAuth({ token: auth.token, user: data.user })
+        localStorage.setItem('user', JSON.stringify(data.user))
       } catch {
         logout()
       } finally {
@@ -43,17 +53,19 @@ export function AuthProvider({ children }) {
   }, [])
 
   // --- LOGIN ---
+  // Throws on error
   const login = async ({ email, password }) => {
     const { data } = await apiLogin({ email, password })
     if (!data?.token || !data?.user) {
       throw new Error('Invalid login response')
     }
-    saveAuth({ token: data.token, user: data.user })
-    setUser(data.user)
+    persist(data.token, data.user)
+    // Navigate to dashboard after successful login
     navigate('/dashboard', { replace: true })
   }
 
   // --- REGISTER ---
+  // Throws on error
   const register = async ({ fullName, email, password, inviteToken }) => {
     const payload = { fullName, email, password }
     if (inviteToken) payload.token = inviteToken
@@ -61,8 +73,8 @@ export function AuthProvider({ children }) {
     if (!data?.token || !data?.user) {
       throw new Error('Invalid registration response')
     }
-    saveAuth({ token: data.token, user: data.user })
-    setUser(data.user)
+    persist(data.token, data.user)
+    // After registering via invite, navigate to login screen
     if (inviteToken) {
       navigate('/login', {
         state: { success: 'Registration successful! Please log in.' }
