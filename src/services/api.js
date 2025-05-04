@@ -56,25 +56,38 @@ export const deleteInvitation = id => api.delete(`/invitations/${id}`);
 
 // ───── Organization ─────────────────────────────────────────────────────────
 
-export const getOrgInfo     = () => api.get('/organization/info');
-export const getOrgMembers  = () => api.get('/organization/members');
-export const changeOrgOwner = newOwnerId =>
+export const getOrgInfo        = () => api.get('/organization/info');
+export const getOrgMembers     = () => api.get('/organization/members');
+export const changeOrgOwner    = newOwnerId =>
   api.put('/organization/owner', { newOwnerId });
 
-// Remove a member from the org (only owner)
-export const removeMember = memberId =>
+// Remove a member from the org (owner only)
+export const removeMember      = memberId =>
   api.delete(`/organization/members/${memberId}`);
 
 // ───── Profile ──────────────────────────────────────────────────────────────
 
 // Change avatar (multipart)
-export const updateAvatar = formData =>
+export const updateAvatar      = formData =>
   api.put('/auth/avatar', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
 
 // Change password
-export const changePassword = payload =>
+export const changePassword    = payload =>
   api.put('/auth/password', payload);
+
+// ───── Notifications ────────────────────────────────────────────────────────
+
+// Fetch all notifications for current user
+export const getNotifications       = () => api.get('/notifications');
+
+// Mark a single notification as read
+export const markNotificationRead   = notificationId =>
+  api.put(`/notifications/${notificationId}/read`);
+
+// Mark all notifications as read
+export const markAllNotificationsRead = () =>
+  api.put('/notifications/read-all');
 
 export default api;
