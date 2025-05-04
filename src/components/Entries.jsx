@@ -10,24 +10,35 @@ import {
 } from '../services/api';
 import EntryModal from './EntryModal';
 import EditEntryModal from './EditEntryModal';
-import { Edit2, Trash2, Clock, Mail, Search, Plus, Upload, Download } from 'lucide-react';
+import {
+  Edit2,
+  Trash2,
+  Clock,
+  Mail,
+  Search,
+  Plus,
+  Upload,
+  Download
+} from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import './Entries.css';
+
+const PLATFORMS = ['GLOVO', 'TAZZ', 'BRINGO', 'GENERAL'];
 
 export default function Entries() {
   const { user } = useContext(AuthContext);
   const [entries, setEntries]       = useState([]);
-  const [filtered, setFiltered]     = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage]             = useState(1);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState(null);
   const [showAdd, setShowAdd]       = useState(false);
   const [editEntry, setEditEntry]   = useState(null);
+  const [activePlat, setActivePlat] = useState(PLATFORMS[0]);
   const fileInput = useRef();
   const pageSize  = 10;
 
-  // Fetch entries
+  // Fetch all entries
   async function fetchEntries() {
     setLoading(true);
     try {
@@ -40,7 +51,7 @@ export default function Entries() {
     }
   }
 
-  useEffect(() => { fetchEntries(); }, []);
+  useEffect(fetchEntries, []);
 
   // Real‑time subscriptions
   useEffect(() => {
@@ -49,69 +60,87 @@ export default function Entries() {
       auth: { token: localStorage.getItem('token') }
     });
     socket.emit('joinOrg', user.organizationId);
-    ['entryAdded','entryUpdated','entryDeleted'].forEach(evt => {
-      socket.on(evt, fetchEntries);
-    });
+    ['entryAdded','entryUpdated','entryDeleted'].forEach(evt =>
+      socket.on(evt, fetchEntries)
+    );
     return () => {
-      ['entryAdded','entryUpdated','entryDeleted'].forEach(evt => {
-        socket.off(evt, fetchEntries);
-      });
+      ['entryAdded','entryUpdated','entryDeleted'].forEach(evt =>
+        socket.off(evt, fetchEntries)
+      );
       socket.disconnect();
     };
   }, [user]);
 
-  // Filter
-  useEffect(() => {
+  // Filter by active platform + search
+  const filtered = useMemo(() => {
     const term = searchTerm.toLowerCase();
-    setFiltered(entries.filter(e =>
-      e.fullName.toLowerCase().includes(term) ||
-      e.email.toLowerCase().includes(term) ||
-      (e.externalId || '').toLowerCase().includes(term)
-    ));
-    setPage(1);
-  }, [entries, searchTerm]);
+    return entries
+      .filter(e => e.platform === activePlat)
+      .filter(e =>
+        e.fullName.toLowerCase().includes(term) ||
+        e.email.toLowerCase().includes(term) ||
+        (e.externalId || '').toLowerCase().includes(term)
+      );
+  }, [entries, activePlat, searchTerm]);
 
   const totalPages = Math.ceil(filtered.length / pageSize);
-  const visible    = useMemo(
+  const visible = useMemo(
     () => filtered.slice((page - 1) * pageSize, page * pageSize),
     [filtered, page]
   );
 
-  // Stats
+  // Stats (for current platform)
   const avgSalary = useMemo(() => {
-    const sums = entries.map(e => {
-      const latest = [...e.salaryHistories]
-        .sort((a,b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
-      return latest ? latest.amount : 0;
-    });
-    if (!sums.length) return 0;
-    return (sums.reduce((a,b) => a + b, 0) / sums.length).toFixed(2);
-  }, [entries]);
+    const sums = entries
+      .filter(e => e.platform === activePlat)
+      .map(e => {
+        const latest = [...e.salaryHistories]
+          .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
+        return latest ? latest.amount : 0;
+      });
+    if (!sums.length) return '0.00';
+    return (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(2);
+  }, [entries, activePlat]);
 
+  // Handlers
   const handleImport = () => fileInput.current.click();
   const onFileChange = async e => {
-    const file = e.target.files[0]; if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
     const form = new FormData();
     form.append('file', file);
-    form.append('platform', 'GLOVO');
-    try { await apiImportEntries(form); fetchEntries(); }
-    catch { alert('Import failed'); }
+    form.append('platform', activePlat);
+    try {
+      await apiImportEntries(form);
+      fetchEntries();
+    } catch {
+      alert('Import failed');
+    }
   };
 
   const handleExport = async () => {
     try {
-      const resp = await apiExportEntries();
+      const resp = await apiExportEntries({ platform: activePlat });
       const url  = URL.createObjectURL(new Blob([resp.data]));
       const link = document.createElement('a');
-      link.href = url; link.download = 'entries.xlsx';
-      document.body.appendChild(link); link.click(); link.remove();
-    } catch { alert('Export failed'); }
+      link.href = url;
+      link.download = `${activePlat.toLowerCase()}-entries.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      alert('Export failed');
+    }
   };
 
   const handleDelete = async id => {
     if (!window.confirm('Delete entry?')) return;
-    try { await deleteEntry(id); fetchEntries(); }
-    catch { alert('Delete failed'); }
+    try {
+      await deleteEntry(id);
+      fetchEntries();
+    } catch {
+      alert('Delete failed');
+    }
   };
 
   if (loading) return <p className="loading">Loading entries…</p>;
@@ -119,13 +148,26 @@ export default function Entries() {
 
   return (
     <main className="entries-container">
+      {/* Platform Tabs */}
+      <div className="platform-tabs">
+        {PLATFORMS.map(p => (
+          <button
+            key={p}
+            className={`plat-tab${p === activePlat ? ' active' : ''}`}
+            onClick={() => { setActivePlat(p); setPage(1); }}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+
       {/* Header + Stats */}
       <div className="entries-header">
-        <h1>Entries</h1>
+        <h1>{activePlat} Entries</h1>
         <div className="stats-cards">
           <div className="stat-card">
-            <p className="stat-label">Total Employees</p>
-            <p className="stat-value">{entries.length}</p>
+            <p className="stat-label">Count</p>
+            <p className="stat-value">{filtered.length}</p>
           </div>
           <div className="stat-card">
             <p className="stat-label">Avg. Salary</p>
@@ -140,7 +182,7 @@ export default function Entries() {
           <Search size={16} />
           <input
             type="text"
-            placeholder="Search by name, email…"
+            placeholder="Search…"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
@@ -156,37 +198,64 @@ export default function Entries() {
             <Download size={16} /> Export
           </button>
         </div>
-        <input type="file" ref={fileInput} style={{display:'none'}} accept=".xlsx" onChange={onFileChange} />
+        <input
+          type="file"
+          ref={fileInput}
+          style={{ display: 'none' }}
+          accept=".xlsx"
+          onChange={onFileChange}
+        />
       </div>
 
       {/* Modals */}
-      <EntryModal isOpen={showAdd} onClose={() => setShowAdd(false)} onAdded={() => { setShowAdd(false); fetchEntries(); }} />
-      <EditEntryModal isOpen={Boolean(editEntry)} entry={editEntry} onClose={() => setEditEntry(null)} onUpdated={() => { setEditEntry(null); fetchEntries(); }} />
+      <EntryModal
+        isOpen={showAdd}
+        platform={activePlat}
+        onClose={() => setShowAdd(false)}
+        onAdded={() => { setShowAdd(false); fetchEntries(); }}
+      />
+      <EditEntryModal
+        isOpen={!!editEntry}
+        entry={editEntry}
+        onClose={() => setEditEntry(null)}
+        onUpdated={() => { setEditEntry(null); fetchEntries(); }}
+      />
 
       {/* Table */}
       <div className="table-container">
         <table className="entries-table">
           <thead>
             <tr>
-              <th>Name</th><th>Email</th><th>Platform</th><th>Ext ID</th><th>Salary</th><th>Actions</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Ext ID</th>
+              <th>Salary</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {visible.map(e => {
               const latest = [...e.salaryHistories]
-                .sort((a,b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
+                .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
               return (
-                <tr key={e.id} className="entry-row">
+                <tr key={e.id}>
                   <td>{e.fullName}</td>
                   <td>{e.email}</td>
-                  <td>{e.platform}</td>
-                  <td>{e.externalId}</td>
+                  <td>{e.externalId || '—'}</td>
                   <td>€{latest ? latest.amount.toFixed(2) : '—'}</td>
                   <td className="actions">
-                    <button onClick={() => setEditEntry(e)} title="Edit"><Edit2 /></button>
-                    <button onClick={() => handleDelete(e.id)} title="Delete"><Trash2 /></button>
-                    <button onClick={() => handleHistory(e.id)} title="History"><Clock /></button>
-                    <button onClick={() => handleEmail(e.id)} title="Email"><Mail /></button>
+                    <button onClick={() => setEditEntry(e)} title="Edit">
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(e.id)} title="Delete">
+                      <Trash2 size={16} />
+                    </button>
+                    <button onClick={() => {/* history… */}} title="History">
+                      <Clock size={16} />
+                    </button>
+                    <button onClick={() => emailSalaryById(e.id)} title="Email">
+                      <Mail size={16} />
+                    </button>
                   </td>
                 </tr>
               );
@@ -197,9 +266,13 @@ export default function Entries() {
 
       {/* Pagination */}
       <div className="pagination">
-        <button onClick={() => setPage(p => Math.max(p-1,1))} disabled={page===1}>Prev</button>
+        <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
+          Prev
+        </button>
         <span>Page {page} of {totalPages}</span>
-        <button onClick={() => setPage(p => Math.min(p+1,totalPages))} disabled={page===totalPages}>Next</button>
+        <button onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
+          Next
+        </button>
       </div>
     </main>
   );
