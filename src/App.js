@@ -1,18 +1,18 @@
 // src/App.js
-import React, { useContext } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useContext } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
-import Navbar         from './components/Navbar';
-import Home           from './components/Home';
-import Dashboard      from './components/Dashboard';
-import Entries        from './components/Entries';
-import ProfileModal   from './components/ProfileModal';
-import Notifications  from './components/Notifications';
-import ProtectedRoute from './components/ProtectedRoute';
-import { AuthContext } from './context/AuthContext';
+import Navbar         from './components/Navbar'
+import Home           from './components/Home'
+import Dashboard      from './components/Dashboard'
+import Entries        from './components/Entries'
+import ProfileModal   from './components/ProfileModal'
+import Notifications  from './components/Notifications'
+import ProtectedRoute from './components/ProtectedRoute'
+import { AuthContext } from './context/AuthContext'
 
 export default function App() {
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext)
 
   return (
     <>
@@ -79,5 +79,5 @@ export default function App() {
         />
       </Routes>
     </>
-  );
+  )
 }
