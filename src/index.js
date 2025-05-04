@@ -1,33 +1,18 @@
-// index.jsx
-// Register global error handlers before anything else
-window.addEventListener('error', event => {
-  console.error('[Global Error]', {
-    message: event.message,
-    source: `${event.filename}:${event.lineno}:${event.colno}`,
-    error: event.error
-  });
-  // Prevent the error from logging twice (optional)
-  // event.preventDefault();
-});
+// src/index.js
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 
-window.addEventListener('unhandledrejection', event => {
-  console.error('[Unhandled Promise Rejection]', event.reason);
-  // Prevent default handling (optional)
-  // event.preventDefault();
-});
+import App from './App'
+import { AuthProvider } from './context/AuthContext'
+import './index.css'    // your global styles (if any)
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import App from './App';
-import './global.css';
+const root = ReactDOM.createRoot(document.getElementById('root'))
 
-ReactDOM.render(
-  <BrowserRouter>
-    <AuthProvider>
+root.render(
+  <AuthProvider>
+    <BrowserRouter>
       <App />
-    </AuthProvider>
-  </BrowserRouter>,
-  document.getElementById('root')
-);
+    </BrowserRouter>
+  </AuthProvider>
+)
