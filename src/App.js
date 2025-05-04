@@ -34,16 +34,6 @@ export default function App() {
           element={user ? <Navigate to="/dashboard" replace /> : <Home />}
         />
 
-        {/* Public password‐reset routes */}
-        <Route
-          path="/forgot-password"
-          element={user ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
-        />
-        <Route
-          path="/reset-password"
-          element={user ? <Navigate to="/dashboard" replace /> : <ResetPassword />}
-        />
-
         {/* Protected */}
         <Route
           path="/dashboard"
