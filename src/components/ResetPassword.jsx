@@ -1,17 +1,21 @@
+// src/components/ResetPassword.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resetPassword } from '../services/api';
 import './Auth.css';
 
 export default function ResetPassword() {
-  const [newPass, setNewPass] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [error, setError]     = useState('');
-  const [info, setInfo]       = useState('');
   const navigate = useNavigate();
-  const params   = new URLSearchParams(useLocation().search);
-  const token    = params.get('token');
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const token = params.get('token');
 
+  const [newPass, setNewPass]     = useState('');
+  const [confirm, setConfirm]     = useState('');
+  const [error, setError]         = useState('');
+  const [info, setInfo]           = useState('');
+
+  // if they visit without a token
   useEffect(() => {
     if (!token) {
       setError('No reset token provided.');
@@ -21,21 +25,24 @@ export default function ResetPassword() {
   const onSubmit = async e => {
     e.preventDefault();
     setError('');
+
+    // client‑side match check
     if (newPass !== confirm) {
-      setError('Passwords do not match.');
+      setError('Passwords do not match');
       return;
     }
+
     try {
       const { data } = await resetPassword({ token, newPassword: newPass });
-      setInfo(data.message || 'Password has been reset.');
-      // After a short delay, send back to login
-      setTimeout(() => navigate('/login'), 3000);
+      setInfo(data.message || 'Password has been reset!');
+      // auto‑redirect back to login after a short pause
+      setTimeout(() => navigate('/login', { replace: true }), 3000);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     }
   };
 
-  // If no token, just show the error
+  // no token → just show the message
   if (error && !token) {
     return (
       <main className="auth-container">
@@ -54,31 +61,26 @@ export default function ResetPassword() {
       ) : (
         <form onSubmit={onSubmit}>
           <div className="form-group">
-            <label htmlFor="new-password">New Password</label>
+            <label htmlFor="newPass">New Password</label>
             <input
-              id="new-password"
+              id="newPass"
               type="password"
-              placeholder="••••••••"
               value={newPass}
               onChange={e => setNewPass(e.target.value)}
               required
             />
           </div>
-
           <div className="form-group">
-            <label htmlFor="confirm-password">Confirm Password</label>
+            <label htmlFor="confirm">Confirm Password</label>
             <input
-              id="confirm-password"
+              id="confirm"
               type="password"
-              placeholder="••••••••"
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
               required
             />
           </div>
-
           {error && <p className="error-message">{error}</p>}
-
           <button type="submit" className="submit-button">
             Reset Password
           </button>
