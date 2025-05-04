@@ -1,9 +1,6 @@
-
-// src/components/EditEntryModal.jsx
 import React, { useState, useEffect } from 'react';
 import { updateEntry } from '../services/api';
 import { X } from 'lucide-react';
-import './EditEntryModal.css';
 
 const defaultForm = {
   fullName: '',
@@ -23,13 +20,12 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   const [formData, setFormData] = useState(defaultForm);
   const [error, setError] = useState(null);
 
-  // Populate form when entry changes
   useEffect(() => {
     if (entry) {
       const histories = Array.isArray(entry.salaryHistories) ? entry.salaryHistories : [];
-      const latest = histories.slice().sort(
-        (a, b) => new Date(b.changedAt) - new Date(a.changedAt)
-      )[0];
+      const latest = histories
+        .slice()
+        .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
 
       setFormData({
         fullName: entry.fullName || '',
@@ -40,7 +36,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
         iban: entry.iban || '',
         bankName: entry.bankName || '',
         beneficiary: entry.beneficiary || '',
-        extraData: typeof entry.extraData === 'object' && entry.extraData ? entry.extraData : {},
+        extraData: entry.extraData && typeof entry.extraData === 'object' ? entry.extraData : {},
         salaryHistories: histories,
         salary: latest ? latest.amount : ''
       });
@@ -50,32 +46,25 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
 
   if (!isOpen || !entry) return null;
 
-  const extraData = typeof formData.extraData === 'object' && formData.extraData
-    ? formData.extraData
-    : {};
-  const salaryHistories = Array.isArray(formData.salaryHistories)
-    ? formData.salaryHistories
-    : [];
-  const { salary } = formData;
-
-  const latestHistory = salaryHistories.length
-    ? salaryHistories.slice().sort(
-        (a, b) => new Date(b.changedAt) - new Date(a.changedAt)
-      )[0]
+  const { extraData, salaryHistories, salary } = formData;
+  const latestHistory = Array.isArray(salaryHistories) && salaryHistories.length > 0
+    ? salaryHistories
+        .slice()
+        .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0]
     : {};
 
   const handleChange = (key, value, nested = false) => {
     if (nested) {
-      setFormData(f => ({
-        ...f,
-        extraData: { ...f.extraData, [key]: value }
+      setFormData(prev => ({
+        ...prev,
+        extraData: { ...prev.extraData, [key]: value }
       }));
     } else {
-      setFormData(f => ({ ...f, [key]: value }));
+      setFormData(prev => ({ ...prev, [key]: value }));
     }
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
@@ -88,10 +77,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
     }
 
     try {
-      await updateEntry(entry.id, {
-        ...formData,
-        salaryHistories: updatedHistories
-      });
+      await updateEntry(entry.id, { ...formData, salaryHistories: updatedHistories });
       onUpdated();
       onClose();
     } catch (err) {
@@ -100,18 +86,17 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   };
 
   return (
-    <div className="edit-entry-modal">
-      <aside className="modal-drawer">
-        <div className="modal-header">
-          <h2 className="modal-title">Edit Entry</h2>
-          <button onClick={onClose} className="modal-close-btn">
-            <X className="h-6 w-6" />
+    <div className="fixed inset-0 z-50 flex">
+      <aside className="w-full lg:max-w-2xl h-full bg-white shadow-xl overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-900">Edit Entry</h2>
+          <button onClick={onClose} className="p-2 rounded-md hover:bg-gray-100">
+            <X className="h-6 w-6 text-gray-600" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="modal-form">
-          <div className="form-grid">
-            {/* Basic fields */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               { label: 'Full Name', key: 'fullName', type: 'text', required: true },
               { label: 'Email', key: 'email', type: 'email', required: true },
@@ -121,24 +106,25 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
               { label: 'Bank Name', key: 'bankName', type: 'text' },
               { label: 'Beneficiary', key: 'beneficiary', type: 'text' }
             ].map(field => (
-              <div key={field.key} className="form-group">
-                <label>{field.label}</label>
+              <div key={field.key}>
+                <label className="block text-sm font-medium text-gray-700">{field.label}</label>
                 <input
                   type={field.type}
                   required={field.required}
                   value={formData[field.key]}
                   onChange={e => handleChange(field.key, e.target.value)}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
             ))}
 
-            {/* Platform selector */}
-            <div className="form-group">
-              <label>Platform</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Platform</label>
               <select
                 required
                 value={formData.platform}
                 onChange={e => handleChange('platform', e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">Select platform</option>
                 <option value="GLOVO">GLOVO</option>
@@ -148,41 +134,37 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
               </select>
             </div>
 
-            {/* Salary */}
-            <div className="form-group">
-              <label>Salary (€)</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Salary (€)</label>
               <input
                 type="number"
                 step="0.01"
                 value={salary}
                 onChange={e => handleChange('salary', e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
 
-            {/* Latest change */}
-            <div className="form-group">
-              <label>Latest Change</label>
-              <p>
-                €{(latestHistory.amount ?? 0).toFixed(2)} on{' '}
-                {latestHistory.changedAt
-                  ? new Date(latestHistory.changedAt).toLocaleDateString()
-                  : '-'}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Latest Change</label>
+              <p className="mt-1 text-gray-600">
+                €{((latestHistory.amount ?? 0).toFixed(2))} on {latestHistory.changedAt ? new Date(latestHistory.changedAt).toLocaleDateString() : '-'}
               </p>
             </div>
           </div>
 
-          {/* Glovo extraData */}
           {formData.platform === 'GLOVO' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Glovo Details</h3>
-              <div className="form-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {Object.entries(extraData).map(([key, value]) => (
-                  <div key={key} className="form-group">
-                    <label>{key}</label>
+                  <div key={key}>
+                    <label className="block text-sm font-medium text-gray-700">{key}</label>
                     <input
                       type="text"
                       value={value}
                       onChange={e => handleChange(key, e.target.value, true)}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
                 ))}
@@ -190,20 +172,26 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
             </div>
           )}
 
-          {error && <div className="auth-error">{error}</div>}
+          {error && <p className="text-red-600">{error}</p>}
 
-          <div className="modal-actions">
-            <button type="button" onClick={onClose} className="button-cancel">
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            >
               Cancel
             </button>
-            <button type="submit" className="button-save">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
               Save Changes
             </button>
           </div>
         </form>
       </aside>
-
-      <div className="overlay" onClick={onClose} />
+      <div className="flex-1" onClick={onClose} />
     </div>
-);
-```
+  );
+}
