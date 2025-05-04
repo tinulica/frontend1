@@ -1,7 +1,10 @@
 // src/components/Notifications.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
-import api from '../services/api';
+import {
+  getNotifications,
+  markNotificationRead
+} from '../services/api';
 import './Notifications.css';
 
 export default function Notifications() {
@@ -10,7 +13,7 @@ export default function Notifications() {
   const [loading, setLoading] = useState(false);
   const ref = useRef();
 
-  // click outside to close
+  // Close dropdown when clicking outside
   useEffect(() => {
     function onClick(e) {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -21,11 +24,11 @@ export default function Notifications() {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  // fetch notifications
+  // Fetch notifications
   const fetchNotes = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get('/notifications');
+      const { data } = await getNotifications();
       setNotes(data);
     } catch (err) {
       console.error(err);
@@ -34,20 +37,25 @@ export default function Notifications() {
     }
   };
 
-  // mark one read
-  const markRead = async (id) => {
+  // Mark a single notification as read
+  const handleMarkRead = async (id) => {
     try {
-      await api.put(`/notifications/${id}/read`);
-      setNotes(notes.map(n => n.id === id ? { ...n, readAt: new Date().toISOString() } : n));
+      await markNotificationRead(id);
+      setNotes(notes.map(n =>
+        n.id === id ? { ...n, readAt: new Date().toISOString() } : n
+      ));
     } catch (err) {
       console.error(err);
     }
   };
 
-  // on open, refresh
+  // Toggle dropdown & refresh on open
   const toggle = () => {
-    setOpen(o => !o);
-    if (!open) fetchNotes();
+    setOpen(o => {
+      const willOpen = !o;
+      if (willOpen) fetchNotes();
+      return willOpen;
+    });
   };
 
   const unreadCount = notes.filter(n => !n.readAt).length;
@@ -71,11 +79,10 @@ export default function Notifications() {
                 <li
                   key={n.id}
                   className={`notif-item ${n.readAt ? 'read' : 'unread'}`}
-                  onClick={() => markRead(n.id)}
+                  onClick={() => handleMarkRead(n.id)}
                 >
                   <div className="notif-type">{n.type}</div>
                   <div className="notif-text">
-                    {/* Customize render based on your `n.data` */}
                     {n.data.message || JSON.stringify(n.data)}
                   </div>
                   <div className="notif-time">
