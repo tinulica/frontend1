@@ -1,22 +1,23 @@
-import { useState } from 'react'
-import { forgotPassword } from '../services/api'
-import './ForgotPasswordModal.css'
+// src/components/ForgotPasswordModal.jsx
+import { useState } from 'react';
+import { forgotPassword } from '../services/api';
+import './ForgotPasswordModal.css';
 
 export default function ForgotPasswordModal({ onClose }) {
-  const [email, setEmail]   = useState('')
-  const [error, setError]   = useState('')
-  const [info, setInfo]     = useState('')
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [info, setInfo]   = useState('');
 
   const onSubmit = async e => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
     try {
-      const { data } = await forgotPassword({ email })
-      setInfo(data.message || 'If that address exists, we’ve sent reset instructions.')
+      const { data } = await forgotPassword({ email });
+      setInfo(data.message || 'If that address exists, we’ve sent reset instructions.');
     } catch (err) {
-      setError(err.response?.data?.message || err.message)
+      setError(err.response?.data?.message || err.message);
     }
-  }
+  };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -44,5 +45,5 @@ export default function ForgotPasswordModal({ onClose }) {
         )}
       </div>
     </div>
-  )
+  );
 }
