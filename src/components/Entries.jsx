@@ -1,5 +1,7 @@
 // src/components/Entries.jsx
-import React, { useEffect, useState, useRef } from 'react';
+
+import React, { useEffect, useState, useRef, useContext } from 'react';
+import { io } from 'socket.io-client';
 import {
   getEntries,
   deleteEntry,
@@ -10,37 +12,23 @@ import {
 import EntryModal from './EntryModal';
 import EditEntryModal from './EditEntryModal';
 import { Edit2, Trash2, Clock, Mail } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import './Entries.css';
 
 export default function Entries() {
-  const [entries, setEntries]         = useState([]);
-  const [filtered, setFiltered]       = useState([]);
-  const [searchTerm, setSearchTerm]   = useState('');
-  const [page, setPage]               = useState(1);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
-  const [showAdd, setShowAdd]         = useState(false);
-  const [editEntry, setEditEntry]     = useState(null);
-
+  const { user } = useContext(AuthContext);
+  const [entries, setEntries]       = useState([]);
+  const [filtered, setFiltered]     = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage]             = useState(1);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState(null);
+  const [showAdd, setShowAdd]       = useState(false);
+  const [editEntry, setEditEntry]   = useState(null);
   const fileInput = useRef();
-  const pageSize = 10;
+  const pageSize  = 10;
 
-  // Fetch entries on mount
-  useEffect(() => { fetchEntries(); }, []);
-
-  // Filter when searchTerm or entries change
-  useEffect(() => {
-    const term = searchTerm.toLowerCase();
-    setFiltered(
-      entries.filter(e =>
-        e.fullName.toLowerCase().includes(term) ||
-        e.email.toLowerCase().includes(term) ||
-        (e.externalId || '').toLowerCase().includes(term)
-      )
-    );
-    setPage(1);
-  }, [searchTerm, entries]);
-
+  // Fetch entries
   async function fetchEntries() {
     setLoading(true);
     try {
@@ -52,6 +40,48 @@ export default function Entries() {
       setLoading(false);
     }
   }
+
+  // Initial load
+  useEffect(() => {
+    fetchEntries();
+  }, []);
+
+  // Real‑time subscriptions
+  useEffect(() => {
+    if (!user) return;
+
+    const socket = io(process.env.REACT_APP_API_URL, {
+      auth: { token: localStorage.getItem('token') }
+    });
+
+    // Join the org room
+    socket.emit('joinOrg', user.organizationId);
+
+    // Refresh on any change
+    socket.on('entryAdded',    fetchEntries);
+    socket.on('entryUpdated',  fetchEntries);
+    socket.on('entryDeleted',  fetchEntries);
+
+    return () => {
+      socket.off('entryAdded',   fetchEntries);
+      socket.off('entryUpdated', fetchEntries);
+      socket.off('entryDeleted', fetchEntries);
+      socket.disconnect();
+    };
+  }, [user]);
+
+  // Filter whenever entries or searchTerm change
+  useEffect(() => {
+    const term = searchTerm.toLowerCase();
+    setFiltered(
+      entries.filter(e =>
+        e.fullName.toLowerCase().includes(term) ||
+        e.email.toLowerCase().includes(term) ||
+        (e.externalId || '').toLowerCase().includes(term)
+      )
+    );
+    setPage(1);
+  }, [entries, searchTerm]);
 
   const handleImport = () => fileInput.current.click();
   const onFileChange = async e => {
@@ -71,7 +101,7 @@ export default function Entries() {
   const handleExport = async () => {
     try {
       const resp = await apiExportEntries();
-      const url = window.URL.createObjectURL(new Blob([resp.data]));
+      const url  = window.URL.createObjectURL(new Blob([resp.data]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'entries.xlsx');
@@ -93,12 +123,10 @@ export default function Entries() {
     }
   };
 
-  const handleAddClick = () => setShowAdd(true);
-  const handleEditClick = entry => setEditEntry(entry);
-  const handleHistory = id => {
-    // navigate to history if desired
-  };
-  const handleEmail = async id => {
+  const handleAddClick    = () => setShowAdd(true);
+  const handleEditClick   = entry => setEditEntry(entry);
+  const handleHistory     = id => { /* e.g. navigate(`/entries/${id}/history`) */ };
+  const handleEmail       = async id => {
     try {
       await emailSalaryById(id);
       alert('Email sent');
@@ -108,10 +136,10 @@ export default function Entries() {
   };
 
   if (loading) return <p>Loading entries…</p>;
-  if (error) return <p className="error">{error}</p>;
+  if (error)   return <p className="error">{error}</p>;
 
   const totalPages = Math.ceil(filtered.length / pageSize);
-  const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const visible    = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <main className="entries-container">
@@ -164,9 +192,8 @@ export default function Entries() {
         </thead>
         <tbody>
           {visible.map(e => {
-            const latest = e.salaryHistories
-              .slice()
-              .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
+            const latest = [...e.salaryHistories]
+              .sort((a,b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
             return (
               <tr key={e.id}>
                 <td>{e.fullName}</td>
