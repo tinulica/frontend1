@@ -79,8 +79,8 @@
 }
 
 .pm-tabs button.active {
-  color: var(--pm-accent);
-  border-bottom: 2px solid var(--pm-accent);
+  color: #fff;
+
 }
 
 .pm-body {
