@@ -1,6 +1,6 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Bell, Settings, User } from 'lucide-react';
+import { Search, Bell, Settings, User, Home, FileText, BarChart2 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import './Navbar.css';
 
@@ -28,11 +28,20 @@ export default function Navbar() {
         <span className="logo-text">Ledgerix</span>
       </div>
 
-      {/* Nav links */}
+      {/* Nav links with icons */}
       <div className="navbar-menu">
-        <NavLink to="/dashboard" className="nav-item">Dashboard</NavLink>
-        <NavLink to="/entries"    className="nav-item">Entries</NavLink>
-        <NavLink to="/reports"    className="nav-item">Reports</NavLink>
+        <NavLink to="/dashboard" className="nav-item">
+          <Home size={16} className="nav-icon" />
+          <span>Dashboard</span>
+        </NavLink>
+        <NavLink to="/entries" className="nav-item">
+          <FileText size={16} className="nav-icon" />
+          <span>Entries</span>
+        </NavLink>
+        <NavLink to="/reports" className="nav-item">
+          <BarChart2 size={16} className="nav-icon" />
+          <span>Reports</span>
+        </NavLink>
       </div>
 
       {/* Search & icons & user */}
