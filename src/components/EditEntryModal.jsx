@@ -1,4 +1,3 @@
-// src/components/EditEntryModal.jsx
 import React, { useState, useEffect } from 'react';
 import { updateEntry } from '../services/api';
 
@@ -10,7 +9,7 @@ const backdropStyle = {
 };
 const modalStyle = {
   background: '#fff', padding: '2rem', borderRadius: '8px',
-  width: '90%', maxWidth: '500px',
+  width: '90%', maxWidth: '600px',
   boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
 };
 const formGroupStyle = { marginBottom: '1rem', display: 'flex', flexDirection: 'column' };
@@ -22,6 +21,30 @@ const submitStyle = { ...buttonStyle, background: '#4f46e5', color: '#fff' };
 const cancelStyle = { ...buttonStyle, background: '#6b7280', color: '#fff' };
 const errorStyle = { color: '#dc2626', margin: '0.5rem 0', textAlign: 'center' };
 
+// Styling for salary history list
+const historyListStyle = {
+  maxHeight: '150px', overflowY: 'auto', border: '1px solid #ddd',
+  borderRadius: '4px', padding: '0.5rem', background: '#fafafa'
+};
+const historyItemStyle = { fontSize: '0.9rem', marginBottom: '0.25rem' };
+
+// Extra fields configuration per platform
+const extraFieldsConfig = {
+  GLOVO: [
+    { key: 'zoneId', label: 'Zone ID' },
+    { key: 'courierLevel', label: 'Courier Level' }
+  ],
+  TAZZ: [
+    { key: 'vehicleType', label: 'Vehicle Type' }
+  ],
+  BRINGO: [
+    { key: 'loadCapacity', label: 'Load Capacity' }
+  ],
+  ANGAJAT: [
+    { key: 'employeeId', label: 'Employee ID' }
+  ]
+};
+
 export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   const [fullName, setFullName]       = useState('');
   const [email, setEmail]             = useState('');
@@ -31,6 +54,9 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   const [iban, setIban]               = useState('');
   const [bankName, setBankName]       = useState('');
   const [beneficiary, setBeneficiary] = useState('');
+  const [extraData, setExtraData]     = useState({});
+  const [salary, setSalary]           = useState('');
+  const [salaryHistories, setSalaryHistories] = useState([]);
   const [error, setError]             = useState(null);
 
   // Populate form when entry changes
@@ -44,135 +70,136 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
       setIban(entry.iban || '');
       setBankName(entry.bankName || '');
       setBeneficiary(entry.beneficiary || '');
+      setExtraData(entry.extraData || {});
+      const histories = entry.salaryHistories || [];
+      setSalaryHistories(histories);
+      const latest = [...histories]
+        .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
+      setSalary(latest ? latest.amount.toString() : '');
       setError(null);
     }
   }, [entry]);
 
   if (!isOpen || !entry) return null;
 
+  // Handle extra field changes
+  const handleExtraChange = (key, value) => {
+    setExtraData(prev => ({ ...prev, [key]: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    // Build new salary history if changed
+    let newHistories = salaryHistories;
+    const prev = salaryHistories.length
+      ? [...salaryHistories].sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0]
+      : null;
+    if (salary && (!prev || Number(salary) !== prev.amount)) {
+      newHistories = [
+        ...salaryHistories,
+        { amount: Number(salary), changedAt: new Date().toISOString() }
+      ];
+    }
+
     try {
       await updateEntry(entry.id, {
         fullName, email, platform,
-        externalId, companyName, iban, bankName, beneficiary
+        externalId, companyName, iban, bankName, beneficiary,
+        extraData,
+        salaryHistories: newHistories
       });
-      onUpdated();
-      onClose();
+      onUpdated(); onClose();
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     }
   };
 
+  // Get extra fields for current platform
+  const fields = extraFieldsConfig[platform] || [];
+
   return (
     <div style={backdropStyle}>
       <div style={modalStyle}>
-        <h2 style={{ marginTop: 0, marginBottom: '1rem', color: '#333' }}>Edit Entry</h2>
+        <h2 style={{ marginTop: 0, color: '#333' }}>Edit Entry</h2>
         <form onSubmit={handleSubmit}>
+
+          {/* Standard fields */}
           <div style={formGroupStyle}>
-            <label htmlFor="fullName" style={labelStyle}>Full Name</label>
-            <input
-              id="fullName"
-              name="fullName"
-              type="text"
-              value={fullName}
-              onChange={e => setFullName(e.target.value)}
-              required
-              style={inputStyle}
-            />
+            <label style={labelStyle}>Full Name</label>
+            <input style={inputStyle} value={fullName}
+              onChange={e => setFullName(e.target.value)} required />
           </div>
 
           <div style={formGroupStyle}>
-            <label htmlFor="email" style={labelStyle}>Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              style={inputStyle}
-            />
+            <label style={labelStyle}>Email</label>
+            <input style={inputStyle} type="email" value={email}
+              onChange={e => setEmail(e.target.value)} required />
           </div>
 
           <div style={formGroupStyle}>
-            <label htmlFor="platform" style={labelStyle}>Platform</label>
-            <select
-              id="platform"
-              name="platform"
-              value={platform}
-              onChange={e => setPlatform(e.target.value)}
-              required
-              style={inputStyle}
-            >
+            <label style={labelStyle}>Platform</label>
+            <select style={inputStyle} value={platform}
+              onChange={e => setPlatform(e.target.value)} required>
               <option value="">Select platform</option>
-              <option value="GLOVO">GLOVO</option>
-              <option value="TAZZ">TAZZ</option>
-              <option value="BRINGO">BRINGO</option>
-              <option value="ANGAJAT">ANGAJAT</option>
+              {Object.keys(extraFieldsConfig).map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
             </select>
           </div>
 
+          {/* Core optional fields */}
+          {[
+            { label: 'External ID', value: externalId, setter: setExternalId },
+            { label: 'Company Name', value: companyName, setter: setCompanyName },
+            { label: 'IBAN', value: iban, setter: setIban },
+            { label: 'Bank Name', value: bankName, setter: setBankName },
+            { label: 'Beneficiary', value: beneficiary, setter: setBeneficiary }
+          ].map(f => (
+            <div key={f.label} style={formGroupStyle}>
+              <label style={labelStyle}>{f.label}</label>
+              <input style={inputStyle} value={f.value}
+                onChange={e => f.setter(e.target.value)} />
+            </div>
+          ))}
+
+          {/* Platform-specific fields */}
+          {fields.length > 0 && (
+            <div style={{ marginBottom: '1rem' }}>
+              <h3 style={{ color: '#555' }}>Additional {platform} Data</h3>
+              {fields.map(f => (
+                <div key={f.key} style={formGroupStyle}>
+                  <label style={labelStyle}>{f.label}</label>
+                  <input style={inputStyle} value={extraData[f.key] || ''}
+                    onChange={e => handleExtraChange(f.key, e.target.value)} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Salary input */}
           <div style={formGroupStyle}>
-            <label htmlFor="externalId" style={labelStyle}>External ID</label>
-            <input
-              id="externalId"
-              name="externalId"
-              type="text"
-              value={externalId}
-              onChange={e => setExternalId(e.target.value)}
-              style={inputStyle}
-            />
+            <label style={labelStyle}>Salary (€)</label>
+            <input style={inputStyle} type="number" step="0.01"
+              value={salary} onChange={e => setSalary(e.target.value)} />
           </div>
 
-          <div style={formGroupStyle}>
-            <label htmlFor="companyName" style={labelStyle}>Company Name</label>
-            <input
-              id="companyName"
-              name="companyName"
-              type="text"
-              value={companyName}
-              onChange={e => setCompanyName(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={formGroupStyle}>
-            <label htmlFor="iban" style={labelStyle}>IBAN</label>
-            <input
-              id="iban"
-              name="iban"
-              type="text"
-              value={iban}
-              onChange={e => setIban(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={formGroupStyle}>
-            <label htmlFor="bankName" style={labelStyle}>Bank Name</label>
-            <input
-              id="bankName"
-              name="bankName"
-              type="text"
-              value={bankName}
-              onChange={e => setBankName(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={formGroupStyle}>
-            <label htmlFor="beneficiary" style={labelStyle}>Beneficiary</label>
-            <input
-              id="beneficiary"
-              name="beneficiary"
-              type="text"
-              value={beneficiary}
-              onChange={e => setBeneficiary(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
+          {/* Salary history list */}
+          {salaryHistories.length > 0 && (
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Salary History</label>
+              <div style={historyListStyle}>
+                {[...salaryHistories]
+                  .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))
+                  .map((h, i) => (
+                    <div key={i} style={historyItemStyle}>
+                      €{h.amount.toFixed(2)} • {new Date(h.changedAt).toLocaleDateString()}
+                    </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && <p style={errorStyle}>{error}</p>}
 
