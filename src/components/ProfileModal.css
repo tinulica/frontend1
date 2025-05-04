@@ -70,7 +70,7 @@
 .pm-tabs button {
   flex: 1;
   padding: var(--pm-spacing) 0;
-  background: white;
+  background: #ffffff;
   border: none;
   font-size: 1rem;
   color: var(--pm-muted);
