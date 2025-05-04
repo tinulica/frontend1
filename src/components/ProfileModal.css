@@ -19,6 +19,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding: 1rem;
 }
 
 .pm-header {
@@ -50,12 +51,14 @@
 
 .pm-body {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+ grid-template-columns: 1fr 2fr;
+ gap: 2rem;          /* ← space between the two columns */
+ margin-top: 1rem;   /* ← a bit of breathing room under the header */
 }
 
 .pm-column {
   background: #ffffff;
-  padding: 2rem;
+  padding: 2.5rem;
 }
 
 .pm-column:first-child {
