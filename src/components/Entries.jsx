@@ -23,7 +23,13 @@ import {
 import { AuthContext } from '../context/AuthContext';
 import './Entries.css';
 
-const PLATFORMS = ['GLOVO', 'TAZZ', 'BRINGO', 'GENERAL'];
+// define each tab's filter key and display label
+const TABS = [
+  { key: 'GLOVO',   label: 'GLOVO' },
+  { key: 'TAZZ',    label: 'TAZZ' },
+  { key: 'BRINGO',  label: 'BRINGO' },
+  { key: 'GENERAL', label: 'ANGAJAT' }
+];
 
 export default function Entries() {
   const { user } = useContext(AuthContext);
@@ -34,11 +40,11 @@ export default function Entries() {
   const [error, setError]           = useState(null);
   const [showAdd, setShowAdd]       = useState(false);
   const [editEntry, setEditEntry]   = useState(null);
-  const [activePlat, setActivePlat] = useState(PLATFORMS[0]);
+  const [activePlat, setActivePlat] = useState(TABS[0].key);
   const fileInput = useRef();
   const pageSize  = 10;
 
-  // Fetch all entries
+  // fetch all entries once
   async function fetchEntries() {
     setLoading(true);
     try {
@@ -50,10 +56,9 @@ export default function Entries() {
       setLoading(false);
     }
   }
-
   useEffect(fetchEntries, []);
 
-  // Real‑time subscriptions
+  // real‑time updates
   useEffect(() => {
     if (!user) return;
     const socket = io(process.env.REACT_APP_API_URL, {
@@ -71,7 +76,7 @@ export default function Entries() {
     };
   }, [user]);
 
-  // Filter by active platform + search
+  // filter by platform + search
   const filtered = useMemo(() => {
     const term = searchTerm.toLowerCase();
     return entries
@@ -89,7 +94,7 @@ export default function Entries() {
     [filtered, page]
   );
 
-  // Stats (for current platform)
+  // average salary for this platform
   const avgSalary = useMemo(() => {
     const sums = entries
       .filter(e => e.platform === activePlat)
@@ -102,7 +107,7 @@ export default function Entries() {
     return (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(2);
   }, [entries, activePlat]);
 
-  // Handlers
+  // handlers for import/export etc.
   const handleImport = () => fileInput.current.click();
   const onFileChange = async e => {
     const file = e.target.files[0];
@@ -148,22 +153,23 @@ export default function Entries() {
 
   return (
     <main className="entries-container">
-      {/* Platform Tabs */}
+
+      {/* PLATFORM TABS */}
       <div className="platform-tabs">
-        {PLATFORMS.map(p => (
+        {TABS.map(tab => (
           <button
-            key={p}
-            className={`plat-tab${p === activePlat ? ' active' : ''}`}
-            onClick={() => { setActivePlat(p); setPage(1); }}
+            key={tab.key}
+            className={`plat-tab${tab.key === activePlat ? ' active' : ''}`}
+            onClick={() => { setActivePlat(tab.key); setPage(1); }}
           >
-            {p}
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Header + Stats */}
+      {/* HEADER & STATS */}
       <div className="entries-header">
-        <h1>{activePlat} Entries</h1>
+        <h1>{TABS.find(t => t.key === activePlat)?.label} Entries</h1>
         <div className="stats-cards">
           <div className="stat-card">
             <p className="stat-label">Count</p>
@@ -176,7 +182,7 @@ export default function Entries() {
         </div>
       </div>
 
-      {/* Controls */}
+      {/* CONTROLS */}
       <div className="entries-controls">
         <div className="search-wrapper">
           <Search size={16} />
@@ -207,7 +213,7 @@ export default function Entries() {
         />
       </div>
 
-      {/* Modals */}
+      {/* MODALS */}
       <EntryModal
         isOpen={showAdd}
         platform={activePlat}
@@ -221,7 +227,7 @@ export default function Entries() {
         onUpdated={() => { setEditEntry(null); fetchEntries(); }}
       />
 
-      {/* Table */}
+      {/* ENTRIES TABLE */}
       <div className="table-container">
         <table className="entries-table">
           <thead>
@@ -264,7 +270,7 @@ export default function Entries() {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* PAGINATION */}
       <div className="pagination">
         <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
           Prev
