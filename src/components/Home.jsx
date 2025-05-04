@@ -1,9 +1,10 @@
-// src/components/Home.jsx
+
 import React, { useState, useContext, useEffect } from 'react';
-import { useLocation, useNavigate }           from 'react-router-dom';
-import { AuthContext }                        from '../context/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import ResetPassword from './ResetPassword';
 import './Home.css';
-import illustration                            from '../assets/auth-illustration.png';
+import illustration from '../assets/auth-illustration.png';
 
 export default function Home() {
   const { login, register } = useContext(AuthContext);
@@ -18,6 +19,7 @@ export default function Home() {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
+  const [showReset, setShowReset] = useState(false);
 
   useEffect(() => {
     if (inviteToken) {
@@ -33,13 +35,9 @@ export default function Home() {
     try {
       if (mode === 'login') {
         await login({ email, password });
-        // on success, AuthContext will navigate to /dashboard
       } else {
         await register({ fullName, email, password, inviteToken });
-        // if this was an invite registration, send them to login
-        if (inviteToken) {
-          navigate('/login');
-        }
+        if (inviteToken) navigate('/login');
       }
     } catch (err) {
       setError(err.message);
@@ -110,21 +108,19 @@ export default function Home() {
               />
             </div>
 
- {mode === 'login' && (
-   <div className="forgot-password">
-     <button
-       type="button"
-       className="link-btn"
-       onClick={() => navigate('/forgot-password')}
-     >
-       Forgot password?
-     </button>
-   </div>
- )}
-
             <button type="submit" className="submit-btn">
               {mode === 'login' ? 'Sign In' : 'Create Account'}
             </button>
+
+            {mode === 'login' && (
+              <button
+                type="button"
+                className="forgot-btn"
+                onClick={() => setShowReset(true)}
+              >
+                Forgot password?
+              </button>
+            )}
           </form>
 
           <div className="auth-footer">
@@ -150,6 +146,15 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {showReset && (
+        <div className="modal-overlay" onClick={() => setShowReset(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowReset(false)}>×</button>
+            <ResetPassword />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
