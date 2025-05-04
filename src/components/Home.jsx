@@ -1,9 +1,9 @@
 // src/components/Home.jsx
 import React, { useState, useContext, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useLocation, useNavigate }           from 'react-router-dom';
+import { AuthContext }                        from '../context/AuthContext';
 import './Home.css';
-import illustration from '../assets/auth-illustration.png';
+import illustration                            from '../assets/auth-illustration.png';
 
 export default function Home() {
   const { login, register } = useContext(AuthContext);
@@ -57,13 +57,13 @@ export default function Home() {
           <div className="auth-tabs">
             <button
               className={`tab ${mode === 'login' ? 'active' : ''}`}
-              onClick={() => { setMode('login'); setError('') }}
+              onClick={() => { setMode('login'); setError(''); }}
             >
               Sign In
             </button>
             <button
               className={`tab ${mode === 'register' ? 'active' : ''}`}
-              onClick={() => { setMode('register'); setError('') }}
+              onClick={() => { setMode('register'); setError(''); }}
             >
               Register
             </button>
@@ -110,6 +110,18 @@ export default function Home() {
               />
             </div>
 
+            {mode === 'login' && (
+              <div className="forgot-container">
+                <button
+                  type="button"
+                  className="forgot-link"
+                  onClick={() => navigate('/forgot-password')}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
+
             <button type="submit" className="submit-btn">
               {mode === 'login' ? 'Sign In' : 'Create Account'}
             </button>
@@ -120,7 +132,7 @@ export default function Home() {
               <>Don’t have an account?{' '}
                 <button
                   className="switch-btn"
-                  onClick={() => { setMode('register'); setError('') }}
+                  onClick={() => { setMode('register'); setError(''); }}
                 >
                   Register
                 </button>
@@ -129,7 +141,7 @@ export default function Home() {
               <>Already have an account?{' '}
                 <button
                   className="switch-btn"
-                  onClick={() => { setMode('login'); setError('') }}
+                  onClick={() => { setMode('login'); setError(''); }}
                 >
                   Sign In
                 </button>
