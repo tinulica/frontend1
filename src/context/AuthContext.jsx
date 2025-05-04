@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
     setUser(me);
   };
 
-  // Logout
+  // Log out
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -73,12 +73,21 @@ export function AuthProvider({ children }) {
   };
 
   // --- REGISTER ---
+  // inviteToken is passed for invite‑only sign‑ups
   const register = async ({ fullName, email, password, inviteToken }) => {
     try {
       const payload = { fullName, email, password };
       if (inviteToken) payload.token = inviteToken;
       const { data } = await apiRegister(payload);
       const { token, user: me } = data;
+
++     // If this was an invite, *do not* persist or navigate here.
++     // Let your Home form detect success and redirect to /login.
++     if (inviteToken) {
++       return;
++     }
+
+      // otherwise, a self‑signup → auto‑login & dashboard
       persist(token, me);
       navigate('/dashboard');
     } catch (err) {
@@ -87,7 +96,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // While checking auth, show loading
   if (loading) {
     return (
       <div className="auth-loading">
