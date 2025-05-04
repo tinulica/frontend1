@@ -78,7 +78,7 @@ export default function Navbar() {
             <div className="dropdown-menu">
               {user ? (
                 <>
-                  <div className="dropdown-item" onClick={() => goTo('/profile')}>
+                   <div className="dropdown-item" onClick={() => goTo('/profile')}>
                     Profile
                   </div>
                   <div className="dropdown-item" onClick={() => logout()}>
