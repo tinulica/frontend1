@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar         from './components/Navbar';
 import Home           from './components/Home';
-import ForgotPassword from './components/ForgotPassword';
+import ForgotPassword from './components/ForgotPassword'
 import ResetPassword  from './components/ResetPassword';
 import Dashboard      from './components/Dashboard';
 import Entries        from './components/Entries';
