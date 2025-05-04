@@ -1,5 +1,4 @@
 // src/components/Home.jsx
-
 import React, { useState, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -7,19 +6,18 @@ import './Home.css';
 import illustration from '../assets/auth-illustration.png';
 
 export default function Home() {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const inviteToken = params.get('token') || '';
+  const { login, register } = useContext(AuthContext);
+  const { search }          = useLocation();
+  const inviteToken         = new URLSearchParams(search).get('token') || '';
 
+  // If we have an inviteToken, default to "Register"
   const [mode, setMode]         = useState(inviteToken ? 'register' : 'login');
   const [fullName, setFullName] = useState('');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
 
-  const { login, register } = useContext(AuthContext);
-
-  // If there's an invite token in the URL, force register mode
+  // Whenever inviteToken changes, switch to register
   useEffect(() => {
     if (inviteToken) {
       setMode('register');
@@ -33,17 +31,15 @@ export default function Home() {
 
     let errMsg = null;
     if (mode === 'login') {
-      // login expects an object
       errMsg = await login({ email, password });
     } else {
-      // register supports inviteToken
       errMsg = await register({ fullName, email, password, inviteToken });
     }
 
     if (errMsg) {
       setError(errMsg);
     }
-    // on success, AuthContext will redirect to /dashboard
+    // On success, AuthContext will navigate to /dashboard automatically.
   };
 
   return (
