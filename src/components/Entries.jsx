@@ -28,7 +28,7 @@ const TABS = [
   { key: 'GLOVO',   label: 'GLOVO' },
   { key: 'TAZZ',    label: 'TAZZ' },
   { key: 'BRINGO',  label: 'BRINGO' },
-  { key: 'GENERAL', label: 'ANGAJAT' }
+  { key: 'ANGAJAT', label: 'ANGAJAT' }
 ];
 
 export default function Entries() {
