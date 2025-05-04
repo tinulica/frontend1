@@ -146,3 +146,22 @@
     padding: 2rem;
   }
 }
+/* Home.css */
+
+/* Container for the “Forgot your password?” link */
+.forgot-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+/* Style the link-like button */
+.forgot-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
