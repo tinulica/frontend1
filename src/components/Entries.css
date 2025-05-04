@@ -74,15 +74,15 @@
   gap: 0.5rem;
 }
 .actions-wrapper button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   background-color: #4f63ac;
   color: #fff;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   cursor: pointer;
   transition: background 0.2s ease;
 }
@@ -104,11 +104,17 @@
 .entries-table thead {
   background: #f0f2f7;
 }
-.entries-table th, .entries-table td {
+.entries-table th,
+.entries-table td {
   padding: 0.75rem 1rem;
   text-align: left;
   font-size: 0.9rem;
   color: #333;
+}
+.entries-table th:first-child,
+.entries-table td:first-child {
+  width: 3rem;
+  text-align: center;
 }
 .entries-table th {
   font-weight: 500;
@@ -121,6 +127,19 @@
 }
 .entries-table tbody tr:hover {
   background: #f9faff;
+}
+
+/* Style checkboxes */
+.entries-table input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #4f63ac;
+  margin: 0;
+}
+.entries-table td input[type="checkbox"] {
+  display: block;
+  margin: auto;
 }
 
 /* Actions column */
@@ -160,9 +179,7 @@
   background: #f0f2f7;
 }
 
-/* src/components/Dashboard.css */
-
-/* re-use entries’ btn styles */
+/* Global button styles for consistency */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -174,61 +191,42 @@
   cursor: pointer;
   font-weight: 500;
 }
-
 .btn-primary {
   background-color: #3b82f6;
   color: white;
 }
-
 .btn-danger {
   background-color: #ef4444;
   color: white;
 }
 
-/* icon-only buttons */
-.icon-btn {
-  padding: 0.25rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-/* Container for the platform tabs */
+/* Platform tabs */
 .platform-tabs {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
-
-/* Base style for each tab */
 .plat-tab {
   padding: 0.5rem 1rem;
   border-radius: 9999px;
-  border: 1px solid #D1D5DB;      /* gray-300 */
-  background-color: #F9FAFB;       /* gray-50 */
-  color: #374151;                  /* gray-700 */
+  border: 1px solid #D1D5DB;
+  background-color: #F9FAFB;
+  color: #374151;
   font-weight: 500;
-  font-size: 0.875rem;             /* 14px */
+  font-size: 0.875rem;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
-
-/* Hover state for inactive tabs */
 .plat-tab:not(.active):hover {
-  background-color: #E5E7EB;       /* gray-200 */
+  background-color: #E5E7EB;
 }
-
-/* Active tab */
 .plat-tab.active {
-  background-color: #4F46E5;       /* indigo-600 */
+  background-color: #4F46E5;
   border-color: #4F46E5;
   color: #FFFFFF;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Ensure the active tab stands out on focus as well */
 .plat-tab:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.4);
 }
-
-/* the rest of your existing Dashboard.css below... */
