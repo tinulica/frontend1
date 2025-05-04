@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { forgotPassword, resetPassword } from '../services/api';
 import { useLocation } from 'react-router-dom';
-import './ResetPassword.css'; // you can style it similar to your Auth.css
+import './Auth.css';
 
 export default function ResetPassword({ onClose }) {
   const [mode, setMode] = useState('forgot'); // 'forgot' or 'reset'
