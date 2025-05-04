@@ -1,13 +1,12 @@
 // src/components/Home.jsx
 import React, { useState, useContext, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import './Home.css'
 import illustration from '../assets/auth-illustration.png'
 
 export default function Home() {
   const { login, register } = useContext(AuthContext)
-  const navigate = useNavigate()
   const { search } = useLocation()
   const params = new URLSearchParams(search)
   const inviteToken = params.get('token') || ''
