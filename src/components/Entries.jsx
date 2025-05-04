@@ -1,4 +1,3 @@
-// src/components/Entries.jsx
 import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import {
@@ -33,14 +32,15 @@ const TABS = [
 
 export default function Entries() {
   const { user } = useContext(AuthContext);
-  const [entries, setEntries]       = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage]             = useState(1);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState(null);
-  const [showAdd, setShowAdd]       = useState(false);
-  const [editEntry, setEditEntry]   = useState(null);
-  const [activeTab, setActiveTab]   = useState(TABS[0].key);
+  const [entries, setEntries]           = useState([]);
+  const [searchTerm, setSearchTerm]     = useState('');
+  const [page, setPage]                 = useState(1);
+  const [loading, setLoading]           = useState(true);
+  const [error, setError]               = useState(null);
+  const [showAdd, setShowAdd]           = useState(false);
+  const [editEntry, setEditEntry]       = useState(null);
+  const [activeTab, setActiveTab]       = useState(TABS[0].key);
+  const [selectedIds, setSelectedIds]   = useState(new Set());
   const fileInput = useRef();
   const pageSize  = 10;
 
@@ -50,6 +50,7 @@ export default function Entries() {
     try {
       const { data } = await getEntries();
       setEntries(data);
+      setSelectedIds(new Set());
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -107,6 +108,28 @@ export default function Entries() {
     return (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(2);
   }, [entries, activeTab]);
 
+  // handlers for bulk selection
+  const handleSelectAll = e => {
+    if (e.target.checked) {
+      setSelectedIds(new Set(filtered.map(ent => ent.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+  const handleSelectOne = (id, checked) => {
+    const next = new Set(selectedIds);
+    if (checked) next.add(id);
+    else next.delete(id);
+    setSelectedIds(next);
+  };
+  const handleBulkDelete = async () => {
+    if (!window.confirm('Delete selected entries?')) return;
+    for (let id of selectedIds) {
+      await deleteEntry(id);
+    }
+    fetchEntries();
+  };
+
   // Import / export handlers
   const handleImport = () => fileInput.current.click();
   const onFileChange = async e => {
@@ -159,10 +182,7 @@ export default function Entries() {
           <button
             key={tab.key}
             className={`plat-tab${tab.key === activeTab ? ' active' : ''}`}
-            onClick={() => {
-              setActiveTab(tab.key);
-              setPage(1);
-            }}
+            onClick={() => { setActiveTab(tab.key); setPage(1); setSelectedIds(new Set()); }}
           >
             {tab.label}
           </button>
@@ -184,7 +204,7 @@ export default function Entries() {
         </div>
       </div>
 
-      {/* CONTROLS */}
+      {/* CONTROLS & BULK ACTION */}
       <div className="entries-controls">
         <div className="search-wrapper">
           <Search size={16} />
@@ -205,6 +225,11 @@ export default function Entries() {
           <button className="btn" onClick={handleExport}>
             <Download size={16} /> Export
           </button>
+          {selectedIds.size > 0 && (
+            <button className="btn btn-danger" onClick={handleBulkDelete}>
+              <Trash2 size={16} /> Delete ({selectedIds.size})
+            </button>
+          )}
         </div>
         <input
           type="file"
@@ -234,6 +259,13 @@ export default function Entries() {
         <table className="entries-table">
           <thead>
             <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  onChange={handleSelectAll}
+                  checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                />
+              </th>
               <th>Name</th>
               <th>Email</th>
               <th>Ext ID</th>
@@ -247,6 +279,13 @@ export default function Entries() {
                 .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
               return (
                 <tr key={e.id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(e.id)}
+                      onChange={a => handleSelectOne(e.id, a.target.checked)}
+                    />
+                  </td>
                   <td>{e.fullName}</td>
                   <td>{e.email}</td>
                   <td>{e.externalId || '—'}</td>
@@ -277,16 +316,12 @@ export default function Entries() {
         <button
           onClick={() => setPage(p => Math.max(p - 1, 1))}
           disabled={page === 1}
-        >
-          Prev
-        </button>
+        >Prev</button>
         <span>Page {page} of {totalPages}</span>
         <button
           onClick={() => setPage(p => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
-        >
-          Next
-        </button>
+        >Next</button>
       </div>
     </main>
   );
