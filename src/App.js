@@ -7,6 +7,7 @@ import Home from './components/Home';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import Entries from './components/Entries';
+import ProfileModal from './components/ProfileModal';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthContext } from './context/AuthContext';
 
@@ -40,6 +41,16 @@ function App() {
             user
               ? <Navigate to="/dashboard" replace />
               : <Auth mode="register" />
+          }
+        />
+
+        {/* Profile (modal) */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileModal />
+            </ProtectedRoute>
           }
         />
 
