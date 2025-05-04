@@ -1,32 +1,49 @@
-import React, { useState, useContext } from 'react';
+// src/components/Home.jsx
+
+import React, { useState, useContext, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Home.css';
 import illustration from '../assets/auth-illustration.png';
 
 export default function Home() {
-  const [mode, setMode]         = useState('login');
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const inviteToken = params.get('token') || '';
+
+  const [mode, setMode]         = useState(inviteToken ? 'register' : 'login');
   const [fullName, setFullName] = useState('');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
-  const { login, register }     = useContext(AuthContext);
+
+  const { login, register } = useContext(AuthContext);
+
+  // If there's an invite token in the URL, force register mode
+  useEffect(() => {
+    if (inviteToken) {
+      setMode('register');
+      setError('');
+    }
+  }, [inviteToken]);
 
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
-    try {
-      if (mode === 'login') {
-        await login(email, password);
-      } else {
-        await register(fullName, email, password);
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        'Something went wrong'
-      );
+
+    let errMsg = null;
+    if (mode === 'login') {
+      // login expects an object
+      errMsg = await login({ email, password });
+    } else {
+      // register supports inviteToken
+      errMsg = await register({ fullName, email, password, inviteToken });
     }
+
+    if (errMsg) {
+      setError(errMsg);
+    }
+    // on success, AuthContext will redirect to /dashboard
   };
 
   return (
@@ -36,11 +53,12 @@ export default function Home() {
           className="auth-left"
           style={{ backgroundImage: `url(${illustration})` }}
         />
+
         <div className="auth-right">
           <div className="auth-tabs">
             <button
               className={mode === 'login' ? 'tab active' : 'tab'}
-              onClick={() => { setMode('login'); setError(''); }}
+              onClick={() => { setMode('login');    setError(''); }}
             >
               Sign In
             </button>
@@ -103,16 +121,16 @@ export default function Home() {
               <>Don’t have an account?{' '}
                 <button
                   className="switch-btn"
-                  onClick={() => setMode('register')}
+                  onClick={() => { setMode('register'); setError(''); }}
                 >
                   Register
                 </button>
               </>
             ) : (
-              <>Already have one?{' '}
+              <>Already have an account?{' '}
                 <button
                   className="switch-btn"
-                  onClick={() => setMode('login')}
+                  onClick={() => { setMode('login'); setError(''); }}
                 >
                   Sign In
                 </button>
