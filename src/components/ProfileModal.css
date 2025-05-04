@@ -1,0 +1,71 @@
+/* src/components/ProfileModal.css */
+.pm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.pm-modal {
+  background: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.pm-modal h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #333;
+}
+.pm-field {
+  margin-bottom: 1rem;
+}
+.pm-field label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: #555;
+}
+.pm-field input,
+.pm-field select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+.pm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.pm-cancel,
+.pm-save {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.pm-cancel {
+  background: #6b7280;
+  color: #fff;
+}
+.pm-save {
+  background: #4f46e5;
+  color: #fff;
+}
+.pm-error {
+  color: #dc2626;
+  margin: 0.5rem 0;
+}
+.pm-success {
+  color: #047857;
+  margin: 0.5rem 0;
+}
