@@ -2,7 +2,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import ForgotPasswordModal from './ForgotPasswordModal'
 import './Home.css'
 import illustration from '../assets/auth-illustration.png'
 
@@ -19,7 +18,6 @@ export default function Home() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [showForgot, setShowForgot] = useState(false)
 
   // If there's an invite token in the URL, switch to register
   useEffect(() => {
