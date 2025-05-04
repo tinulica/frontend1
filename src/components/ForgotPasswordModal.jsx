@@ -1,53 +1,48 @@
-import React, { useState } from 'react';
-import { requestReset }       from '../services/api';
-import './ForgotPasswordModal.css';
+import { useState } from 'react'
+import { forgotPassword } from '../services/api'
+import './ForgotPasswordModal.css'
 
 export default function ForgotPasswordModal({ onClose }) {
-  const [email, setEmail]     = useState('');
-  const [error, setError]     = useState('');
-  const [info, setInfo]       = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [email, setEmail]   = useState('')
+  const [error, setError]   = useState('')
+  const [info, setInfo]     = useState('')
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setError('');
-    setInfo('');
-    setSubmitting(true);
+  const onSubmit = async e => {
+    e.preventDefault()
+    setError('')
     try {
-      const { data } = await requestReset({ email });
-      setInfo(data.message || 'Check your inbox for reset instructions.');
+      const { data } = await forgotPassword({ email })
+      setInfo(data.message || 'If that address exists, we’ve sent reset instructions.')
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
-    } finally {
-      setSubmitting(false);
+      setError(err.response?.data?.message || err.message)
     }
-  };
+  }
 
   return (
-    <div className="fp-backdrop" onClick={onClose}>
-      <div className="fp-modal" onClick={e => e.stopPropagation()}>
-        <button className="fp-close" onClick={onClose}>×</button>
-        <h2>Forgot Password</h2>
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <header>
+          <h2>Forgot Password</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </header>
         {info ? (
-          <p className="fp-info">{info}</p>
+          <p className="info-message">{info}</p>
         ) : (
-          <form onSubmit={handleSubmit} className="fp-form">
-            <label htmlFor="fp-email">Your email address</label>
-            <input
-              id="fp-email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              disabled={submitting}
-            />
-            {error && <p className="fp-error">{error}</p>}
-            <button type="submit" disabled={submitting}>
-              {submitting ? 'Sending…' : 'Send Reset Link'}
-            </button>
+          <form onSubmit={onSubmit}>
+            <div className="form-group">
+              <label>Your email address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p className="error-message">{error}</p>}
+            <button type="submit">Send Reset Link</button>
           </form>
         )}
       </div>
     </div>
-  );
+  )
 }
