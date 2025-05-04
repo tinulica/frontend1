@@ -1,27 +1,26 @@
-// src/components/Home.jsx
 import React, { useState, useContext, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import ResetPassword from './ResetPassword'
+import ForgotPasswordModal from './ForgotPasswordModal'
 import './Home.css'
 import illustration from '../assets/auth-illustration.png'
 
 export default function Home() {
   const { login, register } = useContext(AuthContext)
-  const navigate            = useNavigate()
-  const { search }          = useLocation()
-  const params              = new URLSearchParams(search)
-  const inviteToken         = params.get('token') || ''
+  const navigate = useNavigate()
+  const { search } = useLocation()
+  const params = new URLSearchParams(search)
+  const inviteToken = params.get('token') || ''
 
   // tab mode: 'login' or 'register'
-  const [mode, setMode]         = useState(inviteToken ? 'register' : 'login')
+  const [mode, setMode] = useState(inviteToken ? 'register' : 'login')
   const [fullName, setFullName] = useState('')
-  const [email, setEmail]       = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
+  const [error, setError] = useState('')
 
-  // forgot‑pw modal
-  const [showReset, setShowReset] = useState(false)
+  // forgot-password modal
+  const [showForgot, setShowForgot] = useState(false)
 
   // if URL had ?token=..., force register
   useEffect(() => {
@@ -37,16 +36,16 @@ export default function Home() {
     try {
       if (mode === 'login') {
         await login({ email, password })
-        // AuthContext will navigate to /dashboard
+        // AuthContext will navigate on success
       } else {
         await register({ fullName, email, password, inviteToken })
         if (inviteToken) {
-          // after invite‐based register, send them to sign‑in
+          // after invite-based register, switch to login tab
           setMode('login')
         }
       }
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Something went wrong')
     }
   }
 
@@ -60,8 +59,8 @@ export default function Home() {
         <div className="auth-right">
           <div className="auth-tabs">
             <button
-              className={`tab ${mode === 'login'    ? 'active' : ''}`}
-              onClick={() => { setMode('login');    setError('') }}
+              className={`tab ${mode === 'login' ? 'active' : ''}`}
+              onClick={() => { setMode('login'); setError('') }}
             >
               Sign In
             </button>
@@ -124,7 +123,7 @@ export default function Home() {
               <button
                 type="button"
                 className="link-btn"
-                onClick={() => setShowReset(true)}
+                onClick={() => setShowForgot(true)}
               >
                 Forgot password?
               </button>
@@ -133,7 +132,7 @@ export default function Home() {
 
           <div className="auth-footer">
             {mode === 'login' ? (
-              <>Don’t have an account?{' '}
+              <>Don’t have an account? {' '}
                 <button
                   className="switch-btn"
                   onClick={() => { setMode('register'); setError('') }}
@@ -142,7 +141,7 @@ export default function Home() {
                 </button>
               </>
             ) : (
-              <>Already have an account?{' '}
+              <>Already have an account? {' '}
                 <button
                   className="switch-btn"
                   onClick={() => { setMode('login'); setError('') }}
@@ -155,8 +154,8 @@ export default function Home() {
         </div>
       </div>
 
-      {showReset && (
-        <ResetPassword onClose={() => setShowReset(false)} />
+      {showForgot && (
+        <ForgotPasswordModal onClose={() => setShowForgot(false)} />
       )}
     </div>
   )
