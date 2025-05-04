@@ -1,7 +1,8 @@
+// src/components/Home.jsx
 import React, { useState, useContext, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import ForgotPasswordModal from './ForgotPasswordModal'  // ← fixed import
+import ForgotPasswordModal from './ForgotPasswordModal'
 import './Home.css'
 import illustration from '../assets/auth-illustration.png'
 
@@ -12,17 +13,15 @@ export default function Home() {
   const params = new URLSearchParams(search)
   const inviteToken = params.get('token') || ''
 
-  // tab mode: 'login' or 'register'
+  // Mode: 'login' or 'register'
   const [mode, setMode] = useState(inviteToken ? 'register' : 'login')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-
-  // forgot‑password modal
   const [showForgot, setShowForgot] = useState(false)
 
-  // if URL had ?token=..., force register
+  // If there's an invite token in the URL, switch to register
   useEffect(() => {
     if (inviteToken) {
       setMode('register')
@@ -34,23 +33,22 @@ export default function Home() {
     e.preventDefault()
     setError('')
 
-    if (mode === 'login') {
-      const err = await login({ email, password })
-      if (err) return setError(err)
-      return navigate('/dashboard', { replace: true })
-    }
-
-    // register flow
-    const err = await register({ fullName, email, password, inviteToken })
-    if (err) return setError(err)
-
-    if (inviteToken) {
-      // after accepting invite, switch to login tab
-      setMode('login')
-      setError('')
-    } else {
-      // normal signup → go straight in
-      navigate('/dashboard', { replace: true })
+    try {
+      if (mode === 'login') {
+        // Context login will throw on failure and navigate on success
+        await login({ email, password })
+      } else {
+        // Register flow
+        await register({ fullName, email, password, token: inviteToken })
+        if (inviteToken) {
+          // If they came via invite, switch back to login so they can sign in
+          setMode('login')
+          setError('Registration successful! Please sign in.')
+        }
+      }
+    } catch (err) {
+      // Show the error message from the API (or fallback)
+      setError(err.response?.data?.message || err.message)
     }
   }
 
@@ -137,7 +135,8 @@ export default function Home() {
 
           <div className="auth-footer">
             {mode === 'login' ? (
-              <>Don’t have an account?{' '}
+              <>
+                Don’t have an account?{' '}
                 <button
                   className="switch-btn"
                   onClick={() => { setMode('register'); setError('') }}
@@ -146,7 +145,8 @@ export default function Home() {
                 </button>
               </>
             ) : (
-              <>Already have an account?{' '}
+              <>
+                Already have an account?{' '}
                 <button
                   className="switch-btn"
                   onClick={() => { setMode('login'); setError('') }}
