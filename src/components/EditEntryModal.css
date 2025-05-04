@@ -119,3 +119,34 @@
 .btn-primary:hover {
   background: #4338ca;
 }
+/* src/components/EditEntryModal.css */
+
+/* Overlay + container */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+}
+
+/* Drawer panel */
+.modal-drawer {
+  position: relative;    /* create stacking context */
+  z-index: 10;           /* sit above the backdrop */
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Clickable backdrop */
+.modal-backdrop {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  position: relative;    /* necessary for z-index */
+  z-index: 5;            /* behind the drawer */
+}
