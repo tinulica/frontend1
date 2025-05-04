@@ -1,35 +1,34 @@
+// src/components/Auth.jsx
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Auth.css';
 
-export default function Auth({ mode }) {
+export default function Auth({ mode: initialMode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, register } = useContext(AuthContext);
 
+  const [mode, setMode] = useState(initialMode);
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [inviteToken, setInviteToken] = useState('');
-  const [error, setError] = useState(null);
-  const [info, setInfo] = useState('');
+  const [error, setError]       = useState(null);
+  const [info, setInfo]         = useState('');
 
-  // Pre-fill invite token or info messages
+  // On mount: read query for ?token=... and any state.success message
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const token = params.get('token');
+    const token  = params.get('token');
     if (token) {
       setInviteToken(token);
-      // Force to register view if coming via invite
-      if (mode !== 'register') {
-        navigate('/register', { replace: true });
-      }
+      setMode('register');
     }
     if (location.state?.success) {
       setInfo(location.state.success);
     }
-  }, [location, mode, navigate]);
+  }, [location]);
 
   const onSubmit = async e => {
     e.preventDefault();
@@ -39,8 +38,8 @@ export default function Auth({ mode }) {
     try {
       if (mode === 'register') {
         await register({ fullName, email, password, inviteToken });
-        // After invite registration, redirect to login
         if (inviteToken) {
+          // After accepting an invite, send user to login
           navigate('/login', {
             state: { success: 'Registration successful! Please log in.' }
           });
@@ -49,7 +48,7 @@ export default function Auth({ mode }) {
         await login({ email, password });
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Something went wrong');
     }
   };
 
@@ -64,7 +63,6 @@ export default function Auth({ mode }) {
             <label htmlFor="fullName">Full Name</label>
             <input
               id="fullName"
-              name="fullName"
               type="text"
               placeholder="Your full name"
               value={fullName}
@@ -78,7 +76,6 @@ export default function Auth({ mode }) {
           <label htmlFor="email">Email</label>
           <input
             id="email"
-            name="email"
             type="email"
             placeholder="you@example.com"
             value={email}
@@ -91,7 +88,6 @@ export default function Auth({ mode }) {
           <label htmlFor="password">Password</label>
           <input
             id="password"
-            name="password"
             type="password"
             placeholder="••••••••"
             value={password}
@@ -100,11 +96,7 @@ export default function Auth({ mode }) {
           />
         </div>
 
-        {error && (
-          <p className="error-message" role="alert">
-            {error}
-          </p>
-        )}
+        {error && <p className="error-message" role="alert">{error}</p>}
 
         <button type="submit" className="submit-button">
           {mode === 'register' ? 'Register' : 'Login'}
@@ -117,7 +109,11 @@ export default function Auth({ mode }) {
             Already have an account?{' '}
             <button
               className="switch-btn"
-              onClick={() => navigate('/login')}
+              onClick={() => {
+                setMode('login');
+                setError(null);
+                navigate('/login');
+              }}
             >
               Sign In
             </button>
@@ -127,7 +123,11 @@ export default function Auth({ mode }) {
             Don’t have an account?{' '}
             <button
               className="switch-btn"
-              onClick={() => navigate('/register')}
+              onClick={() => {
+                setMode('register');
+                setError(null);
+                navigate('/register');
+              }}
             >
               Register
             </button>
