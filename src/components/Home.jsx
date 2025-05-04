@@ -6,19 +6,19 @@ import './Home.css';
 import illustration from '../assets/auth-illustration.png';
 
 export default function Home() {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const inviteToken = params.get('token') || '';
+  const location     = useLocation();
+  const params       = new URLSearchParams(location.search);
+  const inviteToken  = params.get('token') || '';
 
-  const [mode, setMode] = useState(inviteToken ? 'register' : 'login');
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [mode,      setMode]      = useState(inviteToken ? 'register' : 'login');
+  const [fullName,  setFullName]  = useState('');
+  const [email,     setEmail]     = useState('');
+  const [password,  setPassword]  = useState('');
+  const [error,     setError]     = useState('');
 
   const { login, register } = useContext(AuthContext);
 
-  // If there's an invite token in the URL, force register mode
+  // If an inviteToken appears in the URL, switch to register
   useEffect(() => {
     if (inviteToken) {
       setMode('register');
@@ -26,24 +26,23 @@ export default function Home() {
     }
   }, [inviteToken]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
-    try {
-      if (mode === 'login') {
-        await login(email, password);
-      } else {
-        await register(fullName, email, password, inviteToken);
-      }
-      // on success, AuthContext will redirect to /dashboard
-    } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.message ||
-        'Something went wrong';
-      setError(msg);
+    let errMsg = null;
+    if (mode === 'login') {
+      // login expects an object and returns an error message or null
+      errMsg = await login({ email, password });
+    } else {
+      // register expects an object (including token) and returns error or null
+      errMsg = await register({ fullName, email, password, inviteToken });
     }
+
+    if (errMsg) {
+      setError(errMsg);
+    }
+    // on success, AuthContext will navigate to /dashboard
   };
 
   return (
@@ -58,19 +57,13 @@ export default function Home() {
           <div className="auth-tabs">
             <button
               className={`tab ${mode === 'login' ? 'active' : ''}`}
-              onClick={() => {
-                setMode('login');
-                setError('');
-              }}
+              onClick={() => { setMode('login');    setError(''); }}
             >
               Sign In
             </button>
             <button
               className={`tab ${mode === 'register' ? 'active' : ''}`}
-              onClick={() => {
-                setMode('register');
-                setError('');
-              }}
+              onClick={() => { setMode('register'); setError(''); }}
             >
               Register
             </button>
@@ -87,7 +80,7 @@ export default function Home() {
                   type="text"
                   placeholder="John Doe"
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  onChange={e => setFullName(e.target.value)}
                   required
                 />
               </div>
@@ -100,7 +93,7 @@ export default function Home() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -112,7 +105,7 @@ export default function Home() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -128,10 +121,7 @@ export default function Home() {
                 Don’t have an account?{' '}
                 <button
                   className="switch-btn"
-                  onClick={() => {
-                    setMode('register');
-                    setError('');
-                  }}
+                  onClick={() => { setMode('register'); setError(''); }}
                 >
                   Register
                 </button>
@@ -141,10 +131,7 @@ export default function Home() {
                 Already have an account?{' '}
                 <button
                   className="switch-btn"
-                  onClick={() => {
-                    setMode('login');
-                    setError('');
-                  }}
+                  onClick={() => { setMode('login'); setError(''); }}
                 >
                   Sign In
                 </button>
