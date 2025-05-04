@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { updateEntry } from '../services/api';
 import { X } from 'lucide-react';
+import './EditEntryModal.css';
 
 const defaultForm = {
   fullName: '',
@@ -21,50 +22,48 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (entry) {
-      const histories = Array.isArray(entry.salaryHistories) ? entry.salaryHistories : [];
-      const latest = histories
-        .slice()
-        .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
-
-      setFormData({
-        fullName: entry.fullName || '',
-        email: entry.email || '',
-        platform: entry.platform || '',
-        externalId: entry.externalId || '',
-        companyName: entry.companyName || '',
-        iban: entry.iban || '',
-        bankName: entry.bankName || '',
-        beneficiary: entry.beneficiary || '',
-        extraData: entry.extraData && typeof entry.extraData === 'object' ? entry.extraData : {},
-        salaryHistories: histories,
-        salary: latest ? latest.amount : ''
-      });
-      setError(null);
-    }
+    if (!entry) return;
+    const histories = Array.isArray(entry.salaryHistories) ? entry.salaryHistories : [];
+    const latest = histories.slice().sort(
+      (a, b) => new Date(b.changedAt) - new Date(a.changedAt))
+      [0] || {};
+    setFormData({
+      fullName: entry.fullName || '',
+      email: entry.email || '',
+      platform: entry.platform || '',
+      externalId: entry.externalId || '',
+      companyName: entry.companyName || '',
+      iban: entry.iban || '',
+      bankName: entry.bankName || '',
+      beneficiary: entry.beneficiary || '',
+      extraData: typeof entry.extraData === 'object' ? entry.extraData : {},
+      salaryHistories: histories,
+      salary: latest.amount ?? ''
+    });
+    setError(null);
   }, [entry]);
 
   if (!isOpen || !entry) return null;
 
   const { extraData, salaryHistories, salary } = formData;
-  const latestHistory = Array.isArray(salaryHistories) && salaryHistories.length > 0
-    ? salaryHistories
-        .slice()
-        .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0]
+  const latestHistory = salaryHistories.length
+    ? salaryHistories.slice().sort(
+        (a, b) => new Date(b.changedAt) - new Date(a.changedAt)
+      )[0]
     : {};
 
   const handleChange = (key, value, nested = false) => {
     if (nested) {
-      setFormData(prev => ({
-        ...prev,
-        extraData: { ...prev.extraData, [key]: value }
+      setFormData(f => ({
+        ...f,
+        extraData: { ...f.extraData, [key]: value }
       }));
     } else {
-      setFormData(prev => ({ ...prev, [key]: value }));
+      setFormData(f => ({ ...f, [key]: value }));
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
 
@@ -77,7 +76,10 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
     }
 
     try {
-      await updateEntry(entry.id, { ...formData, salaryHistories: updatedHistories });
+      await updateEntry(entry.id, {
+        ...formData,
+        salaryHistories: updatedHistories
+      });
       onUpdated();
       onClose();
     } catch (err) {
@@ -86,17 +88,17 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      <aside className="w-full lg:max-w-2xl h-full bg-white shadow-xl overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Edit Entry</h2>
-          <button onClick={onClose} className="p-2 rounded-md hover:bg-gray-100">
-            <X className="h-6 w-6 text-gray-600" />
+    <div className="modal-overlay">
+      <aside className="modal-drawer">
+        <header className="modal-header">
+          <h2 className="modal-title">Edit Entry</h2>
+          <button onClick={onClose} className="close-button">
+            <X className="h-6 w-6" />
           </button>
-        </div>
+        </header>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-grid">
             {[
               { label: 'Full Name', key: 'fullName', type: 'text', required: true },
               { label: 'Email', key: 'email', type: 'email', required: true },
@@ -105,26 +107,26 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
               { label: 'IBAN', key: 'iban', type: 'text' },
               { label: 'Bank Name', key: 'bankName', type: 'text' },
               { label: 'Beneficiary', key: 'beneficiary', type: 'text' }
-            ].map(field => (
-              <div key={field.key}>
-                <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+            ].map(f => (
+              <div key={f.key} className="form-field">
+                <label className="form-label">{f.label}</label>
                 <input
-                  type={field.type}
-                  required={field.required}
-                  value={formData[field.key]}
-                  onChange={e => handleChange(field.key, e.target.value)}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  type={f.type}
+                  required={!!f.required}
+                  value={formData[f.key]}
+                  onChange={e => handleChange(f.key, e.target.value)}
+                  className="form-input"
                 />
               </div>
             ))}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Platform</label>
+            <div className="form-field">
+              <label className="form-label">Platform</label>
               <select
                 required
                 value={formData.platform}
                 onChange={e => handleChange('platform', e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="form-select"
               >
                 <option value="">Select platform</option>
                 <option value="GLOVO">GLOVO</option>
@@ -134,37 +136,40 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Salary (€)</label>
+            <div className="form-field">
+              <label className="form-label">Salary (€)</label>
               <input
                 type="number"
                 step="0.01"
                 value={salary}
                 onChange={e => handleChange('salary', e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="form-input"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Latest Change</label>
-              <p className="mt-1 text-gray-600">
-                €{((latestHistory.amount ?? 0).toFixed(2))} on {latestHistory.changedAt ? new Date(latestHistory.changedAt).toLocaleDateString() : '-'}
+            <div className="form-field">
+              <label className="form-label">Latest Change</label>
+              <p className="text-gray-600">
+                €{(latestHistory.amount ?? 0).toFixed(2)} on{' '}
+                {latestHistory.changedAt
+                  ? new Date(latestHistory.changedAt).toLocaleDateString()
+                  : '-'}
               </p>
             </div>
           </div>
 
           {formData.platform === 'GLOVO' && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Glovo Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Object.entries(extraData).map(([key, value]) => (
-                  <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700">{key}</label>
+            <div>
+              <h3 className="form-section-title">Glovo Details</h3>
+              <div className="form-grid">
+                {Object.entries(extraData).map(([key, val]) => (
+                  <div key={key} className="form-field">
+                    <label className="form-label">{key}</label>
                     <input
                       type="text"
-                      value={value}
+                      value={val}
                       onChange={e => handleChange(key, e.target.value, true)}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      className="form-input"
                     />
                   </div>
                 ))}
@@ -172,26 +177,20 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
             </div>
           )}
 
-          {error && <p className="text-red-600">{error}</p>}
+          {error && <p className="error-text">{error}</p>}
 
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-            >
+          <div className="button-group">
+            <button type="button" onClick={onClose} className="btn btn-cancel">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-            >
+            <button type="submit" className="btn btn-primary">
               Save Changes
             </button>
           </div>
         </form>
       </aside>
-      <div className="flex-1" onClick={onClose} />
+
+      <div className="modal-backdrop" onClick={onClose} />
     </div>
   );
 }
