@@ -1,91 +1,95 @@
-// src/components/ResetPassword.jsx
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { resetPassword } from '../services/api';
-import './Auth.css';
+// src/App.js
+import React, { useContext } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
-export default function ResetPassword() {
-  const navigate = useNavigate();
-  const { search } = useLocation();
-  const params = new URLSearchParams(search);
-  const token = params.get('token');
+import Navbar         from './components/Navbar';
+import Home           from './components/Home';
+import ForgotPassword from './components/ForgotPassword'
+import ResetPassword  from './components/ResetPassword'
+import Dashboard      from './components/Dashboard';
+import Entries        from './components/Entries';
+import ProfileModal   from './components/ProfileModal';
+import Notifications  from './components/Notifications';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthContext } from './context/AuthContext';
 
-  const [newPass, setNewPass]     = useState('');
-  const [confirm, setConfirm]     = useState('');
-  const [error, setError]         = useState('');
-  const [info, setInfo]           = useState('');
-
-  // if they visit without a token
-  useEffect(() => {
-    if (!token) {
-      setError('No reset token provided.');
-    }
-  }, [token]);
-
-  const onSubmit = async e => {
-    e.preventDefault();
-    setError('');
-
-    // client‑side match check
-    if (newPass !== confirm) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    try {
-      const { data } = await resetPassword({ token, newPassword: newPass });
-      setInfo(data.message || 'Password has been reset!');
-      // auto‑redirect back to login after a short pause
-      setTimeout(() => navigate('/login', { replace: true }), 3000);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message);
-    }
-  };
-
-  // no token → just show the message
-  if (error && !token) {
-    return (
-      <main className="auth-container">
-        <h2>Reset Password</h2>
-        <p className="error-message">{error}</p>
-      </main>
-    );
-  }
+export default function App() {
+  const { user } = useContext(AuthContext);
 
   return (
-    <main className="auth-container">
-      <h2>Reset Password</h2>
+    <>
+      {/* Show navbar if logged in */}
+      {user && <Navbar />}
 
-      {info ? (
-        <p className="info-message">{info}</p>
-      ) : (
-        <form onSubmit={onSubmit}>
-          <div className="form-group">
-            <label htmlFor="newPass">New Password</label>
-            <input
-              id="newPass"
-              type="password"
-              value={newPass}
-              onChange={e => setNewPass(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirm">Confirm Password</label>
-            <input
-              id="confirm"
-              type="password"
-              value={confirm}
-              onChange={e => setConfirm(e.target.value)}
-              required
-            />
-          </div>
-          {error && <p className="error-message">{error}</p>}
-          <button type="submit" className="submit-button">
-            Reset Password
-          </button>
-        </form>
-      )}
-    </main>
+      <Routes>
+        {/* Landing / Auth */}
+        <Route
+          path="/"
+          element={user ? <Navigate to="/dashboard" replace /> : <Home />}
+        />
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/dashboard" replace /> : <Home />}
+        />
+        <Route
+          path="/register"
+          element={user ? <Navigate to="/dashboard" replace /> : <Home />}
+        />
+
+        {/* Public password‐reset routes */}
+        <Route
+          path="/forgot-password"
+          element={user ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
+        />
+        <Route
+          path="/reset-password"
+          element={user ? <Navigate to="/dashboard" replace /> : <ResetPassword />}
+        />
+
+        {/* Protected */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entries"
+          element={
+            <ProtectedRoute>
+              <Entries />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileModal />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
+        <Route
+          path="*"
+          element={
+            user
+              ? <Navigate to="/dashboard" replace />
+              : <Navigate to="/" replace />
+          }
+        />
+      </Routes>
+    </>
   );
 }
