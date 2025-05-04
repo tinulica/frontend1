@@ -33,19 +33,15 @@ export default function Home() {
 
     try {
       if (mode === 'login') {
-        // Context login will throw on failure and navigate on success
         await login({ email, password })
       } else {
-        // Register flow
         await register({ fullName, email, password, token: inviteToken })
         if (inviteToken) {
-          // If they came via invite, switch back to login so they can sign in
           setMode('login')
           setError('Registration successful! Please sign in.')
         }
       }
     } catch (err) {
-      // Show the error message from the API (or fallback)
       setError(err.response?.data?.message || err.message)
     }
   }
@@ -119,18 +115,6 @@ export default function Home() {
             </button>
           </form>
 
-          {mode === 'login' && (
-            <div className="forgot-password">
-              <button
-                type="button"
-                className="link-btn"
-                onClick={() => setShowForgot(true)}
-              >
-                Forgot password?
-              </button>
-            </div>
-          )}
-
           <div className="auth-footer">
             {mode === 'login' ? (
               <>
@@ -156,10 +140,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {showForgot && (
-        <ForgotPasswordModal onClose={() => setShowForgot(false)} />
-      )}
     </div>
   )
 }
