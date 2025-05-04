@@ -1,16 +1,16 @@
+// src/components/ResetPassword.jsx
 import React, { useState, useEffect } from 'react';
-import { resetPassword } from '../services/api';
+import { resetPassword }         from '../services/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Auth.css';
 
 export default function ResetPassword() {
-  const [newPass, setNewPass] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [error, setError]     = useState('');
-  const [info, setInfo]       = useState('');
+  const [newPass, setNewPass]   = useState('');
+  const [confirm, setConfirm]   = useState('');
+  const [error, setError]       = useState('');
+  const [info, setInfo]         = useState('');
   const navigate = useNavigate();
-  const params   = new URLSearchParams(useLocation().search);
-  const token    = params.get('token');
+  const token    = new URLSearchParams(useLocation().search).get('token');
 
   useEffect(() => {
     if (!token) setError('No reset token provided.');
