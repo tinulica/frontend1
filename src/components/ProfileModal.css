@@ -64,7 +64,7 @@
 
 .pm-tabs {
   display: flex;
-  border-bottom: 1px solid var(--pm-border);
+  
 }
 
 .pm-tabs button {
