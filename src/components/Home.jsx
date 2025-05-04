@@ -2,7 +2,7 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import ForgotPasswordModal from './ForgotPasswordModal'
+import ForgotPasswordModal from './components/ForgotPasswordModal'
 import './Home.css'
 import illustration from '../assets/auth-illustration.png'
 
