@@ -1,91 +1,97 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/context/AuthContext.jsx
+import React, { createContext, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   login as apiLogin,
   register as apiRegister,
   getCurrentUser
-} from '../services/api';
+} from '../services/api'
 
-export const AuthContext = createContext();
+export const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate()
+  const [user, setUser]       = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  // Persist token + user in localStorage and state
+  // Persist token + user
   const persist = (token, me) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(me));
-    setUser(me);
-  };
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(me))
+    setUser(me)
+  }
 
-  // Logout and clear storage
+  // Logout
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    navigate('/');
-  };
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+    navigate('/', { replace: true })
+  }
 
-  // On mount: rehydrate then fetch fresh user
+  // On mount: rehydrate + fetch /auth/me
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (!token) {
-      setLoading(false);
-      return;
+      setLoading(false)
+      return
     }
 
-    // Try rehydrate from storage
-    const stored = localStorage.getItem('user');
+    const stored = localStorage.getItem('user')
     if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {}
+      try { setUser(JSON.parse(stored)) } catch {}
+
     }
-
-    // Fetch current user
-    (async () => {
+    ;(async () => {
       try {
-        const { data } = await getCurrentUser();
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        const { data } = await getCurrentUser()
+        setUser(data.user)
+        localStorage.setItem('user', JSON.stringify(data.user))
       } catch {
-        logout();
+        logout()
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    })();
-  }, []); // only on mount
+    })()
+  }, [])
 
-  // --- LOGIN ---
+  // --- LOGIN ---  
+  // returns null on success, or error message
   const login = async ({ email, password }) => {
-    const { data } = await apiLogin({ email, password });
-    persist(data.token, data.user);
-    navigate('/dashboard');
-  };
+    try {
+      const { data } = await apiLogin({ email, password })
+      persist(data.token, data.user)
+      return null
+    } catch (err) {
+      return err.response?.data?.message || err.message
+    }
+  }
 
-  // --- REGISTER ---
+  // --- REGISTER ---  
+  // returns null on success, or error message
   const register = async ({ fullName, email, password, inviteToken }) => {
-    const payload = { fullName, email, password };
-    if (inviteToken) payload.token = inviteToken;
-    const { data } = await apiRegister(payload);
-    persist(data.token, data.user);
-    navigate('/dashboard');
-  };
+    try {
+      const payload = { fullName, email, password }
+      if (inviteToken) payload.token = inviteToken
+      const { data } = await apiRegister(payload)
+      persist(data.token, data.user)
+      return null
+    } catch (err) {
+      return err.response?.data?.message || err.message
+    }
+  }
 
-  // While loading (rehydrating/fetching), show placeholder
   if (loading) {
     return (
       <div className="auth-loading">
         <p>Loading…</p>
       </div>
-    );
+    )
   }
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
