@@ -4,10 +4,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar         from './components/Navbar';
 import Home           from './components/Home';
-// import Auth         from './components/Auth';    ← no longer used
 import Dashboard      from './components/Dashboard';
 import Entries        from './components/Entries';
 import ProfileModal   from './components/ProfileModal';
+import Notifications  from './components/Notifications';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthContext } from './context/AuthContext';
 
@@ -16,10 +16,11 @@ export default function App() {
 
   return (
     <>
+      {/* Show navbar if logged in */}
       {user && <Navbar />}
 
       <Routes>
-        {/* Landing, Login & Register all use Home */}
+        {/* Landing / Auth */}
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Home />}
@@ -33,17 +34,7 @@ export default function App() {
           element={user ? <Navigate to="/dashboard" replace /> : <Home />}
         />
 
-        {/* Profile modal */}
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfileModal />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Protected app */}
+        {/* Protected */}
         <Route
           path="/dashboard"
           element={
@@ -60,8 +51,24 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileModal />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Catch‐all: guests → home, users → dashboard */}
+        {/* Fallback */}
         <Route
           path="*"
           element={
