@@ -22,6 +22,7 @@ import {
   Mail,
   Search,
   Plus,
+  Upload,
   Download
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
