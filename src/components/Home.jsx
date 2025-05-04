@@ -110,17 +110,17 @@ export default function Home() {
               />
             </div>
 
-            {mode === 'login' && (
-              <div className="forgot-container">
-                <button
-                  type="button"
-                  className="forgot-link"
-                  onClick={() => navigate('/forgot-password')}
-                >
-                  Forgot your password?
-                </button>
-              </div>
-            )}
+ {mode === 'login' && (
+   <div className="forgot-password">
+     <button
+       type="button"
+       className="link-btn"
+       onClick={() => navigate('/forgot-password')}
+     >
+       Forgot password?
+     </button>
+   </div>
+ )}
 
             <button type="submit" className="submit-btn">
               {mode === 'login' ? 'Sign In' : 'Create Account'}
