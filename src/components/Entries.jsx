@@ -1,14 +1,20 @@
-import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
+// src/components/Entries.jsx
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useMemo
+} from 'react';
 import { io } from 'socket.io-client';
 import {
   getEntries,
   deleteEntry,
-  importEntries as apiImportEntries,
   exportEntries as apiExportEntries,
   emailSalaryById
 } from '../services/api';
 import EntryModal from './EntryModal';
 import EditEntryModal from './EditEntryModal';
+import ImportModal from './ImportModal';
 import {
   Edit2,
   Trash2,
@@ -16,13 +22,11 @@ import {
   Mail,
   Search,
   Plus,
-  Upload,
   Download
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import './Entries.css';
 
-// define each tab's filter key and display label
 const TABS = [
   { key: 'GLOVO',   label: 'Glovo' },
   { key: 'TAZZ',    label: 'Tazz' },
@@ -32,20 +36,20 @@ const TABS = [
 
 export default function Entries() {
   const { user } = useContext(AuthContext);
-  const [entries, setEntries]           = useState([]);
-  const [searchTerm, setSearchTerm]     = useState('');
-  const [page, setPage]                 = useState(1);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState(null);
-  const [showAdd, setShowAdd]           = useState(false);
-  const [editEntry, setEditEntry]       = useState(null);
-  const [activeTab, setActiveTab]       = useState(TABS[0].key);
-  const [selectedIds, setSelectedIds]   = useState(new Set());
-  const fileInput = useRef();
-  const pageSize  = 10;
+  const [entries, setEntries]         = useState([]);
+  const [searchTerm, setSearchTerm]   = useState('');
+  const [page, setPage]               = useState(1);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
+  const [showAdd, setShowAdd]         = useState(false);
+  const [editEntry, setEditEntry]     = useState(null);
+  const [showImport, setShowImport]   = useState(false);
+  const [activeTab, setActiveTab]     = useState(TABS[0].key);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const pageSize = 10;
 
-  // Fetch entries once on mount
-  async function fetchEntries() {
+  // fetch
+  const fetchEntries = async () => {
     setLoading(true);
     try {
       const { data } = await getEntries();
@@ -56,10 +60,10 @@ export default function Entries() {
     } finally {
       setLoading(false);
     }
-  }
+  };
   useEffect(fetchEntries, []);
 
-  // Real‑time subscriptions
+  // sockets
   useEffect(() => {
     if (!user) return;
     const socket = io(process.env.REACT_APP_API_URL, {
@@ -77,7 +81,7 @@ export default function Entries() {
     };
   }, [user]);
 
-  // Filter by tab + search
+  // filters
   const filtered = useMemo(() => {
     const term = searchTerm.toLowerCase();
     return entries
@@ -95,7 +99,6 @@ export default function Entries() {
     [filtered, page]
   );
 
-  // Average salary for this tab
   const avgSalary = useMemo(() => {
     const sums = entries
       .filter(e => e.platform === activeTab)
@@ -108,7 +111,7 @@ export default function Entries() {
     return (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(2);
   }, [entries, activeTab]);
 
-  // handlers for bulk selection
+  // bulk
   const handleSelectAll = e => {
     if (e.target.checked) {
       setSelectedIds(new Set(filtered.map(ent => ent.id)));
@@ -118,34 +121,27 @@ export default function Entries() {
   };
   const handleSelectOne = (id, checked) => {
     const next = new Set(selectedIds);
-    if (checked) next.add(id);
-    else next.delete(id);
+    checked ? next.add(id) : next.delete(id);
     setSelectedIds(next);
   };
   const handleBulkDelete = async () => {
     if (!window.confirm('Delete selected entries?')) return;
-    for (let id of selectedIds) {
-      await deleteEntry(id);
-    }
+    for (let id of selectedIds) await deleteEntry(id);
     fetchEntries();
   };
 
-  // Import / export handlers
-  const handleImport = () => fileInput.current.click();
-  const onFileChange = async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const form = new FormData();
-    form.append('file', file);
-    form.append('platform', activeTab);
+  // single delete
+  const handleDelete = async id => {
+    if (!window.confirm('Delete entry?')) return;
     try {
-      await apiImportEntries(form);
+      await deleteEntry(id);
       fetchEntries();
     } catch {
-      alert('Import failed');
+      alert('Delete failed');
     }
   };
 
+  // export
   const handleExport = async () => {
     try {
       const resp = await apiExportEntries({ platform: activeTab });
@@ -161,35 +157,29 @@ export default function Entries() {
     }
   };
 
-  const handleDelete = async id => {
-    if (!window.confirm('Delete entry?')) return;
-    try {
-      await deleteEntry(id);
-      fetchEntries();
-    } catch {
-      alert('Delete failed');
-    }
-  };
-
   if (loading) return <p className="loading">Loading entries…</p>;
   if (error)   return <p className="error">{error}</p>;
 
   return (
     <main className="entries-container">
-      {/* PLATFORM TABS */}
+      {/* Platform tabs */}
       <div className="platform-tabs">
         {TABS.map(tab => (
           <button
             key={tab.key}
             className={`plat-tab${tab.key === activeTab ? ' active' : ''}`}
-            onClick={() => { setActiveTab(tab.key); setPage(1); setSelectedIds(new Set()); }}
+            onClick={() => {
+              setActiveTab(tab.key);
+              setPage(1);
+              setSelectedIds(new Set());
+            }}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* HEADER & STATS */}
+      {/* Header & stats */}
       <div className="entries-header">
         <h1>{TABS.find(t => t.key === activeTab).label} Entries</h1>
         <div className="stats-cards">
@@ -204,7 +194,7 @@ export default function Entries() {
         </div>
       </div>
 
-      {/* CONTROLS & BULK ACTION */}
+      {/* Controls */}
       <div className="entries-controls">
         <div className="search-wrapper">
           <Search size={16} />
@@ -216,45 +206,60 @@ export default function Entries() {
           />
         </div>
         <div className="actions-wrapper">
-          <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowAdd(true)}
+          >
             <Plus size={16} /> Add Entry
           </button>
-          <button className="btn" onClick={handleImport}>
+          <button className="btn" onClick={() => setShowImport(true)}>
             <Upload size={16} /> Import
           </button>
           <button className="btn" onClick={handleExport}>
             <Download size={16} /> Export
           </button>
           {selectedIds.size > 0 && (
-            <button className="btn btn-danger" onClick={handleBulkDelete}>
+            <button
+              className="btn btn-danger"
+              onClick={handleBulkDelete}
+            >
               <Trash2 size={16} /> Delete ({selectedIds.size})
             </button>
           )}
         </div>
-        <input
-          type="file"
-          ref={fileInput}
-          style={{ display: 'none' }}
-          accept=".xlsx"
-          onChange={onFileChange}
-        />
       </div>
 
-      {/* MODALS */}
+      {/* Modals */}
       <EntryModal
         isOpen={showAdd}
         platform={activeTab}
         onClose={() => setShowAdd(false)}
-        onAdded={() => { setShowAdd(false); fetchEntries(); }}
+        onAdded={() => {
+          setShowAdd(false);
+          fetchEntries();
+        }}
       />
+
       <EditEntryModal
         isOpen={!!editEntry}
         entry={editEntry}
         onClose={() => setEditEntry(null)}
-        onUpdated={() => { setEditEntry(null); fetchEntries(); }}
+        onUpdated={() => {
+          setEditEntry(null);
+          fetchEntries();
+        }}
       />
 
-      {/* ENTRIES TABLE */}
+      <ImportModal
+        isOpen={showImport}
+        onClose={() => setShowImport(false)}
+        onImported={() => {
+          setShowImport(false);
+          fetchEntries();
+        }}
+      />
+
+      {/* Table */}
       <div className="table-container">
         <table className="entries-table">
           <thead>
@@ -263,7 +268,10 @@ export default function Entries() {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                  checked={
+                    filtered.length > 0 &&
+                    selectedIds.size === filtered.length
+                  }
                 />
               </th>
               <th>Name</th>
@@ -283,7 +291,9 @@ export default function Entries() {
                     <input
                       type="checkbox"
                       checked={selectedIds.has(e.id)}
-                      onChange={a => handleSelectOne(e.id, a.target.checked)}
+                      onChange={ev =>
+                        handleSelectOne(e.id, ev.target.checked)
+                      }
                     />
                   </td>
                   <td>{e.fullName}</td>
@@ -297,10 +307,13 @@ export default function Entries() {
                     <button onClick={() => handleDelete(e.id)} title="Delete">
                       <Trash2 size={16} />
                     </button>
-                    <button onClick={() => {/* history… */}} title="History">
+                    <button title="History">
                       <Clock size={16} />
                     </button>
-                    <button onClick={() => emailSalaryById(e.id)} title="Email">
+                    <button
+                      onClick={() => emailSalaryById(e.id)}
+                      title="Email"
+                    >
                       <Mail size={16} />
                     </button>
                   </td>
@@ -311,17 +324,23 @@ export default function Entries() {
         </table>
       </div>
 
-      {/* PAGINATION */}
+      {/* Pagination */}
       <div className="pagination">
         <button
           onClick={() => setPage(p => Math.max(p - 1, 1))}
           disabled={page === 1}
-        >Prev</button>
-        <span>Page {page} of {totalPages}</span>
+        >
+          Prev
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
         <button
           onClick={() => setPage(p => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
-        >Next</button>
+        >
+          Next
+        </button>
       </div>
     </main>
   );
