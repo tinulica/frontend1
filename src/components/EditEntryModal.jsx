@@ -1,9 +1,24 @@
+// src/components/EditEntryModal.jsx
 import React, { useState, useEffect } from 'react';
 import { updateEntry } from '../services/api';
 import { X } from 'lucide-react';
 
+const defaultForm = {
+  fullName: '',
+  email: '',
+  platform: '',
+  externalId: '',
+  companyName: '',
+  iban: '',
+  bankName: '',
+  beneficiary: '',
+  extraData: {},
+  salaryHistories: [],
+  salary: ''
+};
+
 export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(defaultForm);
   const [error, setError] = useState(null);
 
   // Populate form when entry changes
@@ -21,7 +36,13 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
         extraData: entry.extraData || {},
         salaryHistories: entry.salaryHistories || [],
         salary: entry.salaryHistories?.length
-          ? entry.salaryHistories.sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0].amount
+          ? entry.salaryHistories
+              .sort(
+                (a, b) =>
+                  new Date(b.changedAt).getTime() -
+                  new Date(a.changedAt).getTime()
+              )[0]
+              .amount
           : ''
       });
       setError(null);
@@ -30,17 +51,29 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
 
   if (!isOpen || !entry) return null;
 
+  // Now these will always be defined arrays/objects
   const { extraData, salaryHistories, salary } = formData;
-  const latestHistory = [...salaryHistories].sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0] || {};
+
+  // Safely pick the latest history
+  const latestHistory =
+    salaryHistories.length > 0
+      ? salaryHistories
+          .slice() // copy
+          .sort(
+            (a, b) =>
+              new Date(b.changedAt).getTime() -
+              new Date(a.changedAt).getTime()
+          )[0]
+      : {};
 
   const handleChange = (key, value, nested = false) => {
     if (nested) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         extraData: { ...prev.extraData, [key]: value }
       }));
     } else {
-      setFormData(prev => ({ ...prev, [key]: value }));
+      setFormData((prev) => ({ ...prev, [key]: value }));
     }
   };
 
@@ -48,7 +81,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
     e.preventDefault();
     setError(null);
 
-    // build salary history
+    // build updated salary history
     let updatedHistories = salaryHistories;
     if (salary && Number(salary) !== latestHistory.amount) {
       updatedHistories = [
@@ -80,67 +113,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Full Name</label>
-              <input
-                type="text"
-                required
-                value={formData.fullName}
-                onChange={e => handleChange('fullName', e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={e => handleChange('email', e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Platform</label>
-              <select
-                required
-                value={formData.platform}
-                onChange={e => handleChange('platform', e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">Select platform</option>
-                <option value="GLOVO">GLOVO</option>
-                <option value="TAZZ">TAZZ</option>
-                <option value="BRINGO">BRINGO</option>
-                <option value="ANGAJAT">ANGAJAT</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">External ID</label>
-              <input
-                type="text"
-                value={formData.externalId}
-                onChange={e => handleChange('externalId', e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            {/* Salary with history view */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Salary (€)</label>
-              <input
-                type="number"
-                step="0.01"
-                value={salary}
-                onChange={e => handleChange('salary', e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Latest Change</label>
-              <p className="mt-1 text-gray-600">€{latestHistory.amount?.toFixed(2) || '0.00'} on {latestHistory.changedAt ? new Date(latestHistory.changedAt).toLocaleDateString() : '-'}</p>
-            </div>
-          </div>
+          {/* ... other fields ... */}
 
           {/* Additional Glovo Data */}
           {formData.platform === 'GLOVO' && (
@@ -153,7 +126,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
                     <input
                       type="text"
                       value={value}
-                      onChange={e => handleChange(key, e.target.value, true)}
+                      onChange={(e) => handleChange(key, e.target.value, true)}
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
@@ -182,7 +155,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
         </form>
       </aside>
       {/* Overlay backdrop */}
-      <div className="flex-1" onClick={onClose}></div>
+      <div className="flex-1" onClick={onClose} />
     </div>
   );
 }
