@@ -1,6 +1,6 @@
 // src/components/Navbar.jsx
 import React, { useState, useContext, useRef, useEffect } from 'react'
-import { NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import {
   Search,
@@ -9,7 +9,8 @@ import {
   User,
   Home,
   FileText,
-  BarChart2
+  BarChart2,
+  Trash2,
 } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
 import './Navbar.css'
@@ -17,42 +18,54 @@ import './Navbar.css'
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext)
   const navigate         = useNavigate()
-  const location         = useLocation()
-  const [menuOpen, setMenuOpen]           = useState(false)
-  const [notifications, setNotifications] = useState(0)
-  const menuRef         = useRef()
+  const menuRef          = useRef()
+  const notifRef         = useRef()
 
+  const [menuOpen, setMenuOpen]     = useState(false)
+  const [notifOpen, setNotifOpen]   = useState(false)
+  const [notifications, setNotifications] = useState([])
+
+  // close ANY dropdown on outside click
   useEffect(() => {
-    // close dropdown on outside click
     function onClick(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false)
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifOpen(false)
       }
     }
     document.addEventListener('mousedown', onClick)
     return () => document.removeEventListener('mousedown', onClick)
   }, [])
 
+  // connect socket, join room, listen for accept events
   useEffect(() => {
     if (!user) return
     const socket = io(process.env.REACT_APP_API_URL, {
       auth: { token: localStorage.getItem('token') }
     })
-    // join our personal room
     socket.emit('joinRoom', user.id)
-    // listen for invitationAccepted
-    socket.on('invitationAccepted', () => {
-      setNotifications(n => n + 1)
+    socket.on('invitationAccepted', payload => {
+      setNotifications(n => [
+        { ...payload, id: payload.invitationId },
+        ...n
+      ])
     })
-    return () => {
-      socket.disconnect()
-    }
+    return () => socket.disconnect()
   }, [user])
 
   const handleBellClick = () => {
-    // clear notifications and navigate to invitations page
-    setNotifications(0)
-    navigate('/dashboard') // or wherever you show invitation status
+    setNotifOpen(o => !o)
+    setMenuOpen(false)
+  }
+
+  const clearOne = id => {
+    setNotifications(n => n.filter(x => x.id !== id))
+  }
+
+  const clearAll = () => {
+    setNotifications([])
   }
 
   return (
@@ -65,30 +78,15 @@ export default function Navbar() {
 
       {/* Main menu */}
       <div className="navbar-menu">
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `nav-item${isActive ? ' active' : ''}`
-          }
-        >
+        <NavLink to="/dashboard" className="nav-item">
           <Home size={16} className="nav-icon" />
           <span>Dashboard</span>
         </NavLink>
-        <NavLink
-          to="/entries"
-          className={({ isActive }) =>
-            `nav-item${isActive ? ' active' : ''}`
-          }
-        >
+        <NavLink to="/entries" className="nav-item">
           <FileText size={16} className="nav-icon" />
           <span>Entries</span>
         </NavLink>
-        <NavLink
-          to="/reports"
-          className={({ isActive }) =>
-            `nav-item${isActive ? ' active' : ''}`
-          }
-        >
+        <NavLink to="/reports" className="nav-item">
           <BarChart2 size={16} className="nav-icon" />
           <span>Reports</span>
         </NavLink>
@@ -101,16 +99,55 @@ export default function Navbar() {
           <input type="text" placeholder="Search..." />
         </div>
 
-        <button
-          className="icon-btn notification-btn"
-          onClick={handleBellClick}
-          aria-label="Notifications"
-        >
-          <Bell size={20} />
-          {notifications > 0 && (
-            <span className="notification-badge">{notifications}</span>
+        <div className="notifications" ref={notifRef}>
+          <button
+            className="icon-btn notification-btn"
+            onClick={handleBellClick}
+            aria-label="Notifications"
+          >
+            <Bell size={20} />
+            {notifications.length > 0 && (
+              <span className="notification-badge">
+                {notifications.length}
+              </span>
+            )}
+          </button>
+          {notifOpen && (
+            <div className="notifications-dropdown">
+              <div className="notif-header">
+                <span>Notifications</span>
+                {notifications.length > 0 && (
+                  <button
+                    className="clear-all"
+                    onClick={clearAll}
+                    title="Clear all"
+                  >
+                    <Trash2 size={14}/>
+                  </button>
+                )}
+              </div>
+              {notifications.length === 0
+                ? <div className="notif-empty">No new notifications</div>
+                : notifications.map(n => (
+                  <div key={n.id} className="notif-item">
+                    <div className="notif-text">
+                      {n.invitedEmail
+                        ? `${n.invitedEmail} accepted your invite`
+                        : 'Notification'}
+                    </div>
+                    <button
+                      className="notif-clear"
+                      onClick={() => clearOne(n.id)}
+                      title="Dismiss"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))
+              }
+            </div>
           )}
-        </button>
+        </div>
 
         <button className="icon-btn">
           <Settings size={20} />
