@@ -1,3 +1,4 @@
+// src/components/ForgotPassword.jsx
 import React, { useState } from 'react';
 import { forgotPassword } from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +14,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await forgotPassword(email);
+      const { data } = await forgotPassword({ email });
       setMessage(data.message);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
