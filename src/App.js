@@ -2,49 +2,38 @@
 import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import Navbar from './components/Navbar';
-import Home from './components/Home';
-import Auth from './components/Auth';
-import Dashboard from './components/Dashboard';
-import Entries from './components/Entries';
-import ProfileModal from './components/ProfileModal';
+import Navbar         from './components/Navbar';
+import Home           from './components/Home';
+// import Auth         from './components/Auth';    ← no longer used
+import Dashboard      from './components/Dashboard';
+import Entries        from './components/Entries';
+import ProfileModal   from './components/ProfileModal';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthContext } from './context/AuthContext';
 
-function App() {
+export default function App() {
   const { user } = useContext(AuthContext);
 
   return (
     <>
-      {/* Show navbar only when logged in */}
       {user && <Navbar />}
 
       <Routes>
-        {/* Landing */}
+        {/* Landing, Login & Register all use Home */}
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Home />}
         />
-
-        {/* Auth */}
         <Route
           path="/login"
-          element={
-            user
-              ? <Navigate to="/dashboard" replace />
-              : <Auth mode="login" />
-          }
+          element={user ? <Navigate to="/dashboard" replace /> : <Home />}
         />
         <Route
           path="/register"
-          element={
-            user
-              ? <Navigate to="/dashboard" replace />
-              : <Auth mode="register" />
-          }
+          element={user ? <Navigate to="/dashboard" replace /> : <Home />}
         />
 
-        {/* Profile (modal) */}
+        {/* Profile modal */}
         <Route
           path="/profile"
           element={
@@ -54,7 +43,7 @@ function App() {
           }
         />
 
-        {/* Protected */}
+        {/* Protected app */}
         <Route
           path="/dashboard"
           element={
@@ -72,18 +61,16 @@ function App() {
           }
         />
 
-        {/* Fallback */}
+        {/* Catch‐all: guests → home, users → dashboard */}
         <Route
           path="*"
           element={
             user
               ? <Navigate to="/dashboard" replace />
-              : <Navigate to="/login" replace />
+              : <Navigate to="/" replace />
           }
         />
       </Routes>
     </>
   );
 }
-
-export default App;
