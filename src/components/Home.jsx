@@ -1,8 +1,7 @@
-// src/components/Home.jsx
 import React, { useState, useContext, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import ForgotPasswordModal from './ForgotPasswordModal'
+import ForgotPasswordModal from './ForgotPasswordModal'  // ← fixed import
 import './Home.css'
 import illustration from '../assets/auth-illustration.png'
 
@@ -20,7 +19,7 @@ export default function Home() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  // forgot-password modal
+  // forgot‑password modal
   const [showForgot, setShowForgot] = useState(false)
 
   // if URL had ?token=..., force register
@@ -46,7 +45,7 @@ export default function Home() {
     if (err) return setError(err)
 
     if (inviteToken) {
-      // after accepting an invite, switch to login tab
+      // after accepting invite, switch to login tab
       setMode('login')
       setError('')
     } else {
