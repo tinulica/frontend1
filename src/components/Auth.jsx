@@ -1,4 +1,3 @@
-// src/components/Auth.js
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { register as apiRegister } from '../services/api';
@@ -10,13 +9,17 @@ export default function Auth({ mode }) {
   const location = useLocation();
   const { login: contextLogin } = useContext(AuthContext);
 
-  const [fullName, setFullName] = useState('');
-  const [email,    setEmail]    = useState('');
-  const [password, setPassword] = useState('');
-  const [error,    setError]    = useState(null);
-  const [info,     setInfo]     = useState('');
+  // Extract any invite token from URL (e.g. /register?token=abc123)
+  const params = new URLSearchParams(location.search);
+  const inviteToken = params.get('token') || '';
 
-  // If we were redirected here after register, show that banner
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [info, setInfo] = useState('');
+
+  // If redirected here with a success state (e.g. after register)
   useEffect(() => {
     if (location.state?.success) {
       setInfo(location.state.success);
@@ -30,18 +33,21 @@ export default function Auth({ mode }) {
 
     try {
       if (mode === 'register') {
-        await apiRegister({ fullName, email, password });
-        navigate('/auth?mode=login', {
+        // Build payload, including invite token if present
+        const payload = { fullName, email, password };
+        if (inviteToken) payload.token = inviteToken;
+        await apiRegister(payload);
+        // After registering, redirect to login to authenticate
+        navigate('/login', {
           state: { success: '🎉 Registration successful! Please log in.' }
         });
       } else {
-        // login via context will store token & user and nav to /dashboard
-        await contextLogin(email, password);
+        // Login via context (stores token & user, then navigates to dashboard)
+        await contextLogin({ email, password });
       }
     } catch (err) {
-      const status  = err.response?.status;
-      const msg     = err.response?.data?.message || err.message;
-
+      const status = err.response?.status;
+      const msg = err.response?.data?.message || err.message;
       if (mode === 'register') {
         if (status === 409) setError('That email is already registered. Please log in.');
         else setError(msg || 'Registration failed. Try again later.');
@@ -71,7 +77,6 @@ export default function Auth({ mode }) {
             />
           </div>
         )}
-
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
@@ -84,7 +89,6 @@ export default function Auth({ mode }) {
             required
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
@@ -97,9 +101,7 @@ export default function Auth({ mode }) {
             required
           />
         </div>
-
         {error && <p className="error-message" role="alert">{error}</p>}
-
         <button type="submit" className="submit-button">
           {mode === 'register' ? 'Register' : 'Login'}
         </button>
