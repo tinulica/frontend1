@@ -6,30 +6,32 @@ import './AuthScreen.css';
 import illustration from '../assets/auth-illustration.png';
 
 export default function AuthScreen() {
-  const [mode, setMode]       = useState('login'); // or 'register'
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail]     = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]     = useState(null);
+  const [mode, setMode]           = useState('login');  // 'login' or 'register'
+  const [fullName, setFullName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [error, setError]         = useState(null);
 
   const navigate = useNavigate();
   const { user, login, register } = useContext(AuthContext);
 
-  // Redirect logged‑in users straight to dashboard
+  // Redirect if already authenticated
   useEffect(() => {
-    if (user) navigate('/dashboard');
+    if (user) navigate('/dashboard', { replace: true });
   }, [user, navigate]);
 
   const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
+
     try {
       if (mode === 'login') {
-        await login(email, password);
+        // pass credentials as object
+        await login({ email, password });
       } else {
-        await register(fullName, email, password);
+        await register({ fullName, email, password });
       }
-      // AuthContext takes care of navigation
+      // navigation handled by AuthContext
     } catch (err) {
       setError(err.message || 'Something went wrong');
     }
@@ -51,16 +53,16 @@ export default function AuthScreen() {
         <div className="auth-tabs" role="tablist">
           <button
             role="tab"
-            className={`auth-tab ${mode==='login'?'active':''}`}
-            aria-selected={mode==='login'}
+            className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
+            aria-selected={mode === 'login'}
             onClick={() => switchMode('login')}
           >
             Login
           </button>
           <button
             role="tab"
-            className={`auth-tab ${mode==='register'?'active':''}`}
-            aria-selected={mode==='register'}
+            className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
+            aria-selected={mode === 'register'}
             onClick={() => switchMode('register')}
           >
             Register
@@ -85,10 +87,10 @@ export default function AuthScreen() {
             <label htmlFor="email">Email</label>
             <input
               id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
             />
           </div>
 
@@ -96,10 +98,10 @@ export default function AuthScreen() {
             <label htmlFor="password">Password</label>
             <input
               id="password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
             />
           </div>
 
