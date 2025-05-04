@@ -32,6 +32,8 @@ export const deleteEntry       = id                => api.delete( `/entries/${id
 export const importEntries     = formData          => api.post(   '/entries/import', formData    );
 export const exportEntries     = params            => api.post(   '/entries/export', params, { responseType:'arraybuffer' });
 export const emailSalaryById   = id                => api.post(   `/entries/email/salary/${id}`   );
+// History for a single entry
+export const getSalaryHistory  = id                => api.get(    `/entries/${id}/history`           );
 
 // ───── Dashboard ───────────────────────────────────────────────────────────
 export const getDashboardSummary = ()              => api.get(    '/dashboard/summary'         );
