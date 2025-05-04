@@ -1,30 +1,35 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { register as apiRegister } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import './Auth.css';
 
 export default function Auth({ mode }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login: contextLogin } = useContext(AuthContext);
-
-  // Extract any invite token from URL (e.g. /register?token=abc123)
-  const params = new URLSearchParams(location.search);
-  const inviteToken = params.get('token') || '';
+  const { login, register } = useContext(AuthContext);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [inviteToken, setInviteToken] = useState('');
   const [error, setError] = useState(null);
   const [info, setInfo] = useState('');
 
-  // If redirected here with a success state (e.g. after register)
+  // Pre-fill invite token or info messages
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    if (token) {
+      setInviteToken(token);
+      // Force to register view if coming via invite
+      if (mode !== 'register') {
+        navigate('/register', { replace: true });
+      }
+    }
     if (location.state?.success) {
       setInfo(location.state.success);
     }
-  }, [location.state]);
+  }, [location, mode, navigate]);
 
   const onSubmit = async e => {
     e.preventDefault();
@@ -33,28 +38,18 @@ export default function Auth({ mode }) {
 
     try {
       if (mode === 'register') {
-        // Build payload, including invite token if present
-        const payload = { fullName, email, password };
-        if (inviteToken) payload.token = inviteToken;
-        await apiRegister(payload);
-        // After registering, redirect to login to authenticate
-        navigate('/login', {
-          state: { success: '🎉 Registration successful! Please log in.' }
-        });
+        await register({ fullName, email, password, inviteToken });
+        // After invite registration, redirect to login
+        if (inviteToken) {
+          navigate('/login', {
+            state: { success: 'Registration successful! Please log in.' }
+          });
+        }
       } else {
-        // Login via context (stores token & user, then navigates to dashboard)
-        await contextLogin({ email, password });
+        await login({ email, password });
       }
     } catch (err) {
-      const status = err.response?.status;
-      const msg = err.response?.data?.message || err.message;
-      if (mode === 'register') {
-        if (status === 409) setError('That email is already registered. Please log in.');
-        else setError(msg || 'Registration failed. Try again later.');
-      } else {
-        if (status === 400 || status === 401) setError('Email or password is incorrect.');
-        else setError(msg || 'Login failed. Try again later.');
-      }
+      setError(err.message);
     }
   };
 
@@ -62,6 +57,7 @@ export default function Auth({ mode }) {
     <main className="auth-container">
       <h2>{mode === 'register' ? 'Create an Account' : 'Welcome Back'}</h2>
       {info && <p className="info-message">{info}</p>}
+
       <form onSubmit={onSubmit}>
         {mode === 'register' && (
           <div className="form-group">
@@ -77,6 +73,7 @@ export default function Auth({ mode }) {
             />
           </div>
         )}
+
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
@@ -89,6 +86,7 @@ export default function Auth({ mode }) {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
@@ -101,11 +99,41 @@ export default function Auth({ mode }) {
             required
           />
         </div>
-        {error && <p className="error-message" role="alert">{error}</p>}
+
+        {error && (
+          <p className="error-message" role="alert">
+            {error}
+          </p>
+        )}
+
         <button type="submit" className="submit-button">
           {mode === 'register' ? 'Register' : 'Login'}
         </button>
       </form>
+
+      <div className="auth-footer">
+        {mode === 'register' ? (
+          <>
+            Already have an account?{' '}
+            <button
+              className="switch-btn"
+              onClick={() => navigate('/login')}
+            >
+              Sign In
+            </button>
+          </>
+        ) : (
+          <>
+            Don’t have an account?{' '}
+            <button
+              className="switch-btn"
+              onClick={() => navigate('/register')}
+            >
+              Register
+            </button>
+          </>
+        )}
+      </div>
     </main>
   );
 }
