@@ -11,8 +11,15 @@ export default function OrgSetup() {
   const [orgName, setOrgName] = useState('');
   const [orgBio, setOrgBio] = useState('');
   const [addUserEmails, setAddUserEmails] = useState(['']);
+  const [allOrganizations, setAllOrganizations] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    axios.get('/api/organizations')
+      .then(res => setAllOrganizations(res.data))
+      .catch(err => console.error('Failed to load organizations:', err));
+  }, []);
 
   const handleEmailChange = (index, value) => {
     const updated = [...addUserEmails];
@@ -76,6 +83,15 @@ export default function OrgSetup() {
 
           <button type="submit" className="btn-primary">Submit & Continue</button>
         </form>
+
+        <div className="existing-orgs">
+          <h4>Existing Organizations</h4>
+          <ul>
+            {allOrganizations.map(org => (
+              <li key={org.id}>{org.name}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
