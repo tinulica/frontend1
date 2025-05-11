@@ -1,11 +1,9 @@
-import React, { createContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  login as apiLogin,
-  register as apiRegister,
-  getCurrentUser
-} from '../services/api'
+import { apiLogin, apiRegister, apiGetCurrentUser } from '../services/api'
+import { saveAuth, getAuth, clearAuth } from '../utils/auth'
 
+// Create Auth context
 export const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
@@ -13,75 +11,58 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Persist token + user
-  const persist = (token, me) => {
-    localStorage.setItem('token', token)
-    localStorage.setItem('user', JSON.stringify(me))
-    setUser(me)
+  // Log in user, save token, set user, redirect
+  async function login(credentials) {
+    try {
+      const { token, user } = await apiLogin(credentials)
+      saveAuth({ token })
+      setUser(user)
+      navigate('/dashboard')
+    } catch (err) {
+      // Handle login error (e.g. show notification)
+      throw err
+    }
   }
 
-  // Logout
-  const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+  // Register user, save token, set user, redirect
+  async function register(data) {
+    try {
+      const { token, user } = await apiRegister(data)
+      saveAuth({ token })
+      setUser(user)
+      navigate('/dashboard')
+    } catch (err) {
+      // Handle registration error
+      throw err
+    }
+  }
+
+  // Clear auth and redirect to login
+  function logout() {
+    clearAuth()
     setUser(null)
-    navigate('/', { replace: true })
+    navigate('/login')
   }
 
-  // On mount: rehydrate + fetch /auth/me
+  // On mount, rehydrate user if token exists
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const auth = getAuth()
+    if (auth && auth.token) {
+      apiGetCurrentUser()
+        .then(({ user }) => {
+          setUser(user)
+          setLoading(false)
+        })
+        .catch(() => {
+          clearAuth()
+          setLoading(false)
+        })
+    } else {
       setLoading(false)
-      return
     }
-    const stored = localStorage.getItem('user')
-    if (stored) {
-      try { setUser(JSON.parse(stored)) } catch {}
-    }
-    ;(async () => {
-      try {
-        const { data } = await getCurrentUser()
-        setUser(data.user)
-        localStorage.setItem('user', JSON.stringify(data.user))
-      } catch {
-        logout()
-      } finally {
-        setLoading(false)
-      }
-    })()
   }, [])
 
-  // --- LOGIN ---
-  // Throws on error
-  const login = async ({ email, password }) => {
-    const { data } = await apiLogin({ email, password })
-    if (!data?.token || !data?.user) {
-      throw new Error('Invalid login response')
-    }
-    persist(data.token, data.user)
-    // Navigate to dashboard after successful login
-    navigate('/dashboard', { replace: true })
-  }
-
-  // --- REGISTER ---
-  // Throws on error
-  const register = async ({ fullName, email, password, inviteToken }) => {
-    const payload = { fullName, email, password }
-    if (inviteToken) payload.token = inviteToken
-    const { data } = await apiRegister(payload)
-    if (!data?.token || !data?.user) {
-      throw new Error('Invalid registration response')
-    }
-    persist(data.token, data.user)
-    // After registering via invite, navigate to login screen
-    if (inviteToken) {
-      navigate('/login', {
-        state: { success: 'Registration successful! Please log in.' }
-      })
-    }
-  }
-
+  // Show loading state while rehydrating
   if (loading) {
     return (
       <div className="auth-loading">
@@ -95,4 +76,9 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
+}
+
+// Convenience hook to consume Auth context
+export function useAuth() {
+  return useContext(AuthContext)
 }
