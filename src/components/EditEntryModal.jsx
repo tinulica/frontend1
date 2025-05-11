@@ -86,13 +86,16 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
               <label>Platform<input value={formData.platform} onChange={e => handleChange('platform', e.target.value)} /></label>
               <label>Platform ID<input value={formData.externalId} onChange={e => handleChange('externalId', e.target.value)} /></label>
               <label>Collaboration Type
-                <select value={formData.collabType} onChange={e => handleChange('collabType', e.target.value)}>
-                  <option value="">Select</option>
-                  <option value="angajare">Angajare directa</option>
-                  <option value="colaborare">Colaborare directa SRL/PFA</option>
-                  <option value="detasare">Detasare alt SRL</option>
-                </select>
-              </label>
+  <select
+    value={formData.collabType}
+    onChange={e => handleChange('collabType', e.target.value)}
+  >
+    <option value="">Select</option>
+    <option value="angajare">Angajare directa</option>
+    <option value="colaborare">Colaborare directa SRL/PFA</option>
+    <option value="detasare">Detasare alt SRL</option>
+  </select>
+</label>
             </div>
           )}
 
