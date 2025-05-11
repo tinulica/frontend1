@@ -1,254 +1,113 @@
-/* ProfileModal.css */
+/* src/components/ProfileModal.css */
 
-.pm-backdrop {
+.profile-backdrop {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.3);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 2rem;
+  align-items: center;
   z-index: 1000;
 }
 
-.pm-modal {
+.profile-container {
   background: #fff;
-  width: 100%;
-  max-width: 800px;
-  border-radius: 1rem;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90%;
+  overflow-y: auto;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
-.pm-header {
+.profile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
   border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.pm-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #333;
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
 }
 
-.pm-close {
+.profile-tabs button {
+  flex: 1;
+  padding: 0.5rem 0;
   background: transparent;
   border: none;
   cursor: pointer;
-}
-
-.pm-tabs {
-  display: flex;
-  border-bottom: 1px solid #eee;
-}
-
-.pm-tabs button {
-  flex: 1;
-  padding: 0.75rem;
-  font-size: 1rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666;
+  font-weight: 500;
   transition: color 0.2s;
 }
 
-.pm-tabs button.active {
-  color: #111;
-  border-bottom: 3px solid #4f46e5; /* Indigo-600 */
+.profile-tabs button.active {
+  border-bottom: 2px solid #007bff;
+  color: #007bff;
 }
 
-.pm-body {
-  padding: 2rem;
+.profile-main {
+  padding: 0.5rem 0;
 }
 
-.pm-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.pm-column {
+.profile-form,
+.password-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Avatar section */
-.pm-avatar-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 0.75rem;
 }
 
-.pm-avatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 9999px;
-  object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.pm-avatar-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  background: #4f46e5;
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.pm-avatar-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.pm-avatar-btn:hover:not(:disabled) {
-  background: #4338ca;
-}
-
-/* Form fields */
-.pm-field {
+.profile-form label,
+.password-form label {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #333;
 }
 
-.pm-field label {
-  font-size: 0.875rem;
-  color: #555;
+.profile-form input,
+.password-form input {
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.pm-field input,
-.pm-field select {
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.pm-field input:focus,
-.pm-field select:focus {
-  border-color: #4f46e5;
-}
-
-/* Separator */
-.pm-separator {
+.btn {
+  padding: 0.5rem 1rem;
   border: none;
-  border-top: 1px solid #eee;
-  margin: 1rem 0;
-}
-
-/* Buttons */
-.pm-btn {
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  background: #4f46e5;
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s;
+  font-size: 0.9rem;
 }
 
-.pm-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.pm-btn:hover:not(:disabled) {
-  background: #4338ca;
-}
-
-.pm-small-btn {
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  color: #4f46e5;
-  background: transparent;
-  border: 1px solid #4f46e5;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.pm-small-btn:hover:not(:disabled) {
-  background: #4f46e5;
+.btn.save {
+  background: #007bff;
   color: #fff;
 }
 
-/* Invitations tab */
-.pm-invites-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
+.btn.logout {
+  background: #dc3545;
+  color: #fff;
 }
 
-.pm-invites-table th,
-.pm-invites-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
+.btn.cancel {
+  background: #6c757d;
+  color: #fff;
 }
 
-.pm-invites-table thead {
-  background: #f9fafb;
-}
-
-.pm-invites-table tbody tr:nth-child(even) {
-  background: #f3f4f6;
-}
-
-.icon-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: #e11d48; /* Red-600 */
-  transition: color 0.2s;
-}
-
-.icon-btn:hover {
-  color: #b91c1c; /* Red-700 */
-}
-
-/* Feedback message */
-.pm-feedback {
-  padding: 1rem 2rem;
-  font-size: 0.95rem;
-  text-align: center;
-}
-
-.pm-feedback.error {
-  color: #b91c1c;
-}
-
-.pm-feedback.success {
-  color: #16a34a;
-}
-
-/* Footer */
-.pm-actions {
+.profile-actions {
   display: flex;
   justify-content: flex-end;
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #eee;
-  gap: 1rem;
-}
-
-/* Nice spacing around the modal */
-.pm-modal {
-  margin: 1rem;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
