@@ -140,4 +140,7 @@ margin: 10px 0;
 
 .eem-footer {
   display: flex;
-  justify-con
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
