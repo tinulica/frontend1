@@ -1,93 +1,114 @@
 // src/components/EntryModal.jsx
-import React, { useState } from 'react';
-import { addEntry } from '../services/api';
+import React, { useState } from 'react'
+import { addEntry } from '../services/api'
 
-// Inline styles for modal UI
+// Inline styles for modal UI (can be moved to CSS)
 const backdropStyle = {
   position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
   background: 'rgba(0,0,0,0.5)', display: 'flex',
   alignItems: 'center', justifyContent: 'center', zIndex: 1000
-};
+}
 const modalStyle = {
   background: '#fff', padding: '2rem', borderRadius: '8px',
   width: '90%', maxWidth: '400px',
   boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-};
-const formGroupStyle = { marginBottom: '1rem', display: 'flex', flexDirection: 'column' };
-const labelStyle = { marginBottom: '0.5rem', color: '#333', fontWeight: '500' };
-const inputStyle = { padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px', fontSize: '1rem' };
-const selectStyle = inputStyle;
-const buttonGroupStyle = { display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' };
-const buttonStyle = { padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' };
-const submitStyle = { ...buttonStyle, background: '#4f46e5', color: '#fff' };
-const cancelStyle = { ...buttonStyle, background: '#6b7280', color: '#fff' };
-const errorStyle = { color: '#dc2626', margin: '0.5rem 0', textAlign: 'center' };
+}
+const formGroupStyle = { marginBottom: '1rem', display: 'flex', flexDirection: 'column' }
+const errorStyle = { color: 'red', marginBottom: '1rem' }
+const buttonGroupStyle = { display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }
+const cancelStyle = { padding: '0.5rem 1rem' }
+const submitStyle = { padding: '0.5rem 1rem', background: '#007bff', color: '#fff', border: 'none' }
 
 export default function EntryModal({ isOpen, onClose, onAdded }) {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [platform, setPlatform] = useState('');
-  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    platform: 'Glovo',
+    externalId: ''
+  })
+  const [error, setError] = useState('')
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
+  const handleChange = e => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    setError('')
     try {
-      await addEntry({ fullName, email, platform });
-      onAdded();
-      onClose();
+      await addEntry({
+        fullName: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        platform: formData.platform,
+        externalId: formData.externalId
+      })
+      onAdded()
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(err.response?.data?.message || err.message)
     }
-  };
+  }
 
   return (
-    <div style={backdropStyle}>
-      <div style={modalStyle}>
-        <h2 style={{ marginTop: 0, marginBottom: '1rem', color: '#333' }}>Add Entry</h2>
+    <div style={backdropStyle} onClick={onClose}>
+      <div style={modalStyle} onClick={e => e.stopPropagation()}>
+        <h2>Add Entry</h2>
         <form onSubmit={handleSubmit}>
           <div style={formGroupStyle}>
-            <label htmlFor="fullName" style={labelStyle}>Full Name</label>
+            <label>Nume și Prenume</label>
             <input
-              id="fullName"
-              name="fullName"
               type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
               required
-              style={inputStyle}
             />
           </div>
           <div style={formGroupStyle}>
-            <label htmlFor="email" style={labelStyle}>Email</label>
+            <label>Adresa de email</label>
             <input
-              id="email"
-              name="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               required
-              style={inputStyle}
             />
           </div>
           <div style={formGroupStyle}>
-            <label htmlFor="platform" style={labelStyle}>Platform</label>
-            <select
-              id="platform"
-              name="platform"
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
+            <label>Numar de telefon</label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
               required
-              style={selectStyle}
+            />
+          </div>
+          <div style={formGroupStyle}>
+            <label>Platforma</label>
+            <select
+              name="platform"
+              value={formData.platform}
+              onChange={handleChange}
+              required
             >
-              <option value="">Select platform</option>
-              <option value="GLOVO">GLOVO</option>
-              <option value="TAZZ">TAZZ</option>
-              <option value="BRINGO">BRINGO</option>
-              <option value="ANGAJAT">ANGAJAT</option>
+              <option value="Glovo">Glovo</option>
+              <option value="Bolt">Bolt</option>
+              <option value="Bringo">Bringo</option>
             </select>
+          </div>
+          <div style={formGroupStyle}>
+            <label>Id Platforma</label>
+            <input
+              type="text"
+              name="externalId"
+              value={formData.externalId}
+              onChange={handleChange}
+            />
           </div>
           {error && <p style={errorStyle}>{error}</p>}
           <div style={buttonGroupStyle}>
@@ -97,5 +118,5 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
         </form>
       </div>
     </div>
-  );
+  )
 }
