@@ -19,6 +19,8 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
   const [formData, setFormData] = useState(DEFAULT_FORM);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('general');
+  const isAngajare = formData.collabType === 'angajare';
+const isColaborare = formData.collabType === 'colaborare';
 
   useEffect(() => {
     if (!entry) return;
