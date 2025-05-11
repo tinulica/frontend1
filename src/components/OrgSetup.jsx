@@ -47,15 +47,14 @@ export default function OrgSetup() {
   return (
     <div className="org-setup-container">
       <div className="org-setup-card">
-        <div className="step-indicator">
-          <div className={step >= 1 ? 'active' : ''}>1</div>
-          <div className={step >= 2 ? 'active' : ''}>2</div>
-          <div className={step === 3 ? 'active' : ''}>3</div>
+        <div className="stepper">
+          <div className={`step ${step === 1 ? 'active' : ''}`}>1. Organization</div>
+          <div className={`step ${step === 2 ? 'active' : ''}`}>2. Invite Users</div>
         </div>
 
         <form onSubmit={handleSubmit}>
           {step === 1 && (
-            <div className="step">
+            <>
               <h2>Step 1: Organization Info</h2>
               <label>
                 Organization Name
@@ -66,6 +65,7 @@ export default function OrgSetup() {
                   required
                 />
               </label>
+
               <label>
                 Organization Bio
                 <textarea
@@ -74,14 +74,15 @@ export default function OrgSetup() {
                   placeholder="Tell us about your team or company"
                 />
               </label>
+
               <button type="button" className="btn-primary" onClick={() => setStep(2)}>Next</button>
-            </div>
+            </>
           )}
 
           {step === 2 && (
-            <div className="step">
-              <h2>Step 2: Invite Team Members</h2>
-              {addUserEmails.map((email, index) => (
+            <>
+              <h2>Step 2: Invite Users</h2>
+              {Array.isArray(addUserEmails) && addUserEmails.map((email, index) => (
                 <input
                   key={index}
                   type="email"
@@ -90,32 +91,18 @@ export default function OrgSetup() {
                   placeholder="user@example.com"
                 />
               ))}
-              <button type="button" className="btn-secondary" onClick={addMoreEmails}>Add another</button>
-              <div className="step-buttons">
-                <button type="button" className="btn-secondary" onClick={() => setStep(1)}>Back</button>
-                <button type="button" className="btn-primary" onClick={() => setStep(3)}>Next</button>
-              </div>
-            </div>
-          )}
+              <button type="button" className="btn-secondary" onClick={addMoreEmails}>
+                Add another
+              </button>
 
-          {step === 3 && (
-            <div className="step">
-              <h2>Step 3: Confirm & Submit</h2>
-              <p><strong>Org Name:</strong> {orgName}</p>
-              <p><strong>Bio:</strong> {orgBio}</p>
-              <p><strong>Invites:</strong></p>
-              <ul>
-                {addUserEmails.filter(e => e.trim()).map((email, i) => (
-                  <li key={i}>{email}</li>
-                ))}
-              </ul>
-              {error && <p className="error-message">{error}</p>}
-              <div className="step-buttons">
-                <button type="button" className="btn-secondary" onClick={() => setStep(2)}>Back</button>
+              <div className="step-actions">
+                <button type="button" className="btn-secondary" onClick={() => setStep(1)}>Back</button>
                 <button type="submit" className="btn-primary">Submit & Continue</button>
               </div>
-            </div>
+            </>
           )}
+
+          {error && <p className="error-message">{error}</p>}
         </form>
       </div>
     </div>
