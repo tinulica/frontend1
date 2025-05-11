@@ -1,75 +1,90 @@
+/* Center the card */
 .org-setup-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #f7f9fc;
+  background: linear-gradient(to right, #eef2f3, #ffffff);
   padding: 2rem;
 }
 
+/* Card with soft shadow and rounded edges */
 .org-setup-card {
-  background: white;
+  background: #fff;
   width: 100%;
-  max-width: 600px;
-  padding: 2.5rem 3rem;
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stepper at the top */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
   position: relative;
 }
 
-.org-setup-card h2 {
-  font-size: 1.75rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.step-indicator {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 2rem;
-}
-
-.step-indicator .step {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.step-indicator::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
   background: #e0e0e0;
+  z-index: 0;
+}
+
+.step {
+  z-index: 1;
+  background: #e0e0e0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   color: #fff;
-  font-weight: bold;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.3s;
+  font-size: 0.95rem;
+  transition: all 0.3s;
 }
 
-.step-indicator .step.active {
+.step.active {
   background: #007bff;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
 }
 
-form label {
+/* Section content */
+.org-step-content label {
   display: block;
+  margin-top: 1.2rem;
   font-weight: 500;
-  margin: 1rem 0 0.5rem;
+  color: #333;
 }
 
-form input,
-form textarea {
+.org-step-content input,
+.org-step-content textarea {
   width: 100%;
-  padding: 0.65rem 0.9rem;
+  padding: 0.75rem 1rem;
   font-size: 1rem;
+  margin-top: 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: border-color 0.2s ease;
+  border-radius: 10px;
+  transition: border-color 0.3s;
 }
 
-form input:focus,
-form textarea:focus {
+.org-step-content input:focus,
+.org-step-content textarea:focus {
   border-color: #007bff;
   outline: none;
 }
 
-form textarea {
+textarea {
   min-height: 100px;
   resize: vertical;
 }
@@ -78,37 +93,36 @@ form textarea {
   margin-top: 0.5rem;
 }
 
+/* Buttons */
+.org-setup-footer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 button {
-  margin-top: 1.5rem;
-  padding: 0.7rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   font-size: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
+  border: none;
 }
 
 .btn-primary {
-  background: #007bff;
-  color: #fff;
-  border: none;
+  background-color: #007bff;
+  color: white;
 }
 
 .btn-secondary {
-  background: #f0f0f0;
+  background-color: #f5f5f5;
   color: #333;
-  border: none;
-  margin-left: 0.75rem;
-}
-
-.org-setup-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
 }
 
 .error-message {
   color: #d9534f;
-  font-weight: 500;
   margin-top: 1rem;
+  font-weight: 500;
   text-align: center;
 }
