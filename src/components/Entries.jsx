@@ -4,17 +4,17 @@ import React, {
   useState,
   useContext,
   useMemo
-} from 'react';
-import { io } from 'socket.io-client';
+} from 'react'
+import { io } from 'socket.io-client'
 import {
   getEntries,
   deleteEntry,
   exportEntries as apiExportEntries,
   emailSalaryById
-} from '../services/api';
-import EntryModal from './EntryModal';
-import EditEntryModal from './EditEntryModal';
-import ImportModal from './ImportModal';
+} from '../services/api'
+import EntryModal from './EntryModal'
+import EditEntryModal from './EditEntryModal'
+import ImportModal from './ImportModal'
 import {
   Edit2,
   Trash2,
@@ -24,142 +24,142 @@ import {
   Plus,
   Upload,
   Download
-} from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
-import './Entries.css';
+} from 'lucide-react'
+import { AuthContext } from '../context/AuthContext'
+import './Entries.css'
 
+// Updated TABS: keys match platform values exactly
 const TABS = [
-  { key: 'GLOVO',   label: 'Glovo' },
-  { key: 'TAZZ',    label: 'Tazz' },
-  { key: 'BRINGO',  label: 'Bringo' },
-  { key: 'ANGAJAT', label: 'Angajat' }
-];
+  { key: 'Glovo',   label: 'Glovo' },
+  { key: 'Bolt',    label: 'Bolt' },
+  { key: 'Bringo',  label: 'Bringo' }
+]
 
 export default function Entries() {
-  const { user } = useContext(AuthContext);
-  const [entries, setEntries]         = useState([]);
-  const [searchTerm, setSearchTerm]   = useState('');
-  const [page, setPage]               = useState(1);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
-  const [showAdd, setShowAdd]         = useState(false);
-  const [editEntry, setEditEntry]     = useState(null);
-  const [showImport, setShowImport]   = useState(false);
-  const [activeTab, setActiveTab]     = useState(TABS[0].key);
-  const [selectedIds, setSelectedIds] = useState(new Set());
-  const pageSize = 10;
+  const { user } = useContext(AuthContext)
+  const [entries, setEntries]         = useState([])
+  const [searchTerm, setSearchTerm]   = useState('')
+  const [page, setPage]               = useState(1)
+  const [loading, setLoading]         = useState(true)
+  const [error, setError]             = useState(null)
+  const [showAdd, setShowAdd]         = useState(false)
+  const [editEntry, setEditEntry]     = useState(null)
+  const [showImport, setShowImport]   = useState(false)
+  const [activeTab, setActiveTab]     = useState(TABS[0].key)
+  const [selectedIds, setSelectedIds] = useState(new Set())
+  const pageSize = 10
 
   // fetch
   const fetchEntries = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const { data } = await getEntries();
-      setEntries(data);
-      setSelectedIds(new Set());
+      const { data } = await getEntries()
+      setEntries(data)
+      setSelectedIds(new Set())
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(err.response?.data?.message || err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-  useEffect(fetchEntries, []);
+  }
+  useEffect(() => { fetchEntries() }, [])
 
   // sockets
   useEffect(() => {
-    if (!user) return;
+    if (!user) return
     const socket = io(process.env.REACT_APP_API_URL, {
       auth: { token: localStorage.getItem('token') }
-    });
-    socket.emit('joinOrg', user.organizationId);
+    })
+    socket.emit('joinOrg', user.organizationId)
     ['entryAdded','entryUpdated','entryDeleted'].forEach(evt =>
       socket.on(evt, fetchEntries)
-    );
+    )
     return () => {
       ['entryAdded','entryUpdated','entryDeleted'].forEach(evt =>
         socket.off(evt, fetchEntries)
-      );
-      socket.disconnect();
-    };
-  }, [user]);
+      )
+      socket.disconnect()
+    }
+  }, [user])
 
   // filters
   const filtered = useMemo(() => {
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.toLowerCase()
     return entries
       .filter(e => e.platform === activeTab)
       .filter(e =>
         e.fullName.toLowerCase().includes(term) ||
         e.email.toLowerCase().includes(term) ||
         (e.externalId || '').toLowerCase().includes(term)
-      );
-  }, [entries, activeTab, searchTerm]);
+      )
+  }, [entries, activeTab, searchTerm])
 
-  const totalPages = Math.ceil(filtered.length / pageSize);
+  const totalPages = Math.ceil(filtered.length / pageSize)
   const visible = useMemo(
     () => filtered.slice((page - 1) * pageSize, page * pageSize),
     [filtered, page]
-  );
+  )
 
   const avgSalary = useMemo(() => {
     const sums = entries
       .filter(e => e.platform === activeTab)
       .map(e => {
         const latest = [...e.salaryHistories]
-          .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
-        return latest ? latest.amount : 0;
-      });
-    if (!sums.length) return '0.00';
-    return (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(2);
-  }, [entries, activeTab]);
+          .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0]
+        return latest ? latest.amount : 0
+      })
+    if (!sums.length) return '0.00'
+    return (sums.reduce((a, b) => a + b, 0) / sums.length).toFixed(2)
+  }, [entries, activeTab])
 
   // bulk
   const handleSelectAll = e => {
     if (e.target.checked) {
-      setSelectedIds(new Set(filtered.map(ent => ent.id)));
+      setSelectedIds(new Set(filtered.map(ent => ent.id)))
     } else {
-      setSelectedIds(new Set());
+      setSelectedIds(new Set())
     }
-  };
+  }
   const handleSelectOne = (id, checked) => {
-    const next = new Set(selectedIds);
-    checked ? next.add(id) : next.delete(id);
-    setSelectedIds(next);
-  };
+    const next = new Set(selectedIds)
+    checked ? next.add(id) : next.delete(id)
+    setSelectedIds(next)
+  }
   const handleBulkDelete = async () => {
-    if (!window.confirm('Delete selected entries?')) return;
-    for (let id of selectedIds) await deleteEntry(id);
-    fetchEntries();
-  };
+    if (!window.confirm('Delete selected entries?')) return
+    for (let id of selectedIds) await deleteEntry(id)
+    fetchEntries()
+  }
 
   // single delete
   const handleDelete = async id => {
-    if (!window.confirm('Delete entry?')) return;
+    if (!window.confirm('Delete entry?')) return
     try {
-      await deleteEntry(id);
-      fetchEntries();
+      await deleteEntry(id)
+      fetchEntries()
     } catch {
-      alert('Delete failed');
+      alert('Delete failed')
     }
-  };
+  }
 
   // export
   const handleExport = async () => {
     try {
-      const resp = await apiExportEntries({ platform: activeTab });
-      const url  = URL.createObjectURL(new Blob([resp.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${activeTab.toLowerCase()}-entries.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const resp = await apiExportEntries({ platform: activeTab })
+      const url  = URL.createObjectURL(new Blob([resp.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${activeTab.toLowerCase()}-entries.xlsx`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
     } catch {
-      alert('Export failed');
+      alert('Export failed')
     }
-  };
+  }
 
-  if (loading) return <p className="loading">Loading entries…</p>;
-  if (error)   return <p className="error">{error}</p>;
+  if (loading) return <p className="loading">Loading entries…</p>
+  if (error)   return <p className="error">{error}</p>
 
   return (
     <main className="entries-container">
@@ -170,9 +170,9 @@ export default function Entries() {
             key={tab.key}
             className={`plat-tab${tab.key === activeTab ? ' active' : ''}`}
             onClick={() => {
-              setActiveTab(tab.key);
-              setPage(1);
-              setSelectedIds(new Set());
+              setActiveTab(tab.key)
+              setPage(1)
+              setSelectedIds(new Set())
             }}
           >
             {tab.label}
@@ -236,8 +236,8 @@ export default function Entries() {
         platform={activeTab}
         onClose={() => setShowAdd(false)}
         onAdded={() => {
-          setShowAdd(false);
-          fetchEntries();
+          setShowAdd(false)
+          fetchEntries()
         }}
       />
 
@@ -246,8 +246,8 @@ export default function Entries() {
         entry={editEntry}
         onClose={() => setEditEntry(null)}
         onUpdated={() => {
-          setEditEntry(null);
-          fetchEntries();
+          setEditEntry(null)
+          fetchEntries()
         }}
       />
 
@@ -255,8 +255,8 @@ export default function Entries() {
         isOpen={showImport}
         onClose={() => setShowImport(false)}
         onImported={() => {
-          setShowImport(false);
-          fetchEntries();
+          setShowImport(false)
+          fetchEntries()
         }}
       />
 
@@ -285,7 +285,7 @@ export default function Entries() {
           <tbody>
             {visible.map(e => {
               const latest = [...e.salaryHistories]
-                .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0];
+                .sort((a, b) => new Date(b.changedAt) - new Date(a.changedAt))[0]
               return (
                 <tr key={e.id}>
                   <td>
@@ -319,7 +319,7 @@ export default function Entries() {
                     </button>
                   </td>
                 </tr>
-              );
+              )
             })}
           </tbody>
         </table>
@@ -344,5 +344,5 @@ export default function Entries() {
         </button>
       </div>
     </main>
-  );
+  )
 }
