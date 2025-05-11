@@ -1,5 +1,6 @@
+// src/components/EditEntryModal.jsx
 import React, { useState, useEffect } from 'react';
-import { updateEntry } from '../services/api';
+import { updateEntry, getAllOrganizations } from '../services/api';
 import { X } from 'lucide-react';
 import './EditEntryModal.css';
 
@@ -15,10 +16,11 @@ const DEFAULT_FORM = {
   isDetached: false
 };
 
-export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgList = [] }) {
+export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   const [formData, setFormData] = useState(DEFAULT_FORM);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('general');
+  const [orgList, setOrgList] = useState([]);
 
   useEffect(() => {
     if (!entry) return;
@@ -30,6 +32,12 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
       collabDetails: entry.collabDetails || {}
     });
   }, [entry]);
+
+  useEffect(() => {
+    getAllOrganizations().then(res => {
+      setOrgList(res.data || []);
+    });
+  }, []);
 
   if (!isOpen || !entry) return null;
 
@@ -61,6 +69,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
 
   const isAngajare = formData.collabType === 'angajare';
   const isColaborare = formData.collabType === 'colaborare';
+  const isDetasare = formData.collabType === 'detasare';
 
   return (
     <div className="eem-backdrop" onClick={onClose}>
@@ -96,7 +105,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
               </div>
 
               {isAngajare && (
-                <div className="eem-section">
+                <div className="eem-collab-form">
                   <h4>Date personale</h4>
                   <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
                   <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
@@ -117,7 +126,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
               )}
 
               {isColaborare && (
-                <div className="eem-section">
+                <div className="eem-collab-form">
                   <h4>Date Administrator</h4>
                   <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
                   <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
@@ -166,7 +175,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
           {activeTab === 'documents' && (
             <div className="eem-documents">
               <p>No documents uploaded yet.</p>
-              {/* Future file upload logic here */}
+              {/* File upload logic will be added here */}
             </div>
           )}
 
