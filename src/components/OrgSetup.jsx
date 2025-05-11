@@ -8,7 +8,6 @@ export default function OrgSetup() {
   const navigate = useNavigate();
   const { token, refreshUser } = useContext(AuthContext);
 
-  const [step, setStep] = useState(1);
   const [orgName, setOrgName] = useState('');
   const [orgBio, setOrgBio] = useState('');
   const [addUserEmails, setAddUserEmails] = useState(['']);
@@ -45,64 +44,54 @@ export default function OrgSetup() {
   };
 
   return (
-    <div className="org-setup-container">
+    <div className="org-setup-wrapper">
+      <div className="org-stepper">
+        <div className="step active">1</div>
+        <div className="step">2</div>
+        <div className="step">3</div>
+      </div>
       <div className="org-setup-card">
-        <div className="stepper">
-          <div className={`step ${step === 1 ? 'active' : ''}`}>1. Organization</div>
-          <div className={`step ${step === 2 ? 'active' : ''}`}>2. Invite Users</div>
-        </div>
+        <h2 className="org-title">Complete Your Organization Setup</h2>
+        <form onSubmit={handleSubmit} className="org-form">
+          <div className="form-group">
+            <label>Organization Name</label>
+            <input
+              type="text"
+              value={orgName}
+              onChange={e => setOrgName(e.target.value)}
+              required
+              placeholder="e.g. Glovo HR Team"
+            />
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          {step === 1 && (
-            <>
-              <h2>Step 1: Organization Info</h2>
-              <label>
-                Organization Name
-                <input
-                  type="text"
-                  value={orgName}
-                  onChange={e => setOrgName(e.target.value)}
-                  required
-                />
-              </label>
+          <div className="form-group">
+            <label>Organization Bio</label>
+            <textarea
+              value={orgBio}
+              onChange={e => setOrgBio(e.target.value)}
+              placeholder="Tell us about your team or company"
+            />
+          </div>
 
-              <label>
-                Organization Bio
-                <textarea
-                  value={orgBio}
-                  onChange={e => setOrgBio(e.target.value)}
-                  placeholder="Tell us about your team or company"
-                />
-              </label>
+          <div className="form-group">
+            <label>Invite Other Users</label>
+            {Array.isArray(addUserEmails) && addUserEmails.map((email, index) => (
+              <input
+                key={index}
+                type="email"
+                value={email}
+                onChange={e => handleEmailChange(index, e.target.value)}
+                placeholder="user@example.com"
+              />
+            ))}
+            <button type="button" className="btn-secondary" onClick={addMoreEmails}>
+              + Add another
+            </button>
+          </div>
 
-              <button type="button" className="btn-primary" onClick={() => setStep(2)}>Next</button>
-            </>
-          )}
+          {error && <p className="org-error-message">{error}</p>}
 
-          {step === 2 && (
-            <>
-              <h2>Step 2: Invite Users</h2>
-              {Array.isArray(addUserEmails) && addUserEmails.map((email, index) => (
-                <input
-                  key={index}
-                  type="email"
-                  value={email}
-                  onChange={e => handleEmailChange(index, e.target.value)}
-                  placeholder="user@example.com"
-                />
-              ))}
-              <button type="button" className="btn-secondary" onClick={addMoreEmails}>
-                Add another
-              </button>
-
-              <div className="step-actions">
-                <button type="button" className="btn-secondary" onClick={() => setStep(1)}>Back</button>
-                <button type="submit" className="btn-primary">Submit & Continue</button>
-              </div>
-            </>
-          )}
-
-          {error && <p className="error-message">{error}</p>}
+          <button type="submit" className="btn-primary">Submit & Continue</button>
         </form>
       </div>
     </div>
