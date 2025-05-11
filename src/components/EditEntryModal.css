@@ -76,4 +76,44 @@ color: #b00020;
 font-weight: 500;
 margin: 10px 0;
 }
+/* EditEntryModal.css - Tabs Section */
+
+.eem-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  margin: 0 0 1rem;
+  padding: 0 1rem;
+  background: #f8f9fa;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.eem-tabs button {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: 0.2s ease;
+}
+
+.eem-tabs button.active {
+  color: #1d4ed8;
+  border-bottom: 3px solid #1d4ed8;
+  background-color: #ffffff;
+  font-weight: 600;
+}
+
+.eem-tabs button:not(.active):hover {
+  background-color: #e5e7eb;
+}
+
+/* Optional: Add slight spacing above form sections to separate from tabs */
+.eem-section,
+.eem-detach {
+  padding: 1rem 1.5rem;
+}
 
