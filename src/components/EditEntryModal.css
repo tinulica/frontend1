@@ -1,139 +1,114 @@
-/* src/components/EditEntryModal.css */
+/* EditEntryModal.css */
 
-/* Backdrop */
-.modal-backdrop {
+.edit-entry-backdrop {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
 }
 
-/* Modal container */
-.edit-modal {
-  background: #fff;
+.edit-entry-modal {
+  background: white;
   width: 90%;
   max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Header */
-.edit-modal-header {
+.edit-entry-modal h2 {
+  margin-top: 0;
+}
+
+.edit-entry-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eaeaea;
-  background-color: #f9fafb;
+  margin-bottom: 1rem;
 }
 
-.edit-modal-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-/* Body */
-.edit-modal-body {
-  padding: 1.5rem;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-/* Form sections */
-.form-section {
-  margin-bottom: 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.25rem;
-}
-
-.form-section h4 {
-  grid-column: 1 / -1;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-/* Shared form styling */
-.form-section label {
+.edit-entry-body {
   display: flex;
   flex-direction: column;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #4b5563;
+  gap: 2rem;
 }
 
-.form-section input,
-.form-section select {
+.edit-entry-form-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 2rem;
+}
+
+.edit-entry-form-section h4 {
+  grid-column: 1 / -1;
+  margin: 0.5rem 0;
+  font-weight: 600;
+}
+
+.edit-entry-form-section label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #333;
+}
+
+.edit-entry-form-section input,
+.edit-entry-form-section select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
   margin-top: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background-color: #f9fafb;
-  font-size: 0.9rem;
-  transition: 0.2s ease border;
 }
 
-.form-section input:focus,
-.form-section select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background-color: #fff;
-}
-
-/* Error */
-.edit-error {
-  color: #dc2626;
-  font-size: 0.875rem;
-  padding: 0.5rem 0;
-}
-
-/* Footer */
-.edit-modal-footer {
+.edit-entry-footer {
   display: flex;
   justify-content: flex-end;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #eaeaea;
-  background-color: #f9fafb;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.edit-modal-footer .btn {
-  padding: 0.5rem 1rem;
+.btn {
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  border: none;
   border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
-  transition: background 0.2s;
+  cursor: pointer;
 }
 
 .btn-primary {
-  background-color: #3b82f6;
-  color: #fff;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #2563eb;
+  background: #3b82f6;
+  color: white;
 }
 
 .btn-secondary {
-  background-color: #f3f4f6;
+  background: #f3f4f6;
   color: #111827;
-  border: 1px solid #d1d5db;
 }
 
-.btn-secondary:hover {
-  background-color: #e5e7eb;
+.edit-error {
+  color: red;
+  margin-top: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
