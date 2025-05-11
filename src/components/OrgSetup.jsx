@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+// src/components/OrgSetup.jsx
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { setupOrganization } from '../services/api';
 import './OrgSetup.css';
 
 export default function OrgSetup() {
@@ -11,15 +12,7 @@ export default function OrgSetup() {
   const [orgName, setOrgName] = useState('');
   const [orgBio, setOrgBio] = useState('');
   const [addUserEmails, setAddUserEmails] = useState(['']);
-  const [allOrganizations, setAllOrganizations] = useState([]);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    axios.get('/api/organizations')
-      .then(res => setAllOrganizations(res.data))
-      .catch(err => console.error('Failed to load organizations:', err));
-  }, []);
 
   const handleEmailChange = (index, value) => {
     const updated = [...addUserEmails];
@@ -35,21 +28,19 @@ export default function OrgSetup() {
     e.preventDefault();
     setError(null);
     try {
-      const res = await axios.post('/api/organizations/setup', {
+      const res = await setupOrganization({
         name: orgName,
         bio: orgBio,
         invites: addUserEmails.filter(e => e.trim())
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       if (res.data.success) {
-        await refreshUser();
-        setSuccess(true);
+        await refreshUser?.();  // optional chaining to avoid crash
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create organization');
+      console.error(err);
+      setError(err.response?.data?.message || 'Failed to complete organization setup.');
     }
   };
 
@@ -60,38 +51,41 @@ export default function OrgSetup() {
         <form onSubmit={handleSubmit}>
           <label>
             Organization Name
-            <input value={orgName} onChange={e => setOrgName(e.target.value)} required />
+            <input
+              type="text"
+              value={orgName}
+              onChange={e => setOrgName(e.target.value)}
+              required
+            />
           </label>
 
           <label>
             Organization Bio
-            <textarea value={orgBio} onChange={e => setOrgBio(e.target.value)} />
+            <textarea
+              value={orgBio}
+              onChange={e => setOrgBio(e.target.value)}
+              placeholder="Tell us about your team or company"
+            />
           </label>
 
           <h4>Invite Other Users</h4>
-          {addUserEmails.map((email, index) => (
+          {Array.isArray(addUserEmails) && addUserEmails.map((email, index) => (
             <input
               key={index}
+              type="email"
               value={email}
               onChange={e => handleEmailChange(index, e.target.value)}
               placeholder="user@example.com"
             />
           ))}
-          <button type="button" className="btn-secondary" onClick={addMoreEmails}>Add another</button>
+          <button type="button" className="btn-secondary" onClick={addMoreEmails}>
+            Add another
+          </button>
 
           {error && <p className="error-message">{error}</p>}
 
           <button type="submit" className="btn-primary">Submit & Continue</button>
         </form>
-
-        <div className="existing-orgs">
-          <h4>Existing Organizations</h4>
-          <ul>
-            {allOrganizations.map(org => (
-              <li key={org.id}>{org.name}</li>
-            ))}
-          </ul>
-        </div>
       </div>
     </div>
   );
