@@ -77,3 +77,67 @@ font-weight: 500;
 margin: 10px 0;
 }
 
+/* Tab navigation */
+.eem-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.eem-tab {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.eem-tab:hover {
+  color: #007bff;
+}
+
+.eem-tab.active {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+/* Detach section */
+.eem-detach {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.eem-detach label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #333;
+}
+
+.eem-detach select,
+.eem-detach input[type="checkbox"] {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.eem-detach input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+  transform: scale(1.2);
+}
+
+.eem-detach-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.eem-footer {
+  display: flex;
+  justify-con
