@@ -1,23 +1,7 @@
 // src/components/EntryModal.jsx
 import React, { useState } from 'react'
 import { addEntry } from '../services/api'
-
-// Inline styles for modal UI (can be moved to CSS)
-const backdropStyle = {
-  position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-  background: 'rgba(0,0,0,0.5)', display: 'flex',
-  alignItems: 'center', justifyContent: 'center', zIndex: 1000
-}
-const modalStyle = {
-  background: '#fff', padding: '2rem', borderRadius: '8px',
-  width: '90%', maxWidth: '400px',
-  boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-}
-const formGroupStyle = { marginBottom: '1rem', display: 'flex', flexDirection: 'column' }
-const errorStyle = { color: 'red', marginBottom: '1rem' }
-const buttonGroupStyle = { display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }
-const cancelStyle = { padding: '0.5rem 1rem' }
-const submitStyle = { padding: '0.5rem 1rem', background: '#007bff', color: '#fff', border: 'none' }
+import './EntryModal.css'
 
 export default function EntryModal({ isOpen, onClose, onAdded }) {
   const [formData, setFormData] = useState({
@@ -54,11 +38,11 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
   }
 
   return (
-    <div style={backdropStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={e => e.stopPropagation()}>
-        <h2>Add Entry</h2>
-        <form onSubmit={handleSubmit}>
-          <div style={formGroupStyle}>
+    <div className="em-backdrop" onClick={onClose}>
+      <div className="em-modal" onClick={e => e.stopPropagation()}>
+        <h2 className="em-title">Add Entry</h2>
+        <form onSubmit={handleSubmit} className="em-form">
+          <div className="em-field">
             <label>Nume și Prenume</label>
             <input
               type="text"
@@ -68,7 +52,7 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
               required
             />
           </div>
-          <div style={formGroupStyle}>
+          <div className="em-field">
             <label>Adresa de email</label>
             <input
               type="email"
@@ -78,7 +62,7 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
               required
             />
           </div>
-          <div style={formGroupStyle}>
+          <div className="em-field">
             <label>Numar de telefon</label>
             <input
               type="tel"
@@ -88,7 +72,7 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
               required
             />
           </div>
-          <div style={formGroupStyle}>
+          <div className="em-field">
             <label>Platforma</label>
             <select
               name="platform"
@@ -101,7 +85,7 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
               <option value="Bringo">Bringo</option>
             </select>
           </div>
-          <div style={formGroupStyle}>
+          <div className="em-field">
             <label>Id Platforma</label>
             <input
               type="text"
@@ -110,10 +94,10 @@ export default function EntryModal({ isOpen, onClose, onAdded }) {
               onChange={handleChange}
             />
           </div>
-          {error && <p style={errorStyle}>{error}</p>}
-          <div style={buttonGroupStyle}>
-            <button type="button" onClick={onClose} style={cancelStyle}>Cancel</button>
-            <button type="submit" style={submitStyle}>Add</button>
+          {error && <p className="em-error">{error}</p>}
+          <div className="em-actions">
+            <button type="button" onClick={onClose} className="em-btn em-cancel">Cancel</button>
+            <button type="submit" className="em-btn em-submit">Add</button>
           </div>
         </form>
       </div>
