@@ -1,128 +1,124 @@
-/* Center the card */
-.org-setup-container {
+/* Updated and improved OrgSetup.css */
+
+.org-setup-wrapper {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(to right, #eef2f3, #ffffff);
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8, #ffffff);
   padding: 2rem;
+  font-family: 'Inter', sans-serif;
 }
 
-/* Card with soft shadow and rounded edges */
-.org-setup-card {
-  background: #fff;
+.org-setup-box {
+  background: white;
+  padding: 3rem 3rem 2rem;
+  border-radius: 16px;
+  max-width: 800px;
   width: 100%;
-  max-width: 700px;
-  padding: 3rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  gap: 2rem;
 }
 
-/* Stepper at the top */
-.step-indicator {
+.org-setup-header {
+  text-align: center;
+}
+
+.org-setup-header h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.org-setup-header p {
+  font-size: 1rem;
+  color: #777;
+}
+
+.org-setup-form {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  position: relative;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.step-indicator::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 10%;
-  right: 10%;
-  height: 2px;
-  background: #e0e0e0;
-  z-index: 0;
-}
-
-.step {
-  z-index: 1;
-  background: #e0e0e0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  color: #fff;
-  font-weight: 600;
+.form-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.95rem;
-  transition: all 0.3s;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.step.active {
-  background: #007bff;
-  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
-}
-
-/* Section content */
-.org-step-content label {
-  display: block;
-  margin-top: 1.2rem;
+.form-group label {
   font-weight: 500;
   color: #333;
 }
 
-.org-step-content input,
-.org-step-content textarea {
-  width: 100%;
+.form-group input,
+.form-group textarea {
   padding: 0.75rem 1rem;
-  font-size: 1rem;
-  margin-top: 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 10px;
-  transition: border-color 0.3s;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
 }
 
-.org-step-content input:focus,
-.org-step-content textarea:focus {
+.form-group input:focus,
+.form-group textarea:focus {
   border-color: #007bff;
   outline: none;
 }
 
-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.invite-inputs input {
-  margin-top: 0.5rem;
-}
-
-/* Buttons */
-.org-setup-footer {
-  margin-top: 2rem;
+.invite-section {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 1rem;
 }
 
-button {
-  padding: 0.75rem 1.5rem;
+.invite-section h4 {
+  margin: 0;
+  color: #555;
   font-size: 1rem;
-  border-radius: 10px;
   font-weight: 600;
+}
+
+.invite-section input {
+  margin-top: 0.25rem;
+}
+
+.add-invite-btn {
+  background: transparent;
+  border: 1px dashed #aaa;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #007bff;
   cursor: pointer;
-  border: none;
+  width: fit-content;
 }
 
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #f5f5f5;
-  color: #333;
-}
-
-.error-message {
+.org-setup-error {
   color: #d9534f;
-  margin-top: 1rem;
-  font-weight: 500;
   text-align: center;
+  font-weight: 500;
+}
+
+.org-setup-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit-btn {
+  padding: 0.75rem 2rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #0056b3;
 }
