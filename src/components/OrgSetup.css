@@ -1,117 +1,114 @@
-/* OrgSetup.css */
-
 .org-setup-container {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   min-height: 100vh;
-  background: #f9fafb;
+  background: #f7f9fc;
   padding: 2rem;
 }
 
 .org-setup-card {
   background: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
-  padding: 2rem;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
-.stepper {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.step {
-  flex: 1;
+.org-setup-card h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
   text-align: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #999;
-  position: relative;
-  cursor: pointer;
 }
 
-.step.active {
-  color: #111827;
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 2rem;
 }
 
-.step:before {
-  content: "";
-  display: block;
-  margin: 0 auto 0.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
+.step-indicator .step {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #d1d5db;
+  background: #e0e0e0;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
 }
 
-.step.active:before {
-  background: #3b82f6;
+.step-indicator .step.active {
+  background: #007bff;
 }
 
-.step-line {
-  position: absolute;
-  top: 0.7rem;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #e5e7eb;
-  z-index: -1;
-}
-
-.step-content {
-  margin-top: 1rem;
-}
-
-label {
+form label {
   display: block;
-  margin-bottom: 1rem;
   font-weight: 500;
-  color: #374151;
+  margin: 1rem 0 0.5rem;
 }
 
-input,
-textarea {
+form input,
+form textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  margin-top: 0.25rem;
+  padding: 0.65rem 0.9rem;
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.2s ease;
 }
 
-textarea {
-  resize: vertical;
+form input:focus,
+form textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+form textarea {
   min-height: 100px;
+  resize: vertical;
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 0.5rem;
+.invite-inputs input {
+  margin-top: 0.5rem;
+}
+
+button {
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 1rem;
-  margin-right: 0.5rem;
 }
 
 .btn-primary {
-  background-color: #3b82f6;
-  color: white;
+  background: #007bff;
+  color: #fff;
+  border: none;
 }
 
 .btn-secondary {
-  background-color: #e5e7eb;
-  color: #374151;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  margin-left: 0.75rem;
+}
+
+.org-setup-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
 .error-message {
-  color: #dc2626;
+  color: #d9534f;
+  font-weight: 500;
   margin-top: 1rem;
+  text-align: center;
 }
