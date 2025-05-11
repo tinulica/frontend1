@@ -61,6 +61,7 @@ export const getOrgInfo       = ()               => api.get('/organization/info'
 export const getOrgMembers    = ()               => api.get('/organization/members')
 export const changeOrgOwner   = newOwnerId       => api.put('/organization/owner', { newOwnerId })
 export const removeMember     = memberId         => api.delete(`/organization/members/${memberId}`)
+export const getAllOrganizations = () => axios.get('/routes/organizations');
 
 // ───── Profile ──────────────────────────────────────────────────────────────
 // Change avatar (multipart)
