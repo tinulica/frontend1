@@ -60,15 +60,15 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   const isColaborare = formData.collabType === 'colaborare';
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <aside className="edit-modal" onClick={e => e.stopPropagation()}>
-        <header className="edit-modal-header">
+    <div className="eem-backdrop" onClick={onClose}>
+      <aside className="eem-modal" onClick={e => e.stopPropagation()}>
+        <header className="eem-header">
           <h2>Edit Entry</h2>
           <button onClick={onClose}><X size={20} /></button>
         </header>
 
-        <form className="edit-modal-body" onSubmit={handleSubmit}>
-          <div className="form-section">
+        <form className="eem-body" onSubmit={handleSubmit}>
+          <div className="eem-section">
             <label>Full Name<input value={formData.fullName} onChange={e => handleChange('fullName', e.target.value)} /></label>
             <label>Email<input value={formData.email} onChange={e => handleChange('email', e.target.value)} /></label>
             <label>Platform<input value={formData.platform} onChange={e => handleChange('platform', e.target.value)} /></label>
@@ -83,7 +83,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
           </div>
 
           {isAngajare && (
-            <div className="form-section">
+            <div className="eem-angajare">
               <h4>Date personale</h4>
               <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
               <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
@@ -104,7 +104,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
           )}
 
           {isColaborare && (
-            <div className="form-section">
+            <div className="eem-colaborare">
               <h4>Date Administrator</h4>
               <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
               <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
@@ -128,9 +128,9 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
             </div>
           )}
 
-          {error && <p className="edit-error">{error}</p>}
+          {error && <p className="eem-error">{error}</p>}
 
-          <footer className="edit-modal-footer">
+          <footer className="eem-footer">
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-primary">Save</button>
           </footer>
