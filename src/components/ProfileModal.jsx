@@ -2,14 +2,15 @@
 import React, { useState, useRef, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
+import './ProfileModal.css'
 
 export default function ProfileModal() {
   const { user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const fileInput = useRef()
   const [activeTab, setActiveTab] = useState('profile')
-  const [formData, setFormData] = useState({ name: user.name, email: user.email })
-  const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '' })
+  const [formData, setFormData] = useState({ fullName: user.fullName, email: user.email })
+  const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' })
 
   // Close the profile modal by navigating back to dashboard
   function close() {
@@ -20,12 +21,6 @@ export default function ProfileModal() {
   function handleAvatarChange(e) {
     const file = e.target.files[0]
     // ... upload logic
-  }
-
-  // Handle form field changes
-  function handleInputChange(e) {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   // Handle password change fields
@@ -60,9 +55,9 @@ export default function ProfileModal() {
               <label>
                 Name
                 <input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={e => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
                 />
               </label>
               <label>
@@ -70,7 +65,7 @@ export default function ProfileModal() {
                 <input
                   name="email"
                   value={formData.email}
-                  onChange={handleInputChange}
+                  onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 />
               </label>
               <label>
@@ -90,8 +85,8 @@ export default function ProfileModal() {
                 Current Password
                 <input
                   type="password"
-                  name="oldPassword"
-                  value={passwords.oldPassword}
+                  name="current"
+                  value={passwords.current}
                   onChange={handlePasswordChange}
                 />
               </label>
@@ -99,8 +94,17 @@ export default function ProfileModal() {
                 New Password
                 <input
                   type="password"
-                  name="newPassword"
-                  value={passwords.newPassword}
+                  name="next"
+                  value={passwords.next}
+                  onChange={handlePasswordChange}
+                />
+              </label>
+              <label>
+                Confirm New
+                <input
+                  type="password"
+                  name="confirm"
+                  value={passwords.confirm}
                   onChange={handlePasswordChange}
                 />
               </label>
