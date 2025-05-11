@@ -35,7 +35,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   useEffect(() => {
     if (!isOpen) return;
     getAllOrganizations()
-      .then(res => setOrgList(res.data))
+      .then(res => setOrgList(Array.isArray(res.data) ? res.data : []))
       .catch(err => console.error('Org fetch failed', err));
   }, [isOpen]);
 
