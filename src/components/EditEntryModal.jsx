@@ -19,8 +19,6 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated, orgL
   const [formData, setFormData] = useState(DEFAULT_FORM);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('general');
-  const isAngajare = formData.collabType === 'angajare';
-const isColaborare = formData.collabType === 'colaborare';
 
   useEffect(() => {
     if (!entry) return;
@@ -29,7 +27,9 @@ const isColaborare = formData.collabType === 'colaborare';
       ...DEFAULT_FORM,
       ...entry,
       salary: latestSalary ? latestSalary.amount : '',
-      collabDetails: entry.collabDetails || {}
+      collabDetails: entry.collabDetails || {},
+      isDetached: entry.isDetached || false,
+      detachedToOrgId: entry.detachedToOrgId || ''
     });
   }, [entry]);
 
@@ -96,7 +96,51 @@ const isColaborare = formData.collabType === 'colaborare';
                 </label>
               </div>
 
-              {/* Additional sections omitted for brevity */}
+              {isAngajare && (
+                <div className="eem-angajare">
+                  <h4>Date personale</h4>
+                  <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
+                  <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
+                  <label>Serie CI<input value={formData.collabDetails.serie || ''} onChange={e => handleDetailChange('serie', e.target.value)} /></label>
+                  <label>Numar CI<input value={formData.collabDetails.numar || ''} onChange={e => handleDetailChange('numar', e.target.value)} /></label>
+                  <label>Emitent<input value={formData.collabDetails.emitent || ''} onChange={e => handleDetailChange('emitent', e.target.value)} /></label>
+                  <label>Data Emitere<input type="date" value={formData.collabDetails.dataEmitere || ''} onChange={e => handleDetailChange('dataEmitere', e.target.value)} /></label>
+                  <label>Data Expirare<input type="date" value={formData.collabDetails.dataExpirare || ''} onChange={e => handleDetailChange('dataExpirare', e.target.value)} /></label>
+                  <h4>Date contractuale</h4>
+                  <label>Nr. Contract<input value={formData.collabDetails.nrContract || ''} onChange={e => handleDetailChange('nrContract', e.target.value)} /></label>
+                  <label>Data Emitere<input type="date" value={formData.collabDetails.dataContract || ''} onChange={e => handleDetailChange('dataContract', e.target.value)} /></label>
+                  <label>Data Incepere<input type="date" value={formData.collabDetails.dataIncepere || ''} onChange={e => handleDetailChange('dataIncepere', e.target.value)} /></label>
+                  <label>Norma<input value={formData.collabDetails.norma || ''} onChange={e => handleDetailChange('norma', e.target.value)} /></label>
+                  <label>Detalii Norma<input value={formData.collabDetails.detaliiNorma || ''} onChange={e => handleDetailChange('detaliiNorma', e.target.value)} /></label>
+                  <label>Comision<input value={formData.collabDetails.comision || ''} onChange={e => handleDetailChange('comision', e.target.value)} /></label>
+                  <label>Data Incetare<input type="date" value={formData.collabDetails.dataIncetare || ''} onChange={e => handleDetailChange('dataIncetare', e.target.value)} /></label>
+                </div>
+              )}
+
+              {isColaborare && (
+                <div className="eem-colaborare">
+                  <h4>Date Administrator</h4>
+                  <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
+                  <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
+                  <label>Serie CI<input value={formData.collabDetails.serie || ''} onChange={e => handleDetailChange('serie', e.target.value)} /></label>
+                  <label>Numar CI<input value={formData.collabDetails.numar || ''} onChange={e => handleDetailChange('numar', e.target.value)} /></label>
+                  <label>Emitent<input value={formData.collabDetails.emitent || ''} onChange={e => handleDetailChange('emitent', e.target.value)} /></label>
+                  <label>Data Emitere<input type="date" value={formData.collabDetails.dataEmitere || ''} onChange={e => handleDetailChange('dataEmitere', e.target.value)} /></label>
+                  <label>Data Expirare<input type="date" value={formData.collabDetails.dataExpirare || ''} onChange={e => handleDetailChange('dataExpirare', e.target.value)} /></label>
+                  <h4>Date Colaborare</h4>
+                  <label>Nume<input value={formData.collabDetails.nume || ''} onChange={e => handleDetailChange('nume', e.target.value)} /></label>
+                  <label>TVA<select value={formData.collabDetails.tva || ''} onChange={e => handleDetailChange('tva', e.target.value)}><option value="">Select</option><option value="platitor">Platitor</option><option value="neplatitor">Neplatitor</option></select></label>
+                  <label>CUI<input value={formData.collabDetails.cui || ''} onChange={e => handleDetailChange('cui', e.target.value)} /></label>
+                  <label>RC<input value={formData.collabDetails.rc || ''} onChange={e => handleDetailChange('rc', e.target.value)} /></label>
+                  <label>Tara<input value={formData.collabDetails.tara || ''} onChange={e => handleDetailChange('tara', e.target.value)} /></label>
+                  <label>Judet<input value={formData.collabDetails.judet || ''} onChange={e => handleDetailChange('judet', e.target.value)} /></label>
+                  <label>Localitate<input value={formData.collabDetails.localitate || ''} onChange={e => handleDetailChange('localitate', e.target.value)} /></label>
+                  <label>Adresa<input value={formData.collabDetails.adresa || ''} onChange={e => handleDetailChange('adresa', e.target.value)} /></label>
+                  <label>IBAN<input value={formData.collabDetails.iban || ''} onChange={e => handleDetailChange('iban', e.target.value)} /></label>
+                  <label>Comision<input value={formData.collabDetails.comision || ''} onChange={e => handleDetailChange('comision', e.target.value)} /></label>
+                  <label>Data Incepere<input type="date" value={formData.collabDetails.dataIncepere || ''} onChange={e => handleDetailChange('dataIncepere', e.target.value)} /></label>
+                </div>
+              )}
             </>
           )}
 
