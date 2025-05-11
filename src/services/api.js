@@ -60,8 +60,8 @@ export const getOrgInfo           = ()               => api.get('/organization/i
 export const getOrgMembers        = ()               => api.get('/organization/members')
 export const changeOrgOwner       = newOwnerId       => api.put('/organization/owner', { newOwnerId })
 export const removeMember         = memberId         => api.delete(`/organization/members/${memberId}`)
-export const getAllOrganizations  = ()               => api.get('/api/organizations')
-export const setupOrganization    = payload          => api.post('/api/organizations/setup', payload)
+export const getAllOrganizations  = () => api.get('/organizations')
+export const setupOrganization    = payload => api.post('/organizations/setup', payload)
 
 // ───── Profile ──────────────────────────────────────────────────────────────
 // Change avatar (multipart)
