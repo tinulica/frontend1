@@ -1,4 +1,3 @@
-// src/services/api.js
 import axios from 'axios'
 import { getAuth, clearAuth } from '../utils/auth'
 
@@ -57,11 +56,12 @@ export const sendInvitation   = payload          => api.post('/invitations', pay
 export const deleteInvitation = id               => api.delete(`/invitations/${id}`)
 
 // ───── Organization ─────────────────────────────────────────────────────────
-export const getOrgInfo       = ()               => api.get('/organization/info')
-export const getOrgMembers    = ()               => api.get('/organization/members')
-export const changeOrgOwner   = newOwnerId       => api.put('/organization/owner', { newOwnerId })
-export const removeMember     = memberId         => api.delete(`/organization/members/${memberId}`)
-export const getAllOrganizations = () => axios.get('/routes/organizations');
+export const getOrgInfo           = ()               => api.get('/organization/info')
+export const getOrgMembers        = ()               => api.get('/organization/members')
+export const changeOrgOwner       = newOwnerId       => api.put('/organization/owner', { newOwnerId })
+export const removeMember         = memberId         => api.delete(`/organization/members/${memberId}`)
+export const getAllOrganizations  = ()               => api.get('/api/organizations')
+export const setupOrganization    = payload          => api.post('/api/organizations/setup', payload)
 
 // ───── Profile ──────────────────────────────────────────────────────────────
 // Change avatar (multipart)
