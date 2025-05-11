@@ -1,6 +1,11 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { apiLogin, apiRegister, apiGetCurrentUser } from '../services/api'
+import {
+  login as apiLogin,
+  register as apiRegister,
+  getCurrentUser as apiGetCurrentUser
+} from '../services/api'
 import { saveAuth, getAuth, clearAuth } from '../utils/auth'
 
 // Create Auth context
@@ -14,12 +19,11 @@ export function AuthProvider({ children }) {
   // Log in user, save token, set user, redirect
   async function login(credentials) {
     try {
-      const { token, user } = await apiLogin(credentials)
-      saveAuth({ token })
-      setUser(user)
+      const { data } = await apiLogin(credentials)
+      saveAuth({ token: data.token })
+      setUser(data.user)
       navigate('/dashboard')
     } catch (err) {
-      // Handle login error (e.g. show notification)
       throw err
     }
   }
@@ -27,12 +31,11 @@ export function AuthProvider({ children }) {
   // Register user, save token, set user, redirect
   async function register(data) {
     try {
-      const { token, user } = await apiRegister(data)
-      saveAuth({ token })
-      setUser(user)
+      const { data: res } = await apiRegister(data)
+      saveAuth({ token: res.token })
+      setUser(res.user)
       navigate('/dashboard')
     } catch (err) {
-      // Handle registration error
       throw err
     }
   }
@@ -49,8 +52,8 @@ export function AuthProvider({ children }) {
     const auth = getAuth()
     if (auth && auth.token) {
       apiGetCurrentUser()
-        .then(({ user }) => {
-          setUser(user)
+        .then(({ data }) => {
+          setUser(data.user)
           setLoading(false)
         })
         .catch(() => {
