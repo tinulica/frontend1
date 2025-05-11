@@ -1,4 +1,3 @@
-// src/components/EditEntryModal.jsx
 import React, { useState, useEffect } from 'react';
 import { updateEntry, getAllOrganizations } from '../services/api';
 import { X } from 'lucide-react';
@@ -34,10 +33,11 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
   }, [entry]);
 
   useEffect(() => {
-    getAllOrganizations().then(res => {
-      setOrgList(res.data || []);
-    });
-  }, []);
+    if (!isOpen) return;
+    getAllOrganizations()
+      .then(res => setOrgList(res.data))
+      .catch(err => console.error('Org fetch failed', err));
+  }, [isOpen]);
 
   if (!isOpen || !entry) return null;
 
@@ -69,7 +69,6 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
 
   const isAngajare = formData.collabType === 'angajare';
   const isColaborare = formData.collabType === 'colaborare';
-  const isDetasare = formData.collabType === 'detasare';
 
   return (
     <div className="eem-backdrop" onClick={onClose}>
@@ -105,7 +104,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
               </div>
 
               {isAngajare && (
-                <div className="eem-collab-form">
+                <div className="eem-section">
                   <h4>Date personale</h4>
                   <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
                   <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
@@ -126,7 +125,7 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
               )}
 
               {isColaborare && (
-                <div className="eem-collab-form">
+                <div className="eem-section">
                   <h4>Date Administrator</h4>
                   <label>CNP<input value={formData.collabDetails.cnp || ''} onChange={e => handleDetailChange('cnp', e.target.value)} /></label>
                   <label>Domiciliu<input value={formData.collabDetails.address || ''} onChange={e => handleDetailChange('address', e.target.value)} /></label>
@@ -137,7 +136,11 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
                   <label>Data Expirare<input type="date" value={formData.collabDetails.dataExpirare || ''} onChange={e => handleDetailChange('dataExpirare', e.target.value)} /></label>
                   <h4>Date Colaborare</h4>
                   <label>Nume<input value={formData.collabDetails.nume || ''} onChange={e => handleDetailChange('nume', e.target.value)} /></label>
-                  <label>TVA<select value={formData.collabDetails.tva || ''} onChange={e => handleDetailChange('tva', e.target.value)}><option value="">Select</option><option value="platitor">Platitor</option><option value="neplatitor">Neplatitor</option></select></label>
+                  <label>TVA<select value={formData.collabDetails.tva || ''} onChange={e => handleDetailChange('tva', e.target.value)}>
+                    <option value="">Select</option>
+                    <option value="platitor">Platitor</option>
+                    <option value="neplatitor">Neplatitor</option>
+                  </select></label>
                   <label>CUI<input value={formData.collabDetails.cui || ''} onChange={e => handleDetailChange('cui', e.target.value)} /></label>
                   <label>RC<input value={formData.collabDetails.rc || ''} onChange={e => handleDetailChange('rc', e.target.value)} /></label>
                   <label>Tara<input value={formData.collabDetails.tara || ''} onChange={e => handleDetailChange('tara', e.target.value)} /></label>
@@ -175,7 +178,6 @@ export default function EditEntryModal({ isOpen, entry, onClose, onUpdated }) {
           {activeTab === 'documents' && (
             <div className="eem-documents">
               <p>No documents uploaded yet.</p>
-              {/* File upload logic will be added here */}
             </div>
           )}
 
