@@ -61,7 +61,7 @@ export const getOrgMembers         = ()      => api.get('/organization/members')
 export const changeOrgOwner        = id      => api.put('/organization/owner', { newOwnerId: id })
 export const removeMember          = id      => api.delete(`/organization/members/${id}`)
 export const getAllOrganizations   = ()      => api.get('/api/organizations')
-export const setupOrganization     = payload => api.post('/api/organizations/setup', payload)
+export const setupOrganization = payload => api.post('/api/organizations/setup', payload);
 
 // ───── Profile ─────────────────────────────────────────────────────────────
 export const updateAvatar     = formData => api.put('/auth/avatar', formData, {
