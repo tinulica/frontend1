@@ -5,154 +5,140 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #f8f9fb, #eef1f5);
-  padding: 2rem;
+  background: #f7f8fa;
+  padding: 40px 20px;
 }
 
-.org-setup-box {
-  background: #fff;
+.org-setup-card {
+  background: white;
   border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
-  padding: 2rem 3rem;
+  padding: 32px;
   width: 100%;
   max-width: 600px;
-  animation: fadeInUp 0.4s ease-in-out;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
-.org-setup-title {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.org-stepper {
+.step-indicator {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 24px;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
   position: relative;
+  color: #ccc;
+  font-weight: 500;
+  font-size: 14px;
 }
 
-.org-stepper::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 15%;
-  right: 15%;
-  height: 2px;
+.step span {
+  display: inline-block;
   background: #ddd;
-  z-index: 0;
-}
-
-.org-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-  width: 50%;
-}
-
-.org-step-number {
-  background: #ddd;
-  color: white;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin-bottom: 8px;
   font-weight: bold;
-  margin-bottom: 0.5rem;
-  transition: background 0.3s ease;
 }
 
-.org-step.active .org-step-number {
+.step.active {
+  color: #222;
+}
+
+.step.active span {
   background: #4f46e5;
 }
 
-.org-step-label {
-  font-size: 0.9rem;
-  color: #555;
+.org-form h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #111827;
 }
 
-.org-form {
-  display: flex;
-  flex-direction: column;
+label {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #374151;
 }
 
-.org-step-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.org-form input,
-.org-form textarea {
-  padding: 0.75rem 1rem;
-  border: 1px solid #ccc;
+input,
+textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
+  background: #f9fafb;
+  transition: border 0.2s ease;
 }
 
-.org-form input:focus,
-.org-form textarea:focus {
-  border-color: #4f46e5;
+input:focus,
+textarea:focus {
   outline: none;
+  border-color: #4f46e5;
+  background: white;
 }
 
-.org-error {
-  color: red;
-  margin-bottom: 1rem;
-  text-align: center;
+textarea {
+  min-height: 80px;
+  resize: vertical;
 }
 
-.org-setup-actions {
+.add-btn {
+  background: none;
+  color: #4f46e5;
+  border: none;
+  font-size: 14px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  text-decoration: underline;
+}
+
+.actions {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
 }
 
-.btn-primary {
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
+.btn {
+  padding: 10px 18px;
+  font-size: 14px;
   border-radius: 8px;
-  font-weight: 600;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.btn-primary:hover {
-  background-color: #4338ca;
-}
-
-.btn-secondary {
-  background-color: #f3f4f6;
-  color: #333;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
   font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
-.btn-secondary:hover {
-  background-color: #e5e7eb;
+.btn.back {
+  background: #e5e7eb;
+  color: #374151;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.btn.next,
+.btn.submit {
+  background: #4f46e5;
+  color: white;
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #dc2626;
+  margin-top: 10px;
+  font-size: 14px;
 }
