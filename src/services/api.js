@@ -8,17 +8,16 @@ const api = axios.create({
   withCredentials: false
 })
 
-// Add JWT token to every request if present
 api.interceptors.request.use(
   config => {
-    const auth = getAuth()
-    if (auth?.token) {
-      config.headers.Authorization = `Bearer ${auth.token}`
+    const auth = getAuth();
+    if (auth && auth.token) {
+      config.headers.Authorization = `Bearer ${auth.token}`;
     }
-    return config
+    return config;
   },
   error => Promise.reject(error)
-)
+);
 
 // Handle unauthorized responses globally
 api.interceptors.response.use(
