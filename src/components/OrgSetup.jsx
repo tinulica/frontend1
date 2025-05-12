@@ -47,22 +47,22 @@ export default function OrgSetup() {
   return (
     <div className="org-setup-wrapper">
       <div className="org-setup-box">
-        <h2 className="org-setup-title">Setup Your Organization</h2>
+        <h2 className="org-setup-title">Complete Organization Setup</h2>
 
-        <div className="stepper">
-          <div className={`step ${step === 1 ? 'active' : ''}`}>
-            <div className="step-number">1</div>
-            <div className="step-title">Organization</div>
+        <div className="org-stepper">
+          <div className={`org-step ${step === 1 ? 'active' : ''}`}>
+            <div className="org-step-number">1</div>
+            <div className="org-step-label">Organization Info</div>
           </div>
-          <div className={`step ${step === 2 ? 'active' : ''}`}>
-            <div className="step-number">2</div>
-            <div className="step-title">Invite Users</div>
+          <div className={`org-step ${step === 2 ? 'active' : ''}`}>
+            <div className="org-step-number">2</div>
+            <div className="org-step-label">Invite Users</div>
           </div>
         </div>
 
-        <form className="org-setup-form" onSubmit={handleSubmit}>
+        <form className="org-form" onSubmit={handleSubmit}>
           {step === 1 && (
-            <>
+            <div className="org-step-content">
               <label>
                 Organization Name
                 <input
@@ -72,21 +72,20 @@ export default function OrgSetup() {
                   required
                 />
               </label>
-
               <label>
                 Organization Bio
                 <textarea
                   value={orgBio}
                   onChange={(e) => setOrgBio(e.target.value)}
-                  placeholder="Tell us about your team or company"
+                  placeholder="Tell us about your company"
                 />
               </label>
-            </>
+            </div>
           )}
 
           {step === 2 && (
-            <>
-              <h4>Invite Other Users</h4>
+            <div className="org-step-content">
+              <h4>Invite Users</h4>
               {addUserEmails.map((email, index) => (
                 <input
                   key={index}
@@ -99,12 +98,12 @@ export default function OrgSetup() {
               <button type="button" className="btn-secondary" onClick={addMoreEmails}>
                 Add another
               </button>
-            </>
+            </div>
           )}
 
-          {error && <p className="error-message">{error}</p>}
+          {error && <p className="org-error">{error}</p>}
 
-          <div className="org-setup-buttons">
+          <div className="org-setup-actions">
             {step > 1 && (
               <button type="button" className="btn-secondary" onClick={() => setStep(step - 1)}>
                 Back
