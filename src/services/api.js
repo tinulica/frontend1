@@ -3,7 +3,7 @@ import { getAuth, clearAuth } from '../utils/auth'
 
 // Axios instance
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: 'https://backend11-75yc.onrender.com',
   headers: { 'Content-Type': 'application/json' },
   withCredentials: false
 })
