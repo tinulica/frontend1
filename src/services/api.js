@@ -62,7 +62,8 @@ export const changeOrgOwner        = id      => api.put('/organization/owner', {
 export const removeMember          = id      => api.delete(`/organization/members/${id}`)
 export const getAllOrganizations   = ()      => api.get('/api/organizations')
 export const setupOrganization     = payload => api.post('/api/organizations', payload) // ✅ fixed here
-
+export const getOrgInfo = () => api.get('/organization/info')
+export const updateOrganization = (payload) => api.put('/organization', payload)
 // ───── Profile ─────────────────────────────────────────────────────────────
 export const updateAvatar     = formData => api.put('/auth/avatar', formData, {
   headers: { 'Content-Type': 'multipart/form-data' }
