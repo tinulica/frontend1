@@ -1,7 +1,8 @@
 // src/components/ProfileModal.jsx
-import React, { useState, useRef, useContext } from 'react'
+import React, { useState, useRef, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
+import { getOrgInfo, updateOrganization } from '../services/api'
 import './ProfileModal.css'
 
 export default function ProfileModal() {
@@ -10,33 +11,53 @@ export default function ProfileModal() {
   const fileInput = useRef()
   const [activeTab, setActiveTab] = useState('profile')
   const [formData, setFormData] = useState({ fullName: user.fullName, email: user.email })
+  const [orgData, setOrgData] = useState({ name: '', bio: '' })
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' })
+  const [orgMessage, setOrgMessage] = useState('')
 
-  // Close the profile modal by navigating back to dashboard
+  useEffect(() => {
+    getOrgInfo().then(res => {
+      setOrgData({
+        name: res.data.organization.name,
+        bio: res.data.organization.bio || ''
+      })
+    })
+  }, [])
+
   function close() {
     navigate('/dashboard')
   }
 
-  // Handle avatar selection
   function handleAvatarChange(e) {
     const file = e.target.files[0]
-    // ... upload logic
+    // ... avatar upload logic here
   }
 
-  // Handle password change fields
   function handlePasswordChange(e) {
     const { name, value } = e.target
     setPasswords(prev => ({ ...prev, [name]: value }))
   }
 
-  // Submit profile updates
-  async function saveProfile() {
-    // ... save logic
+  function handleOrgChange(e) {
+    const { name, value } = e.target
+    setOrgData(prev => ({ ...prev, [name]: value }))
   }
 
-  // Submit password update
+  async function saveProfile() {
+    // ... save user profile logic
+  }
+
   async function savePassword() {
-    // ... password logic
+    // ... save password logic
+  }
+
+  async function saveOrgInfo() {
+    try {
+      await updateOrganization({ name: orgData.name, bio: orgData.bio })
+      setOrgMessage('Organization updated successfully!')
+    } catch (err) {
+      setOrgMessage('Failed to update organization.')
+    }
   }
 
   return (
@@ -51,34 +72,60 @@ export default function ProfileModal() {
         </nav>
         <main className="profile-main">
           {activeTab === 'profile' && (
-            <div className="profile-form">
-              <label>
-                Name
-                <input
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={e => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-                />
-              </label>
-              <label>
-                Email
-                <input
-                  name="email"
-                  value={formData.email}
-                  onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                />
-              </label>
-              <label>
-                Avatar
-                <input
-                  type="file"
-                  ref={fileInput}
-                  onChange={handleAvatarChange}
-                />
-              </label>
-              <button onClick={saveProfile} className="btn save">Save</button>
-            </div>
+            <>
+              <div className="profile-form">
+                <label>
+                  Name
+                  <input
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={e => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Email
+                  <input
+                    name="email"
+                    value={formData.email}
+                    onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Avatar
+                  <input
+                    type="file"
+                    ref={fileInput}
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+                <button onClick={saveProfile} className="btn save">Save</button>
+              </div>
+
+              <div className="org-form">
+                <h3>Edit Organization</h3>
+                <label>
+                  Organization Name
+                  <input
+                    name="name"
+                    value={orgData.name}
+                    onChange={handleOrgChange}
+                    required
+                  />
+                </label>
+                <label>
+                  Bio
+                  <textarea
+                    name="bio"
+                    value={orgData.bio}
+                    onChange={handleOrgChange}
+                  />
+                </label>
+                <button onClick={saveOrgInfo} className="btn save">Update Organization</button>
+                {orgMessage && <p className="org-message">{orgMessage}</p>}
+              </div>
+            </>
           )}
+
           {activeTab === 'password' && (
             <div className="password-form">
               <label>
