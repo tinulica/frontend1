@@ -1,9 +1,10 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   login as apiLogin,
   register as apiRegister,
-  getCurrentUser as apiGetCurrentUser,
+  getCurrentUser as apiGetCurrentUser
 } from '../services/api';
 import { saveAuth, getAuth, clearAuth } from '../utils/auth';
 
@@ -14,13 +15,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Log in user
   async function login(credentials) {
     try {
       const { data } = await apiLogin(credentials);
       saveAuth({ token: data.token });
       setUser(data.user);
 
-      if (!data.user.hasCompletedSetup) {
+      if (!data.user.organizationId || data.user.hasCompletedSetup === false) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -30,13 +32,14 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Register user
   async function register(regData) {
     try {
       const { data: res } = await apiRegister(regData);
       saveAuth({ token: res.token });
       setUser(res.user);
 
-      if (!res.user.hasCompletedSetup) {
+      if (!res.user.organizationId || res.user.hasCompletedSetup === false) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -53,23 +56,20 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const auth = getAuth();
-    if (auth && auth.token) {
-      apiGetCurrentUser()
-        .then(({ data }) => {
+    const fetchUser = async () => {
+      const auth = getAuth();
+      if (auth && auth.token) {
+        try {
+          const { data } = await apiGetCurrentUser();
           setUser(data.user);
-          if (!data.user.hasCompletedSetup) {
-            navigate('/setup');
-          }
-          setLoading(false);
-        })
-        .catch(() => {
+        } catch (err) {
           clearAuth();
-          setLoading(false);
-        });
-    } else {
+        }
+      }
       setLoading(false);
-    }
+    };
+
+    fetchUser();
   }, []);
 
   if (loading) {
