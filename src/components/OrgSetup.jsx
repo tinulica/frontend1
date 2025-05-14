@@ -1,59 +1,57 @@
 // src/pages/OrgSetup.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDisplayOrgName, setDisplayOrgName } from '../services/api';
 
 export default function OrgSetup() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // initial loading while checking
   const [error, setError] = useState('');
 
-  // Auto-redirect if display name already set
+  // ✅ Check if user already has a display name
   useEffect(() => {
     getDisplayOrgName()
       .then(res => {
         if (res.data.displayOrgName) {
-          navigate('/dashboard'); // already named
+          navigate('/dashboard'); // 👈 auto-redirect if already named
+        } else {
+          setLoading(false); // show form
         }
       })
       .catch(() => {
-        // ignore errors here
+        navigate('/login'); // 👈 token expired or invalid
       });
   }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-
     try {
       await setDisplayOrgName({ name });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong');
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message || 'Failed to save');
     }
   };
 
+  if (loading) return <p>Loading...</p>;
+
   return (
-    <div className="org-setup-container">
-      <h2>Welcome! Name your organization</h2>
+    <div className="org-setup-page">
+      <h2>Name Your Organization</h2>
       <form onSubmit={handleSubmit}>
         <label>
-          Display Name:
+          Display Name
           <input
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Ex: Glovo HR Iași"
+            placeholder="Ex: HR - Tazz Oradea"
             required
           />
         </label>
         {error && <p className="error">{error}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Continue to Dashboard'}
-        </button>
+        <button type="submit">Continue to Dashboard</button>
       </form>
     </div>
   );
