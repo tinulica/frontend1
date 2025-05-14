@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
       saveAuth({ token: data.token });
       setUser(data.user);
 
-      if (!data.user.organizationId || data.user.hasCompletedSetup === false) {
+      if (!data.user.organizationId || !data.user.displayOrgName) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
       saveAuth({ token: res.token });
       setUser(res.user);
 
-      if (!res.user.organizationId || res.user.hasCompletedSetup === false) {
+      if (!res.user.organizationId || !res.user.displayOrgName) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -56,26 +56,33 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const auth = getAuth();
-      if (auth && auth.token) {
-        try {
-          const { data } = await apiGetCurrentUser();
+    const auth = getAuth();
+    if (auth && auth.token) {
+      apiGetCurrentUser()
+        .then(({ data }) => {
           setUser(data.user);
-        } catch (err) {
-          clearAuth();
-        }
-      }
-      setLoading(false);
-    };
+          setLoading(false);
 
-    fetchUser();
+          // Redirect logic on page reload
+          if (!data.user.organizationId || !data.user.displayOrgName) {
+            navigate('/setup');
+          } else {
+            navigate('/dashboard');
+          }
+        })
+        .catch(() => {
+          clearAuth();
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   if (loading) {
     return (
       <div className="auth-loading">
-        <p>Loading…</p>
+        <p>Loading organization info...</p>
       </div>
     );
   }
