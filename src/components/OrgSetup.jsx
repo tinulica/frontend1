@@ -1,17 +1,20 @@
-// src/pages/OrgSetup.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDisplayOrgName, setDisplayOrgName } from '../services/api';
 import { getAuth } from '../utils/auth';
 
 export default function OrgSetup() {
   const navigate = useNavigate();
+  const hasChecked = useRef(false); // ✅ Prevent repeated requests
   const [name, setName] = useState('');
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (hasChecked.current) return; // ✅ Avoid re-running
+    hasChecked.current = true;
+
     const checkSetup = async () => {
       const auth = getAuth();
       if (!auth?.token) {
@@ -24,9 +27,9 @@ export default function OrgSetup() {
         if (res.data.displayOrgName) {
           navigate('/dashboard');
         } else {
-          setChecking(false);
+          setChecking(false); // Show form
         }
-      } catch {
+      } catch (err) {
         navigate('/login');
       }
     };
