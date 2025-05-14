@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   login as apiLogin,
   register as apiRegister,
-  getCurrentUser as apiGetCurrentUser
+  getCurrentUser as apiGetCurrentUser,
 } from '../services/api';
 import { saveAuth, getAuth, clearAuth } from '../utils/auth';
 
@@ -15,13 +15,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Log in user
   async function login(credentials) {
     try {
       const { data } = await apiLogin(credentials);
       saveAuth({ token: data.token });
       setUser(data.user);
 
-      if (!data.user.displayOrgName) {
+      if (!data.user.hasCompletedSetup) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -31,13 +32,14 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Register user
   async function register(regData) {
     try {
       const { data: res } = await apiRegister(regData);
       saveAuth({ token: res.token });
       setUser(res.user);
 
-      if (!res.user.displayOrgName) {
+      if (!res.user.hasCompletedSetup) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -58,7 +60,10 @@ export function AuthProvider({ children }) {
     if (auth && auth.token) {
       apiGetCurrentUser()
         .then(({ data }) => {
-          setUser(data); // ✅ FIXED
+          setUser(data.user);
+          if (!data.user.hasCompletedSetup) {
+            navigate('/setup');
+          }
           setLoading(false);
         })
         .catch(() => {
@@ -87,4 +92,4 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   return useContext(AuthContext);
-}
+}:contentReference[oaicite:52]{index=52}
