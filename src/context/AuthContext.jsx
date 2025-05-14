@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -15,7 +14,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Log in user
   async function login(credentials) {
     try {
       const { data } = await apiLogin(credentials);
@@ -32,7 +30,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Register user
   async function register(regData) {
     try {
       const { data: res } = await apiRegister(regData);
@@ -92,4 +89,4 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   return useContext(AuthContext);
-}:contentReference[oaicite:52]{index=52}
+}
