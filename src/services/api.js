@@ -64,6 +64,9 @@ export const removeMember          = id      => api.delete(`/organization/member
 export const getAllOrganizations   = ()      => api.get('/api/organizations')
 export const setupOrganization     = payload => api.post('/api/organizations', payload)
 export const updateOrganization    = payload => api.put('/organization', payload)
+export const setDisplayOrgName = (payload) => api.put('/user/display-org-name', payload);
+export const getDisplayOrgName = () => api.get('/user/display-org-name');
+
 // ───── Profile ─────────────────────────────────────────────────────────────
 export const updateAvatar     = formData => api.put('/auth/avatar', formData, {
   headers: { 'Content-Type': 'multipart/form-data' }
