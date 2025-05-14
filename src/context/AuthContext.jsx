@@ -1,3 +1,4 @@
+// src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -14,14 +15,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Log in user
   async function login(credentials) {
     try {
       const { data } = await apiLogin(credentials);
       saveAuth({ token: data.token });
       setUser(data.user);
 
-      if (!data.user.organizationId || data.user.hasCompletedSetup === false) {
+      if (!data.user.displayOrgName) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -31,14 +31,13 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Register user
   async function register(regData) {
     try {
       const { data: res } = await apiRegister(regData);
       saveAuth({ token: res.token });
       setUser(res.user);
 
-      if (!res.user.organizationId || res.user.hasCompletedSetup === false) {
+      if (!res.user.displayOrgName) {
         navigate('/setup');
       } else {
         navigate('/dashboard');
@@ -59,7 +58,7 @@ export function AuthProvider({ children }) {
     if (auth && auth.token) {
       apiGetCurrentUser()
         .then(({ data }) => {
-          setUser(data.user);
+          setUser(data); // ✅ FIXED
           setLoading(false);
         })
         .catch(() => {
