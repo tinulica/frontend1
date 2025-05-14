@@ -1,4 +1,3 @@
-// src/components/OrgSetup.jsx
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setupOrganization } from '../services/api';
@@ -30,17 +29,26 @@ export default function OrgSetup() {
     e.preventDefault();
     setLoading(true);
     setError('');
+
     try {
       const res = await setupOrganization({
         name: orgName,
         bio: orgBio,
         invites: invites.filter(email => email.trim()),
       });
+
+      console.log('✅ API response:', res.data);
+
       if (res.data.success) {
-        await refreshUser?.();
+        try {
+          if (refreshUser) await refreshUser();
+        } catch (err) {
+          console.warn('⚠️ refreshUser failed:', err);
+        }
         navigate('/dashboard');
       }
     } catch (err) {
+      console.error('❌ Submission failed:', err);
       setError(err.response?.data?.message || 'Failed to complete organization setup.');
     } finally {
       setLoading(false);
@@ -80,7 +88,6 @@ export default function OrgSetup() {
                 placeholder="What does your team do?"
               />
             </label>
-
             <div className="actions">
               <button type="button" className="btn next" onClick={nextStep}>
                 Next
