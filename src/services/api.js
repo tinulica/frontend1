@@ -66,6 +66,7 @@ export const setupOrganization     = payload => api.post('/api/organizations', p
 export const updateOrganization    = payload => api.put('/organization', payload)
 export const setDisplayOrgName = (payload) => api.put('/user/display-org-name', payload);
 export const getDisplayOrgName = () => api.get('/user/display-org-name');
+export const updateDisplayOrgName = (payload) => api.put('/user/display-org-name', payload)
 
 // ───── Profile ─────────────────────────────────────────────────────────────
 export const updateAvatar     = formData => api.put('/auth/avatar', formData, {
