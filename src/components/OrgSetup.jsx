@@ -1,3 +1,4 @@
+// src/pages/OrgSetup.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDisplayOrgName, setDisplayOrgName } from '../services/api';
@@ -6,29 +7,27 @@ import { getAuth } from '../utils/auth';
 export default function OrgSetup() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [checking, setChecking] = useState(true); // for initial check
+  const [checking, setChecking] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ✅ Check auth and existing display name
   useEffect(() => {
     const checkSetup = async () => {
       const auth = getAuth();
       if (!auth?.token) {
-        navigate('/login'); // no token
+        navigate('/login');
         return;
       }
 
       try {
         const res = await getDisplayOrgName();
         if (res.data.displayOrgName) {
-          navigate('/dashboard'); // ✅ already set
+          navigate('/dashboard');
         } else {
-          setChecking(false); // show form
+          setChecking(false);
         }
-      } catch (err) {
-        console.error('Display name check failed:', err);
-        navigate('/login'); // invalid token, fail safe
+      } catch {
+        navigate('/login');
       }
     };
 
