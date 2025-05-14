@@ -1,57 +1,70 @@
-// src/pages/OrgSetup.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDisplayOrgName, setDisplayOrgName } from '../services/api';
+import { getAuth } from '../utils/auth';
 
 export default function OrgSetup() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [loading, setLoading] = useState(true); // initial loading while checking
+  const [checking, setChecking] = useState(true); // for initial check
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Check if user already has a display name
+  // ✅ Check auth and existing display name
   useEffect(() => {
-    getDisplayOrgName()
-      .then(res => {
+    const checkSetup = async () => {
+      const auth = getAuth();
+      if (!auth?.token) {
+        navigate('/login'); // no token
+        return;
+      }
+
+      try {
+        const res = await getDisplayOrgName();
         if (res.data.displayOrgName) {
-          navigate('/dashboard'); // 👈 auto-redirect if already named
+          navigate('/dashboard'); // ✅ already set
         } else {
-          setLoading(false); // show form
+          setChecking(false); // show form
         }
-      })
-      .catch(() => {
-        navigate('/login'); // 👈 token expired or invalid
-      });
+      } catch (err) {
+        console.error('Display name check failed:', err);
+        navigate('/login'); // invalid token, fail safe
+      }
+    };
+
+    checkSetup();
   }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       await setDisplayOrgName({ name });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save');
+      setError(err.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (checking) return <p>Loading organization info...</p>;
 
   return (
     <div className="org-setup-page">
-      <h2>Name Your Organization</h2>
+      <h2>Set your Organization Display Name</h2>
       <form onSubmit={handleSubmit}>
-        <label>
-          Display Name
-          <input
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Ex: HR - Tazz Oradea"
-            required
-          />
-        </label>
+        <input
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Display Name (e.g. HR Tazz Cluj)"
+          required
+        />
         {error && <p className="error">{error}</p>}
-        <button type="submit">Continue to Dashboard</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Saving...' : 'Continue to Dashboard'}
+        </button>
       </form>
     </div>
   );
