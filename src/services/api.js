@@ -3,7 +3,7 @@ import { getAuth, clearAuth } from '../utils/auth'
 
 // Axios instance
 const api = axios.create({
-  baseURL: 'https://backend11-75yc.onrender.com',
+  baseURL: 'https://glovo-hr-backend6.onrender.com',
   headers: { 'Content-Type': 'application/json' },
   withCredentials: false
 })
