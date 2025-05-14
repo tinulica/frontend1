@@ -24,12 +24,12 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      clearAuth()
-      window.location.href = '/login'
+      clearAuth();
+      window.location.href = '/login';
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
 // ───── Auth ────────────────────────────────────────────────────────────────
 export const register       = payload => api.post('/auth/register', payload)
@@ -61,7 +61,7 @@ export const getOrgMembers         = ()      => api.get('/organization/members')
 export const changeOrgOwner        = id      => api.put('/organization/owner', { newOwnerId: id })
 export const removeMember          = id      => api.delete(`/organization/members/${id}`)
 export const getAllOrganizations   = ()      => api.get('/api/organizations')
-export const setupOrganization = payload => api.post('/api/organizations/setup', payload);
+export const setupOrganization     = payload => api.post('/api/organizations', payload) // ✅ fixed here
 
 // ───── Profile ─────────────────────────────────────────────────────────────
 export const updateAvatar     = formData => api.put('/auth/avatar', formData, {
