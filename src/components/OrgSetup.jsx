@@ -1,73 +1,50 @@
-// src/components/OrgSetup.jsx
-import React, { useEffect, useState } from 'react';
+// src/pages/OrgSetup.jsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, updateDisplayOrgName } from '../services/api';
+import { updateDisplayOrgName, getCurrentUser } from '../services/api';
 
 export default function OrgSetup() {
-  const navigate = useNavigate();
-  const [displayOrgName, setDisplayOrgName] = useState('');
+  const [orgName, setOrgName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Fetch user info and redirect if already completed
   useEffect(() => {
-    async function fetchUser() {
-      try {
-        const { data } = await getCurrentUser();
-        if (data.user.hasCompletedSetup) {
+    getCurrentUser()
+      .then(({ data }) => {
+        if (data.user.displayOrgName) {
           navigate('/dashboard');
+        } else {
+          setLoading(false);
         }
-        setLoading(false);
-      } catch (err) {
-        console.error('Error loading user info:', err);
-        navigate('/login');
-      }
-    }
+      })
+      .catch(() => navigate('/login'));
+  }, []);
 
-    fetchUser();
-  }, [navigate]);
-
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError('');
-
-    if (!displayOrgName.trim()) {
-      setError('Please enter a name');
-      setSubmitting(false);
-      return;
-    }
-
+    if (!orgName.trim()) return;
     try {
-      await updateDisplayOrgName({ displayOrgName });
+      await updateDisplayOrgName({ displayOrgName: orgName.trim() });
       navigate('/dashboard');
     } catch (err) {
-      console.error(err);
-      setError(err?.response?.data?.message || 'Something went wrong');
-    } finally {
-      setSubmitting(false);
+      console.error('Failed to set organization name:', err);
     }
-  }
+  };
 
-  if (loading) {
-    return <div className="setup-container">Loading organization info...</div>;
-  }
+  if (loading) return <div>Loading organization info...</div>;
 
   return (
-    <div className="setup-container">
-      <form className="setup-form" onSubmit={handleSubmit}>
-        <h2>Name Your Organization</h2>
+    <div className="org-setup-page">
+      <form onSubmit={handleSubmit}>
+        <h2>Name your organization</h2>
         <input
           type="text"
-          placeholder="e.g. Dare Academy Romania"
-          value={displayOrgName}
-          onChange={e => setDisplayOrgName(e.target.value)}
+          placeholder="Display Name"
+          value={orgName}
+          onChange={(e) => setOrgName(e.target.value)}
+          required
         />
-        {error && <p className="error-msg">{error}</p>}
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Saving...' : 'Save and Continue'}
-        </button>
+        <button type="submit">Continue</button>
       </form>
     </div>
   );
