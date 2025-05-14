@@ -1,4 +1,3 @@
-// src/pages/OrgSetup.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateDisplayOrgName, getCurrentUser } from '../services/api';
@@ -6,6 +5,7 @@ import { updateDisplayOrgName, getCurrentUser } from '../services/api';
 export default function OrgSetup() {
   const [orgName, setOrgName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,12 +22,13 @@ export default function OrgSetup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!orgName.trim()) return;
+    if (!orgName.trim()) return setError('Name is required');
     try {
       await updateDisplayOrgName({ displayOrgName: orgName.trim() });
       navigate('/dashboard');
     } catch (err) {
       console.error('Failed to set organization name:', err);
+      setError('Could not save name. Try again.');
     }
   };
 
@@ -44,6 +45,7 @@ export default function OrgSetup() {
           onChange={(e) => setOrgName(e.target.value)}
           required
         />
+        {error && <p className="error">{error}</p>}
         <button type="submit">Continue</button>
       </form>
     </div>
