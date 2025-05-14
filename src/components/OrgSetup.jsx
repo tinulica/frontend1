@@ -59,67 +59,65 @@ export default function OrgSetup() {
           </div>
         </div>
 
-        <form className="org-form" onSubmit={handleSubmit}>
-          {step === 1 && (
-            <>
-              <h2>Tell us about your organization</h2>
-              <label>
-                Organization Name
-                <input
-                  type="text"
-                  value={orgName}
-                  onChange={e => setOrgName(e.target.value)}
-                  required
-                />
-              </label>
-              <label>
-                Short Bio (optional)
-                <textarea
-                  value={orgBio}
-                  onChange={e => setOrgBio(e.target.value)}
-                  placeholder="What does your team do?"
-                />
-              </label>
-            </>
-          )}
+        {/* Step 1: Org Info */}
+        {step === 1 && (
+          <div className="org-form">
+            <h2>Tell us about your organization</h2>
+            <label>
+              Organization Name
+              <input
+                type="text"
+                value={orgName}
+                onChange={e => setOrgName(e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              Short Bio (optional)
+              <textarea
+                value={orgBio}
+                onChange={e => setOrgBio(e.target.value)}
+                placeholder="What does your team do?"
+              />
+            </label>
 
-          {step === 2 && (
-            <>
-              <h2>Invite team members</h2>
-              {invites.map((email, idx) => (
-                <input
-                  key={idx}
-                  type="email"
-                  value={email}
-                  onChange={e => handleInviteChange(idx, e.target.value)}
-                  placeholder="user@example.com"
-                />
-              ))}
-              <button type="button" className="btn add-btn" onClick={addInviteField}>
-                + Add Another
-              </button>
-            </>
-          )}
-
-          {error && <p className="error">{error}</p>}
-
-          <div className="actions">
-            {step > 1 && (
-              <button type="button" className="btn back" onClick={prevStep}>
-                Back
-              </button>
-            )}
-            {step < 2 ? (
+            <div className="actions">
               <button type="button" className="btn next" onClick={nextStep}>
                 Next
               </button>
-            ) : (
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Invites + Final Submit */}
+        {step === 2 && (
+          <form className="org-form" onSubmit={handleSubmit}>
+            <h2>Invite team members</h2>
+            {invites.map((email, idx) => (
+              <input
+                key={idx}
+                type="email"
+                value={email}
+                onChange={e => handleInviteChange(idx, e.target.value)}
+                placeholder="user@example.com"
+              />
+            ))}
+            <button type="button" className="btn add-btn" onClick={addInviteField}>
+              + Add Another
+            </button>
+
+            {error && <p className="error">{error}</p>}
+
+            <div className="actions">
+              <button type="button" className="btn back" onClick={prevStep}>
+                Back
+              </button>
               <button type="submit" className="btn submit" disabled={loading}>
                 {loading ? 'Submitting...' : 'Finish Setup'}
               </button>
-            )}
-          </div>
-        </form>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
